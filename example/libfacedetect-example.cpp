@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 	//!!! The input image must be a gray one (single-channel)
 	//!!! DO NOT RELEASE pResults !!!
 	pResults = facedetect_frontal((unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, gray.step,
-											   1.2f, 2,  24);
+											   1.2f, 3,  24);
 	printf("%d frontal faces detected.\n", (pResults ? *pResults : 0));
 	//print the detection results
 	for(int i = 0; i < (pResults ? *pResults : 0); i++)
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 	//!!! The input image must be a gray one (single-channel)
 	//!!! DO NOT RELEASE pResults !!!
 	pResults = facedetect_multiview((unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, gray.step,
-											   1.2f, 4, 24);
+											   1.2f, 5, 24);
 	printf("%d faces detected.\n", (pResults ? *pResults : 0));
 
 	//print the detection results
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 	//!!! The input image must be a gray one (single-channel)
 	//!!! DO NOT RELEASE pResults !!!
 	pResults = facedetect_multiview_reinforce((unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, gray.step,
-											   1.2f, 4, 24);
+											   1.2f, 5, 24);
 	printf("%d faces detected.\n", (pResults ? *pResults : 0));
 
 	//print the detection results
