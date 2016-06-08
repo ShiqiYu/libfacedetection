@@ -12,9 +12,9 @@ Comparison on Windows
 | Method | Time   | FPS  | Misc   |
 |--------|--------|------|--------|
 |OpenCV  | 21.2ms | 47.2 | Yaw angle: -40 to 40 degrees. Classifier: haarcascade_frontalface_alt.xml |
-|frontal |  4.3ms | 232.6 | Yaw angle: -60 to 60 degrees|
-|multiview|  10.5ms | 95.2 | Yaw angle: -90 to 90 degrees |
-|multiview_reinforce|  15.6ms | 64.1 | Yaw angle: -90 to 90 degrees |
+|frontal |  3.6ms | 277.8 | Yaw angle: -60 to 60 degrees|
+|multiview|  8.8ms | 113.6 | Yaw angle: -90 to 90 degrees |
+|multiview_reinforce|  13.2ms | 75.8 | Yaw angle: -90 to 90 degrees |
 
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48
 * Intel(R) Core(TM) i7-4770 CPU @ 3.4GHz
@@ -44,7 +44,7 @@ FDDB: http://vis-www.cs.umass.edu/fddb/index.html
 
 * scale=1.08
 * minimal window size = 16
-* the heights of the face rectangles are scaled to 1.2.
+* the heights of the face rectangles are scaled to 1.2 to fit the ground truth data in FDDB.
 
 Author
 -------------

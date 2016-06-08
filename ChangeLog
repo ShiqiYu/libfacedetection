@@ -1,0 +1,4 @@
+2016-6-8
+---------------------
+* Speedup 1.2x
+* Added an experimental function facedetect_frontal_tmp(). The function can gain a higher detection rate in video surveillance.
