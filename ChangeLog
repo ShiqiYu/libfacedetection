@@ -1,3 +1,8 @@
+2016-6-28
+---------------------
+* 64-bit dll added since there are so many users request it.
+* An easter egg is hidden in the 64-bit dll. Can you find it?
+
 2016-6-8
 ---------------------
 * Speedup 1.2x

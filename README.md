@@ -2,7 +2,8 @@ libfacedetection
 ====================
 
 This is a binary library for face detection in images. 
-The 32-bits dll file is provided for Visual Studio 2010.
+The 32-bit and 64-bit dll files are provided.
+
 
 examples/libfacedetect-example.cpp shows how to use the library.
 
