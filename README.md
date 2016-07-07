@@ -24,7 +24,7 @@ Comparison on Windows
 Comparison on iPhone
 -------------
 
-| Method | Time (iPhone SE)   | FPS (iPhone SE) | Time (iPhone 5S) | FPS (iPhone 5S) | Misc   |
+| Method | Time (iPhoneSE)   | FPS (iPhoneSE) | Time (iPhone5S) | FPS (iPhone5S) | Misc   |
 |--------|--------|------|--------|------|--------|
 |frontal |  14.9ms | 67.1 | 23.8 | 42.0 | Yaw angle: -60 to 60 degrees|
 |multiview|  47.3ms | 21.1 | 75.1 | 13.3 |Yaw angle: -90 to 90 degrees |
