@@ -24,7 +24,7 @@ Comparison on Windows
 Comparison on iPhone
 -------------
 
-| Method | Time(iPhone SE)   | FPS(iPhone SE) | Time(iPhone 5S) | FPS(iPhone 5S) | Misc   |
+| Method | Time (iPhone SE)   | FPS (iPhone SE) | Time (iPhone 5S) | FPS (iPhone 5S) | Misc   |
 |--------|--------|------|--------|------|--------|
 |frontal |  14.9ms | 67.1 | 23.8 | 42.0 | Yaw angle: -60 to 60 degrees|
 |multiview|  47.3ms | 21.1 | 75.1 | 13.3 |Yaw angle: -90 to 90 degrees |
@@ -61,9 +61,9 @@ FDDB: http://vis-www.cs.umass.edu/fddb/index.html
 * minimal window size = 16
 * the heights of the face rectangles are scaled to 1.2 to fit the ground truth data in FDDB.
 
-Tips
+Tip
 -------------
-# Do NOT use the functions in multiple threads. The memory used in the functions is not protected according to multiple threads.
+* Do NOT use the functions in multiple threads. The memory used in the functions is not protected according to multiple threads.
 
 Author
 -------------
