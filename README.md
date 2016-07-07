@@ -21,6 +21,20 @@ Comparison on Windows
 * Intel(R) Core(TM) i7-4770 CPU @ 3.4GHz
 * Multi-core parallelization is enabled for the four methods.
 
+Comparison on iPhone
+-------------
+
+| Method | Time(iPhone SE)   | FPS(iPhone SE) | Time(iPhone 5S) | FPS(iPhone 5S) | Misc   |
+|--------|--------|------|--------|
+|frontal |  14.9ms | 67.1 | 23.8 | 42.0 | Yaw angle: -60 to 60 degrees|
+|multiview|  47.3ms | 21.1 | 75.1 | 13.3 |Yaw angle: -90 to 90 degrees |
+|multiview_reinforce|  83.2ms | 12.0 | 132.4 | 7.6 | Yaw angle: -90 to 90 degrees |
+
+* 640x480 image size (VGA), scale=1.2, minimal window size = 48
+* Multi-core parallelization is disabled.
+* C programming language, and no SIMD instruction is used.
+
+
 Comparison on ARM
 -------------
 
@@ -46,6 +60,10 @@ FDDB: http://vis-www.cs.umass.edu/fddb/index.html
 * scale=1.08
 * minimal window size = 16
 * the heights of the face rectangles are scaled to 1.2 to fit the ground truth data in FDDB.
+
+Tips
+-------------
+# Do NOT use the functions in multiple threads. The memory used in the functions is not protected according to multiple threads.
 
 Author
 -------------
