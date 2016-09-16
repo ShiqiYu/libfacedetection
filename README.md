@@ -20,7 +20,7 @@ Comparison on Windows
 
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48
 * Intel(R) Core(TM) i7-4770 CPU @ 3.4GHz
-* Multi-core parallelization is enabled for the four methods.
+* Multi-core parallelization is enabled for these five methods.
 
 Comparison on iPhone(+)
 -------------
@@ -34,7 +34,7 @@ Comparison on iPhone(+)
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48
 * Multi-core parallelization is disabled.
 * C programming language, and no SIMD instruction is used.
-(+) The algorithm tested on iPhone is an old one. Currrent alorithm can gain ~40% speed improvement.
+* (+) The performance data on iPhone is obtained using a previous version. Currrent version can gain ~40% speed improvement.
 
 
 Comparison on ARM
