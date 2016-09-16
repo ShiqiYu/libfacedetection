@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2015 Shiqi Yu
+Copyright (c) 2015-2016 Shiqi Yu
 shiqi.yu@gmail.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,6 +27,7 @@ SOFTWARE.
 
 #include "facedetect-dll.h"
 #pragma comment(lib,"libfacedetect.lib")
+//#pragma comment(lib,"libfacedetect-x64.lib")
 
 using namespace cv;
 
@@ -114,13 +115,13 @@ int main(int argc, char* argv[])
 	}
 
 	///////////////////////////////////////////
-	// new frontal face detection 
+	// frontal face detection designed for video surveillance
 	// it can detect faces with bad illumination.
 	//////////////////////////////////////////
 	//!!! The input image must be a gray one (single-channel)
 	//!!! DO NOT RELEASE pResults !!!
-	pResults = facedetect_frontal_tmp((unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, gray.step,
-											   1.2f, 5, 24);
+	pResults = facedetect_frontal_surveillance((unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, gray.step,
+											   1.2f, 3, 24);
 	printf("%d faces detected.\n", (pResults ? *pResults : 0));
 
 	//print the detection results

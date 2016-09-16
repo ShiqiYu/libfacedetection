@@ -13,15 +13,16 @@ Comparison on Windows
 | Method | Time   | FPS  | Misc   |
 |--------|--------|------|--------|
 |OpenCV  | 21.2ms | 47.2 | Yaw angle: -40 to 40 degrees. Classifier: haarcascade_frontalface_alt.xml |
-|frontal |  3.6ms | 277.8 | Yaw angle: -60 to 60 degrees|
-|multiview|  8.8ms | 113.6 | Yaw angle: -90 to 90 degrees |
-|multiview_reinforce|  13.2ms | 75.8 | Yaw angle: -90 to 90 degrees |
+|frontal |  2.7ms | 370.4 | Yaw angle: -60 to 60 degrees|
+|frontal-surveillance|  3.8ms | 263.2 | Yaw angle: -70 to 70 degrees |
+|multiview|  6.6ms | 151.5 | Yaw angle: -90 to 90 degrees |
+|multiview_reinforce|  9.5ms | 105.3 | Yaw angle: -90 to 90 degrees |
 
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48
 * Intel(R) Core(TM) i7-4770 CPU @ 3.4GHz
 * Multi-core parallelization is enabled for the four methods.
 
-Comparison on iPhone
+Comparison on iPhone(+)
 -------------
 
 | Method | Time (iPhoneSE)   | FPS (iPhoneSE) | Time (iPhone5S) | FPS (iPhone5S) | Misc   |
@@ -33,6 +34,7 @@ Comparison on iPhone
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48
 * Multi-core parallelization is disabled.
 * C programming language, and no SIMD instruction is used.
+(+) The algorithm tested on iPhone is an old one. Currrent alorithm can gain ~40% speed improvement.
 
 
 Comparison on ARM
@@ -40,9 +42,10 @@ Comparison on ARM
 
 | Method | Time   | FPS  | Misc   |
 |--------|--------|------|--------|
-|frontal |  37.6ms | 26.6 | Yaw angle: -60 to 60 degrees|
-|multiview|  107.6ms | 9.3 | Yaw angle: -90 to 90 degrees |
-|multiview_reinforce|  174.8ms | 5.7 | Yaw angle: -90 to 90 degrees |
+|frontal |  21.5ms | 46.5 | Yaw angle: -60 to 60 degrees|
+|frontal-surveillance|  36.5ms | 27.4 | Yaw angle: -70 to 70 degrees |
+|multiview|  67.1ms | 14.9 | Yaw angle: -90 to 90 degrees |
+|multiview_reinforce|  112.6ms | 8.9 | Yaw angle: -90 to 90 degrees |
 
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48
 * NVIDIA TK1 "4-Plus-1" 2.32GHz ARM quad-core Cortex-A15 CPU
