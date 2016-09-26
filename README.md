@@ -34,7 +34,7 @@ Comparison on iPhone(+)
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48
 * Multi-core parallelization is disabled.
 * C programming language, and no SIMD instruction is used.
-* (+) The performance data on iPhone is obtained using a previous version. Currrent version can gain ~40% speed improvement.
+* (+) The performance data on iPhone was obtained using a previous version. Currrent version can gain ~40% speed improvement.
 
 
 Comparison on ARM

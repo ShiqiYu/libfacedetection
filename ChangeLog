@@ -1,3 +1,7 @@
+2016-9-16
+* Speedup again.
+* Change function name facedetect_frontal_tmp() to facedetect_frontal_surveillance(). This function now uses a new trained classifier which can achieve a higher detection speed.
+
 2016-6-28
 ---------------------
 * 64-bit dll added since there are so many users request it.
