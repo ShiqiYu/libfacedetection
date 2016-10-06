@@ -1,4 +1,10 @@
+2016-10-6
+---------------------
+* The algorithm has been speeded up greatly (2x to 3x). 
+* Multi-core parallelization has been disabled. The detection time is still the same.
+
 2016-9-16
+---------------------
 * Speedup again.
 * Change function name facedetect_frontal_tmp() to facedetect_frontal_surveillance(). This function now uses a new trained classifier which can achieve a higher detection speed.
 

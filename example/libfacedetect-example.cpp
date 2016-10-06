@@ -26,8 +26,8 @@ SOFTWARE.
 #include <opencv.hpp>
 
 #include "facedetect-dll.h"
-#pragma comment(lib,"libfacedetect.lib")
-//#pragma comment(lib,"libfacedetect-x64.lib")
+//#pragma comment(lib,"libfacedetect.lib")
+#pragma comment(lib,"libfacedetect-x64.lib")
 
 using namespace cv;
 
