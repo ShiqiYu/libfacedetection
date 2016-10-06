@@ -26,10 +26,10 @@ Comparison on ARM
 
 | Method             | Time   | FPS  | Misc   |
 |--------------------|--------|------|--------|
-|frontal             |  12.5ms| 46.5 | Yaw angle: -60 to 60 degrees|
-|frontal-surveillance|  15.7ms| 27.4 | Yaw angle: -70 to 70 degrees |
-|multiview           |  27.8ms| 14.9 | Yaw angle: -90 to 90 degrees |
-|multiview_reinforce |  38.4ms|  8.9 | Yaw angle: -90 to 90 degrees |
+|frontal             |  12.5ms| 80.0 | Yaw angle: -60 to 60 degrees|
+|frontal-surveillance|  15.7ms| 63.7 | Yaw angle: -70 to 70 degrees |
+|multiview           |  27.8ms| 36.0 | Yaw angle: -90 to 90 degrees |
+|multiview_reinforce |  38.4ms| 26.0 | Yaw angle: -90 to 90 degrees |
 
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48
 * NVIDIA TK1 "4-Plus-1" 2.32GHz ARM quad-core Cortex-A15 CPU
