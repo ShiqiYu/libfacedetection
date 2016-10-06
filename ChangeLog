@@ -1,6 +1,7 @@
 2016-10-6
 ---------------------
 * The algorithm has been speeded up greatly (2x to 3x). 
+* The true positive rates (FDDB) have been improved 1% to 2% at FP=100.
 * Multi-core parallelization has been disabled. The detection time is still the same.
 
 2016-9-16
