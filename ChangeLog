@@ -1,3 +1,8 @@
+2016-11-10
+---------------------
+* The API was updated. std::vector was involved.
+* The functions can be called in multiple threads at the same time.
+
 2016-10-6
 ---------------------
 * The algorithm has been speeded up greatly (2x to 3x). 

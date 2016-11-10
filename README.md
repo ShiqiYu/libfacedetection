@@ -48,9 +48,6 @@ FDDB: http://vis-www.cs.umass.edu/fddb/index.html
 * minimal window size = 16
 * the heights of the face rectangles are scaled to 1.2 to fit the ground truth data in FDDB.
 
-Tip
--------------
-* Do NOT use the functions in multiple threads. The memory used in the functions is not protected according to multiple threads.
 
 Author
 -------------
