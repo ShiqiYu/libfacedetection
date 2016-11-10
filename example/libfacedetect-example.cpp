@@ -23,7 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <opencv.hpp>
+#include <stdio.h>
+#include <opencv2/opencv.hpp>
+#include <vector>
 
 #include "facedetect-dll.h"
 //#pragma comment(lib,"libfacedetect.lib")
@@ -41,7 +43,8 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	int * pResults = NULL; 
+    std::vector<FaceInfo> faces;
+	int nResult = 0; 
 	
 	///////////////////////////////////////////
 	// frontal face detection 
@@ -49,21 +52,16 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////
 	//!!! The input image must be a gray one (single-channel)
 	//!!! DO NOT RELEASE pResults !!!
-	pResults = facedetect_frontal((unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, gray.step,
-											   1.2f, 3,  24);
-	printf("%d frontal faces detected.\n", (pResults ? *pResults : 0));
+	nResult = facedetect_frontal(faces, (unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, (int)gray.step,
+											   1.2f, 2,  48);
+	printf("%d frontal faces detected.\n", nResult);
 	//print the detection results
-	for(int i = 0; i < (pResults ? *pResults : 0); i++)
+	for(int i = 0; i < (int)faces.size(); i++)
 	{
-        short * p = ((short*)(pResults+1))+6*i;
-		int x = p[0];
-		int y = p[1];
-		int w = p[2];
-		int h = p[3];
-		int neighbors = p[4];
-
-		printf("face_rect=[%d, %d, %d, %d], neighbors=%d\n", x,y,w,h,neighbors);
+        FaceInfo fi = faces[i];
+        printf("face_rect=[%d, %d, %d, %d], neighbors=%d\n", fi.x, fi.y, fi.width, fi.height, fi.neighbors);
 	}
+
 
 	///////////////////////////////////////////
 	// multiview face detection 
@@ -71,22 +69,14 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////
 	//!!! The input image must be a gray one (single-channel)
 	//!!! DO NOT RELEASE pResults !!!
-	pResults = facedetect_multiview((unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, gray.step,
-											   1.2f, 5, 24);
-	printf("%d faces detected.\n", (pResults ? *pResults : 0));
-
+	nResult = facedetect_multiview(faces, (unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, (int)gray.step,
+											   1.2f, 5, 48);
+    printf("%d frontal faces detected.\n", nResult);
 	//print the detection results
-	for(int i = 0; i < (pResults ? *pResults : 0); i++)
+	for(int i = 0; i < (int)faces.size(); i++)
 	{
-        short * p = ((short*)(pResults+1))+6*i;
-		int x = p[0];
-		int y = p[1];
-		int w = p[2];
-		int h = p[3];
-		int neighbors = p[4];
-		int angle = p[5];
-
-		printf("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d\n", x,y,w,h,neighbors, angle);
+        FaceInfo fi = faces[i];
+        printf("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d\n", fi.x, fi.y, fi.width, fi.height, fi.neighbors, fi.angle);
 	}
 
 
@@ -96,23 +86,16 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////
 	//!!! The input image must be a gray one (single-channel)
 	//!!! DO NOT RELEASE pResults !!!
-	pResults = facedetect_multiview_reinforce((unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, gray.step,
-											   1.2f, 5, 24);
-	printf("%d faces detected.\n", (pResults ? *pResults : 0));
-
+	nResult = facedetect_multiview_reinforce(faces, (unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, (int)gray.step,
+											   1.2f, 5, 48);
+    printf("%d frontal faces detected.\n", nResult);
 	//print the detection results
-	for(int i = 0; i < (pResults ? *pResults : 0); i++)
+	for(int i = 0; i < (int)faces.size(); i++)
 	{
-        short * p = ((short*)(pResults+1))+6*i;
-		int x = p[0];
-		int y = p[1];
-		int w = p[2];
-		int h = p[3];
-		int neighbors = p[4];
-		int angle = p[5];
-
-		printf("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d\n", x,y,w,h,neighbors, angle);
+        FaceInfo fi = faces[i];
+        printf("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d\n", fi.x, fi.y, fi.width, fi.height, fi.neighbors, fi.angle);
 	}
+
 
 	///////////////////////////////////////////
 	// frontal face detection designed for video surveillance
@@ -120,22 +103,16 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////
 	//!!! The input image must be a gray one (single-channel)
 	//!!! DO NOT RELEASE pResults !!!
-	pResults = facedetect_frontal_surveillance((unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, gray.step,
-											   1.2f, 3, 24);
-	printf("%d faces detected.\n", (pResults ? *pResults : 0));
-
+	nResult = facedetect_frontal_surveillance(faces, (unsigned char*)(gray.ptr(0)), gray.cols, gray.rows, (int)gray.step,
+											   1.2f, 2, 48);
+    printf("%d frontal faces detected.\n", nResult);
 	//print the detection results
-	for(int i = 0; i < (pResults ? *pResults : 0); i++)
+	for(int i = 0; i < (int)faces.size(); i++)
 	{
-        short * p = ((short*)(pResults+1))+6*i;
-		int x = p[0];
-		int y = p[1];
-		int w = p[2];
-		int h = p[3];
-		int neighbors = p[4];
-
-		printf("face_rect=[%d, %d, %d, %d], neighbors=%d\n", x,y,w,h,neighbors);
+        FaceInfo fi = faces[i];
+        printf("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d\n", fi.x, fi.y, fi.width, fi.height, fi.neighbors, fi.angle);
 	}
-	return 0;
+
+    return 0;
 }
 
