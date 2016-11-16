@@ -1,3 +1,7 @@
+2016-11-16
+---------------------
+* Bugs in the previous version were fixed. std::vector was removed from the API because it can cause error.
+
 2016-11-10
 ---------------------
 * The API was updated. std::vector was involved.
