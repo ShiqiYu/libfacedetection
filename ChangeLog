@@ -1,3 +1,7 @@
+2016-11-24
+---------------------
+* Added benchmark.cpp which can run face detection in multiple threads using OpenMP.
+
 2016-11-16
 ---------------------
 * Bugs in the previous version were fixed. std::vector was removed from the API because it can cause error.

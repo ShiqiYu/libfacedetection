@@ -9,12 +9,12 @@ examples/libfacedetect-example.cpp shows how to use the library.
 Comparison on Windows
 -------------
 
-| Method             | Time(Win32) | FPS(Win32) |Time(X64)   | FPS(X64)  | Misc   |
-|--------------------|-------------|------------|------------|-----------|--------|
-|frontal             |  2.92ms     | 342.5      | 2.41ms     | 414.9     | Yaw angle: -60 to 60 degrees|
-|frontal-surveillance|  3.83ms     | 261.1      | 3.37ms     | 269.7     | Yaw angle: -70 to 70 degrees |
-|multiview           |  7.12ms     | 140.4      | 5.81ms     | 172.1     | Yaw angle: -90 to 90 degrees |
-|multiview_reinforce | 10.95ms     |  91.3      | 9.15ms     | 109.3     | Yaw angle: -90 to 90 degrees |
+| Method             | Time(Win32) | FPS(Win32) |Time(X64)   | FPS(X64)  |Time(X64,Multi-Thread) | FPS(X64,Multi-Thread) | Misc   |
+|--------------------|-------------|------------|------------|-----------|-----------------------|-----------------------|--------|
+|frontal             |  2.92ms     | 342.5      | 2.41ms     | 414.9     | 0.652ms     | 1533.1     | Yaw angle: -60 to 60 degrees|
+|frontal-surveillance|  3.83ms     | 261.1      | 3.37ms     | 269.7     | 0.944ms     | 1059.8     | Yaw angle: -70 to 70 degrees |
+|multiview           |  7.12ms     | 140.4      | 5.81ms     | 172.1     | 1.597ms     |  626.4     | Yaw angle: -90 to 90 degrees |
+|multiview_reinforce | 10.95ms     |  91.3      | 9.15ms     | 109.3     | 2.725ms     |  367.0     | Yaw angle: -90 to 90 degrees |
 
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48
 * Intel(R) Core(TM) i7-4770 CPU @ 3.4GHz

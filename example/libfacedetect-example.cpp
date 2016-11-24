@@ -27,8 +27,8 @@ SOFTWARE.
 #include <opencv2/opencv.hpp>
 #include "facedetect-dll.h"
 
-#pragma comment(lib,"libfacedetect.lib")
-//#pragma comment(lib,"libfacedetect-x64.lib")
+//#pragma comment(lib,"libfacedetect.lib")
+#pragma comment(lib,"libfacedetect-x64.lib")
 
 //define the buffer size. Do not change the size!
 #define DETECT_BUFFER_SIZE 0xC004
