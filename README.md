@@ -9,7 +9,7 @@ examples/libfacedetect-example.cpp shows how to use the library.
 Comparison on Windows
 -------------
 
-| Method             | Time(Win32) | FPS(Win32) |Time(X64)   | FPS(X64)  |Time(X64,Multi-Thread) | FPS(X64,Multi-Thread) | Misc   |
+| Method             | Time<br>(Win32) | FPS<br>(Win32) |Time<br>(X64)   | FPS<br>(X64)  |Time<br>(X64,<br>Multi-Thread) | FPS<br>(X64,<br>Multi-Thread) | Misc   |
 |--------------------|-------------|------------|------------|-----------|-----------------------|-----------------------|--------|
 |frontal             |  2.92ms     | 342.5      | 2.41ms     | 414.9     | 0.652ms     | 1533.1     | Yaw angle: -60 to 60 degrees|
 |frontal-surveillance|  3.83ms     | 261.1      | 3.37ms     | 269.7     | 0.944ms     | 1059.8     | Yaw angle: -70 to 70 degrees |
