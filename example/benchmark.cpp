@@ -33,7 +33,7 @@ SOFTWARE.
 #pragma comment(lib,"libfacedetect-x64.lib")
 
 //define the buffer size. Do not change the size!
-#define DETECT_BUFFER_SIZE 0xC004
+#define DETECT_BUFFER_SIZE 0x20000
 using namespace cv;
 
 int main(int argc, char* argv[])

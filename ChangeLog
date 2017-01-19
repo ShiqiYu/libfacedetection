@@ -1,3 +1,7 @@
+2017-01-20
+---------------------
+* 68-point landmark detection added.
+
 2016-11-24
 ---------------------
 * Added benchmark.cpp which can run face detection in multiple threads using OpenMP.
