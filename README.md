@@ -55,5 +55,6 @@ Author
 
 Contributors
 -------------
+* Jia Wu, Shenzhen University, China
 * Shengyin Wu, Shenzhen University, China
 * Dong Xu, Shenzhen University, China
