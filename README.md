@@ -1,6 +1,6 @@
 # libfacedetection
 
-This is a binary library for face detection in images. 
+This is a binary library for face detection and face landmark detection in images. 
 The 32-bit and 64-bit dll files are provided.
 To achieve better performance, the 64-bit dll is recommended.
 
