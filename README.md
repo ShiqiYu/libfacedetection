@@ -6,7 +6,7 @@ To achieve better performance, the 64-bit dll is recommended.
 
 examples/libfacedetect-example.cpp shows how to use the library.
 
-![Examples](/images/chloecalmon.jpg "Detection example")
+![Examples](https://github.com/ShiqiYu/libfacedetection/blob/master/images/chloecalmon.jpg "Detection example")
 
 
 Comparison on Windows
@@ -64,5 +64,6 @@ Contributors
 * Jia Wu
 * Shengyin Wu
 * Dong Xu
+
 -------------
-* <font size="-2">The result image was taken by [Chloé Calmon](https://www.instagram.com/chloecalmon/).</font>
+* The result image was taken by [Chloé Calmon](https://www.instagram.com/chloecalmon/).
