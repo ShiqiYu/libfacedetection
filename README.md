@@ -12,10 +12,11 @@ examples/libfacedetect-example.cpp shows how to use the library.
 Comparison on Windows
 -------------
 
-| Method             | Time<br>(Win32) | FPS<br>(Win32) |Time<br>(X64)   | FPS<br>(X64)  |Time<br>(X64,<br>Multi-Thread) | FPS<br>(X64,<br>Multi-Thread) | Misc   |
+| Method             | Time        | FPS         |Time         | FPS         |Time         | FPS        | Misc   |
 |--------------------|-------------|-------------|-------------|-------------|-------------|------------|--------|
 |                    | Win32       |  Win32      |   X64       |  X64        |  X64        |X64         |        |
 |                    |Single-thread|Single-thread|Single-thread|Single-thread|Multi-thread |Multi-thread|        |
+|OpenCV              |  --         | --          | --          | --          | 12.33ms     |     81.1   | Yaw angle: -60 to 60 degrees|
 |frontal             |  2.92ms     | 342.5       | 2.41ms      | 414.9       | 0.652ms     | 1533.1     | Yaw angle: -60 to 60 degrees|
 |frontal-surveillance|  3.83ms     | 261.1       | 3.37ms      | 269.7       | 0.944ms     | 1059.8     | Yaw angle: -70 to 70 degrees |
 |multiview           |  7.12ms     | 140.4       | 5.81ms      | 172.1       | 1.597ms     |  626.4     | Yaw angle: -90 to 90 degrees |
@@ -24,7 +25,7 @@ Comparison on Windows
 * Face detection only, and no landmark detection included.
 * 640x480 image size (VGA), scale=1.2, minimal window size = 48.
 * Intel(R) Core(TM) i7-4770 CPU @ 3.4GHz.
-
+* OpenCV classifier file: haarcascade_frontalface_alt.xml
 
 Comparison on ARM
 -------------
