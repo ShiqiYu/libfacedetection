@@ -1,3 +1,7 @@
+2017-02-24
+---------------------
+* landmark detection speed reaches to 0.8ms per face. The former version is 1.7ms per face.
+
 2017-01-20
 ---------------------
 * 68-point landmark detection added.
