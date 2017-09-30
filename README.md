@@ -45,7 +45,11 @@ Comparison on ARM
 
 The dll cannot run on ARM. The library should be recompiled from source code for ARM compatibility. If you need the source code, a commercial license is needed.
 
-Evaluation
+Binary library for ARM
+-------------
+The binary evaluation library for ARM can be downloaded at https://github.com/OAID/YSQfastfd . The detection functions can only be called about 2000 times for evaluation.
+
+Accuracy evaluation
 -------------
 FDDB: http://vis-www.cs.umass.edu/fddb/index.html
 
