@@ -34,8 +34,8 @@ CNN-based Face Detection
 |--------------------|-------------|------------|
 |                    |  X64        |X64         |
 |                    |Multi-thread |Multi-thread|
-|cnn (CPU, 640x480)  | 41.8ms      |  93.6      |
-|cnn (CPU, 320x240)  | 10.68ms     |  103.3     |
+|cnn (CPU, 640x480)  | 41.8ms      |  23.9      |
+|cnn (CPU, 320x240)  | 13.7ms     |  72.0     |
 
 * Face detection only, and no landmark detection included.
 * 640x480 image size (VGA), minimal face = 30.
