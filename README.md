@@ -27,6 +27,20 @@ Comparison on Windows
 * Intel(R) Core(TM) i7-4770 CPU @ 3.4GHz.
 * OpenCV classifier file: haarcascade_frontalface_alt.xml
 
+CNN-based Face Detection
+-------------
+
+| Method             |Time         | FPS        |
+|--------------------|-------------|------------|
+|                    |  X64        |X64         |
+|                    |Multi-thread |Multi-thread|
+|cnn (CPU, 640x480)  | 41.8ms      |  93.6      |
+|cnn (CPU, 320x240)  | 10.68ms     |  103.3     |
+
+* Face detection only, and no landmark detection included.
+* 640x480 image size (VGA), minimal face = 30.
+* Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz.
+
 Comparison on ARM
 -------------
 
