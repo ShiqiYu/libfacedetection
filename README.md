@@ -30,12 +30,12 @@ Comparison on Windows
 CNN-based Face Detection
 -------------
 
-| Method             |Time         | FPS        |
-|--------------------|-------------|------------|
-|                    |  X64        |X64         |
-|                    |Multi-thread |Multi-thread|
-|cnn (CPU, 640x480)  | 41.8ms      |  23.9      |
-|cnn (CPU, 320x240)  | 13.7ms     |  72.0     |
+| Method             |Time          | FPS         |Time          | FPS         |
+|--------------------|--------------|-------------|--------------|-------------|
+|                    |  X64         |X64          |  X64         |X64          |
+|                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
+|cnn (CPU, 640x480)  | 71.44ms      |  14.0       | 16.91        | 59.1        |
+|cnn (CPU, 320x240)  | 18.21ms      |  54.9       |  4.60        | 217.4       |
 
 * Face detection only, and no landmark detection included.
 * Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz.

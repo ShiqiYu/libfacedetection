@@ -29,7 +29,6 @@ SOFTWARE.
 
 //#pragma comment(lib,"libfacedetect.lib")
 #pragma comment(lib,"libfacedetect-x64.lib")
-#pragma comment(lib,"libfacedetectcnn-x64.lib")
 
 //define the buffer size. Do not change the size!
 #define DETECT_BUFFER_SIZE 0x20000
@@ -195,33 +194,6 @@ int main(int argc, char* argv[])
 		}
 	}
 	imshow("Results_multiview_reinforce", result_multiview_reinforce);
-
-
-	///////////////////////////////////////////
-	// CNN face detection 
-	// Best detection rate
-	//////////////////////////////////////////
-	//!!! The input image must be a RGB one (three-channel)
-	//!!! DO NOT RELEASE pResults !!!
-	pResults = facedetect_cnn_experimental(pBuffer, (unsigned char*)(image.ptr(0)), image.cols, image.rows, (int)image.step);
-
-    printf("%d faces detected.\n", (pResults ? *pResults : 0));
-	Mat result_cnn = image.clone();;
-	//print the detection results
-	for(int i = 0; i < (pResults ? *pResults : 0); i++)
-	{
-        short * p = ((short*)(pResults+1))+142*i;
-		int x = p[0];
-		int y = p[1];
-		int w = p[2];
-		int h = p[3];
-		int neighbors = p[4];
-		int angle = p[5];
-
-		printf("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d\n", x,y,w,h,neighbors, angle);
-		rectangle(result_cnn, Rect(x, y, w, h), Scalar(0, 255, 0), 2);
-	}
-	imshow("result_cnn", result_cnn);
 
 	waitKey();
 
