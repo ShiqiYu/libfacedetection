@@ -38,6 +38,7 @@ CNN-based Face Detection
 |cnn (CPU, 320x240)  | 18.21ms      |  54.9       |  4.60        | 217.4       |
 
 * Face detection only, and no landmark detection included.
+* Minimal face size ~10x10
 * Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz.
 
 Comparison on ARM
