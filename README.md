@@ -9,6 +9,36 @@ examples/libfacedetect-example.cpp shows how to use the library.
 ![Examples](/images/chloecalmon.png "Detection example")
 
 
+CNN-based Face Detection on Windows
+-------------
+
+| Method             |Time          | FPS         |Time          | FPS         |
+|--------------------|--------------|-------------|--------------|-------------|
+|                    |  X64         |X64          |  X64         |X64          |
+|                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
+|cnn (CPU, 640x480)  | 71.44ms      |  14.0       | 16.91ms      | 59.1        |
+|cnn (CPU, 320x240)  | 18.21ms      |  54.9       |  4.60ms      | 217.4       |
+
+* Face detection only, and no landmark detection included.
+* Minimal face size ~10x10
+* Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz.
+
+CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
+-------------
+
+| Method             |Time          | FPS         |Time          | FPS         |
+|--------------------|--------------|-------------|--------------|-------------|
+|                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
+|cnn (CPU, 640x480)  |  710.2ms     |   1.4       |  231.5ms     |   4.3       |
+|cnn (CPU, 320x240)  |  159.6ms     |   6.3       |   56.9ms     |  17.6       |
+|cnn (CPU, 160x120)  |   36.2ms     |  27.6       |   13.3ms     |  75.2       |
+|cnn (CPU, 128x96)   |   24.0ms     |  41.6       |    8.61ms    | 116.1       |
+
+* Face detection only, and no landmark detection included.
+* Minimal face size ~10x10
+* Raspberry Pi 3 B+, Broadcom BCM2837B0, Cortex-A53 (ARMv8) 64-bit SoC @ 1.4GHz
+
+
 Comparison on Windows
 -------------
 
@@ -27,19 +57,6 @@ Comparison on Windows
 * Intel(R) Core(TM) i7-4770 CPU @ 3.4GHz.
 * OpenCV classifier file: haarcascade_frontalface_alt.xml
 
-CNN-based Face Detection
--------------
-
-| Method             |Time          | FPS         |Time          | FPS         |
-|--------------------|--------------|-------------|--------------|-------------|
-|                    |  X64         |X64          |  X64         |X64          |
-|                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
-|cnn (CPU, 640x480)  | 71.44ms      |  14.0       | 16.91        | 59.1        |
-|cnn (CPU, 320x240)  | 18.21ms      |  54.9       |  4.60        | 217.4       |
-
-* Face detection only, and no landmark detection included.
-* Minimal face size ~10x10
-* Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz.
 
 Comparison on ARM
 -------------
