@@ -4,9 +4,9 @@ This is a binary library for face detection and face landmark detection in image
 The 32-bit and 64-bit dll files are provided.
 To achieve better performance, the 64-bit dll is recommended.
 
-examples/libfacedetect-example.cpp shows how to use the library.
+examples/libfacedetect-example.cpp and examples/libfacedetectcnn-example.cpp shows how to use the library.
 
-![Examples](/images/chloecalmon.png "Detection example")
+![Examples](/images/cnnresult.png "Detection example")
 
 
 CNN-based Face Detection on Windows
