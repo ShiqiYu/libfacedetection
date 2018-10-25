@@ -29,10 +29,10 @@ CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
-|cnn (CPU, 640x480)  |  710.2ms     |   1.4       |  231.5ms     |   4.3       |
-|cnn (CPU, 320x240)  |  159.6ms     |   6.3       |   56.9ms     |  17.6       |
-|cnn (CPU, 160x120)  |   36.2ms     |  27.6       |   13.3ms     |  75.2       |
-|cnn (CPU, 128x96)   |   24.0ms     |  41.6       |    8.61ms    | 116.1       |
+|cnn (CPU, 640x480)  |  593.86ms    |  1.68       |  183.85ms    |   5.44      |
+|cnn (CPU, 320x240)  |  140.50ms    |  7.12       |   45.48ms    |  21.99      |
+|cnn (CPU, 160x120)  |   30.15ms    | 33.17       |   10.75ms    |  92.99      |
+|cnn (CPU, 128x96)   |   20.20ms    | 49.49       |    6.73ms    | 148.53      |
 
 * Face detection only, and no landmark detection included.
 * Minimal face size ~10x10
