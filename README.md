@@ -16,8 +16,10 @@ CNN-based Face Detection on Windows
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |  X64         |X64          |  X64         |X64          |
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
-|cnn (CPU, 640x480)  | 71.44ms      |  14.0       | 16.91ms      | 59.1        |
-|cnn (CPU, 320x240)  | 18.21ms      |  54.9       |  4.60ms      | 217.4       |
+|cnn (CPU, 640x480)  |  69.03ms     | 14.49       | 16.47ms      |   60.72     |
+|cnn (CPU, 320x240)  |  16.54ms     | 60.46       |  4.15ms      |  241.00     |
+|cnn (CPU, 160x120)  |   3.79ms     | 263.65      |  1.01ms      |  989.98     |
+|cnn (CPU, 128x96)   |   2.53ms     | 395.29      |  0.71ms      | 1399.28     |
 
 * Face detection only, and no landmark detection included.
 * Minimal face size ~10x10
