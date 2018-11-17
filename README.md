@@ -1,6 +1,6 @@
 # libfacedetection
 
-This is a binary library for face detection and face landmark detection in images. 
+This is a binary library for CNN-based face detection in images. 
 
 examples/libfacedetectcnn-example.cpp shows how to use the library.
 
