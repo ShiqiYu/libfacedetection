@@ -1,6 +1,6 @@
 # libfacedetection
 
-This is a binary library for CNN-based face detection in images. 
+This is a binary library for CNN-based face detection in images. AVX2 is needed for running the library. That means your CPU should be Haswell microarchitecture or better. 
 
 examples/libfacedetectcnn-example.cpp shows how to use the library.
 
@@ -15,14 +15,14 @@ CNN-based Face Detection on Windows
 |                    |  X64         |X64          |  X64         |X64          |
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
 |OpenCV Haar+AdaBoost (640x480)|   --         | --          | 12.33ms      |   81.1      |
-|cnn (CPU, 640x480)  |  69.03ms     | 14.49       | 16.47ms      |   60.72     |
-|cnn (CPU, 320x240)  |  16.54ms     | 60.46       |  4.15ms      |  241.00     |
-|cnn (CPU, 160x120)  |   3.79ms     | 263.65      |  1.01ms      |  989.98     |
-|cnn (CPU, 128x96)   |   2.53ms     | 395.29      |  0.71ms      | 1399.28     |
+|cnn (CPU, 640x480)  |  64.21ms     | 15.57       | 15.59ms      |   64.16     |
+|cnn (CPU, 320x240)  |  15.23ms     | 65.68       |  3.99ms      |  250.40     |
+|cnn (CPU, 160x120)  |   3.47ms     | 288.08      |  0.95ms      | 1052.20     |
+|cnn (CPU, 128x96)   |   2.35ms     | 425.95      |  0.64ms      | 1562.10     |
 
 * OpenCV Haar+AdaBoost runs with minimal face size 48x48
 * Face detection only, and no landmark detection included.
-* Minimal face size ~10x10
+* Minimal face size ~12x12
 * Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz.
 
 CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
@@ -31,13 +31,13 @@ CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
-|cnn (CPU, 640x480)  |  593.86ms    |  1.68       |  183.85ms    |   5.44      |
-|cnn (CPU, 320x240)  |  140.50ms    |  7.12       |   45.48ms    |  21.99      |
-|cnn (CPU, 160x120)  |   30.15ms    | 33.17       |   10.75ms    |  92.99      |
-|cnn (CPU, 128x96)   |   20.20ms    | 49.49       |    6.73ms    | 148.53      |
+|cnn (CPU, 640x480)  |  512.04ms    |  1.95       |  174.89ms    |   5.72      |
+|cnn (CPU, 320x240)  |  123.47ms    |  8.10       |   42.13ms    |  23.74      |
+|cnn (CPU, 160x120)  |   27.42ms    | 36.47       |    9.75ms    | 102.58      |
+|cnn (CPU, 128x96)   |   17.78ms    | 56.24       |    6.12ms    | 163.50      |
 
 * Face detection only, and no landmark detection included.
-* Minimal face size ~10x10
+* Minimal face size ~12x12
 * Raspberry Pi 3 B+, Broadcom BCM2837B0, Cortex-A53 (ARMv8) 64-bit SoC @ 1.4GHz
 
 
