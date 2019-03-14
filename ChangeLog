@@ -1,3 +1,7 @@
+2018-03-13
+---------------------
+* Release the source code and the model files. Removed the binary libary. 
+
 2018-11-17
 ---------------------
 * Replaced the AdaBoost methods with a CNN based one.

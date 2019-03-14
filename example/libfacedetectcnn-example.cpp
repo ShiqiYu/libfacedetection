@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2018 Shiqi Yu
+Copyright (c) 2018-2019 Shiqi Yu
 shiqi.yu@gmail.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,9 +25,7 @@ SOFTWARE.
 
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
-#include "facedetectcnn-dll.h"
-
-#pragma comment(lib,"libfacedetectcnn-x64.lib")
+#include "facedetectcnn.h"
 
 //define the buffer size. Do not change the size!
 #define DETECT_BUFFER_SIZE 0x20000

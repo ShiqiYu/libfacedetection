@@ -1,11 +1,19 @@
 # libfacedetection
 
-This is a binary library for CNN-based face detection in images. AVX2 is needed for running the library. That means your CPU should be Haswell microarchitecture or better. 
+This is an open source library for CNN-based face detection in images. The CNN model has been converted to stastic variales in C source files. The source code does not depend on any other libraries. What you need is just a C++ compiler. You can compile the source code under Windows, Linux, ARM and any platform with a C++ compiler.
+
+SIMD instructions are used to speedup the detection. If you use Intel CPU, you can enable AVX2 and NEON for ARM.
+
+The model file has also been provided in directory ./models/.
 
 examples/libfacedetectcnn-example.cpp shows how to use the library.
 
 ![Examples](/images/cnnresult.png "Detection example")
 
+How to Compile
+-------------
+* Please add -O3 to turn on optimizations when you compile the source code using g++.
+* Please choose 'Maximize Speed/-O2' when you compile the source code using Microsoft Visual Studio.
 
 CNN-based Face Detection on Windows
 -------------
@@ -39,9 +47,6 @@ CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
 * Face detection only, and no landmark detection included.
 * Minimal face size ~12x12
 * Raspberry Pi 3 B+, Broadcom BCM2837B0, Cortex-A53 (ARMv8) 64-bit SoC @ 1.4GHz
-
-
-The dll cannot run on ARM. The library should be recompiled from source code for ARM compatibility. If you need the source code, a commercial license is needed.
 
 
 Author
