@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 2.8.12)
 project(facedetection)
+
+cmake_minimum_required(VERSION 2.8)
+
 option(ENABLE_INT8 "use int8" OFF)
 option(ENABLE_AVX2 "use avx2" OFF)
 option(ENABLE_NEON "whether use neon, if use arm please set it on" OFF)
@@ -23,7 +25,6 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g") 
 
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS})
