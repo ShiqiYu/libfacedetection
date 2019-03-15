@@ -37,6 +37,7 @@ cmake \
     -DENABLE_AVX2=ON \
     -DCMAKE_BUILD_TYPE=RELEASE \
      ..
+
 make
 
 
