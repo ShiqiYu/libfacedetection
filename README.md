@@ -15,14 +15,18 @@ examples/libfacedetectcnn-example.cpp shows how to use the library.
 * Please add -O3 to turn on optimizations when you compile the source code using g++.
 * Please choose 'Maximize Speed/-O2' when you compile the source code using Microsoft Visual Studio.
 
+Create a folder build
+
+```
 mkdir -p build; cd build; rm -rf *;
+```
 
 ### Cross build for aarch64
 1. set cross compiler for aarch64
 2. set opencv path since the example code depends on opencv
-OPENCV_SRC="/opencv/source/path"
 
 ```
+OPENCV_SRC="/opencv/source/path"
 cmake \
     -DENABLE_INT8=ON \
     -DENABLE_NEON=ON \
