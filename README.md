@@ -15,6 +15,31 @@ How to Compile
 * Please add -O3 to turn on optimizations when you compile the source code using g++.
 * Please choose 'Maximize Speed/-O2' when you compile the source code using Microsoft Visual Studio.
 
+mkdir -p build; cd build; rm -rf *;
+
+# Cross build for aarch64
+1. set cross compiler for aarch64
+2. set opencv path since the example code depends on opencv
+OPENCV_SRC="/opencv/source/path"
+
+cmake \
+    -DENABLE_INT8=ON \
+    -DENABLE_NEON=ON \
+    -DCMAKE_BUILD_TYPE=RELEASE \
+    -DCMAKE_TOOLCHAIN_FILE=/${OPENCV_SRC}/platforms/linux/aarch64-gnu.toolchain.cmake \
+     ..
+
+make
+
+# Native build for avx2
+cmake \
+    -DENABLE_INT8=ON \
+    -DENABLE_AVX2=ON \
+    -DCMAKE_BUILD_TYPE=RELEASE \
+     ..
+make
+
+
 CNN-based Face Detection on Windows
 -------------
 
