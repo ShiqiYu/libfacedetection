@@ -1,0 +1,18 @@
+train_net: "./yufacedetectnet-open-v1.train.prototxt"
+
+base_lr: 0.001
+lr_policy: "poly"
+power: 2
+
+display: 10
+max_iter: 200000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 1000
+snapshot_prefix: "./models/yufacedetectnet-open-v1"
+solver_mode: GPU
+debug_info: false
+snapshot_after_train: true
+average_loss: 10
+type: "SGD"
+store_blobs_in_old_format: true
