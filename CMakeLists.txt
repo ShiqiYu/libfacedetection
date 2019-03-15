@@ -29,7 +29,7 @@ endif()
 if(ENABLE_AVX2)
 	message("using avx2")
 	add_definitions(-D_ENABLE_AVX2)
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2") 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma")
 endif()
 
 if(ENABLE_NEON)
