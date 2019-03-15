@@ -61,4 +61,4 @@ Contributors
 
 Acknowledgment
 -------------
-The work is partyly supported by the Science Foundation of Shenzhen (Grant No. JCYJ20150324141711699).
+The work is partly supported by the Science Foundation of Shenzhen (Grant No. JCYJ20150324141711699).
