@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 2.8.12)
-project(demo)
+# CMakeLists for libfacedetectcnn
+project(facedetection)
+cmake_minimum_required(VERSION 2.8)
+
 option(ENABLE_INT8 "use int8" OFF)
 option(ENABLE_AVX2 "use avx2" OFF)
 option(ENABLE_NEON "whether use neon, if use arm please set it on" OFF)
@@ -10,8 +12,9 @@ if(ENABLE_INT8)
 endif()
 
 if(ENABLE_AVX2)
-	message("using av2")
+	message("using avx2")
 	add_definitions(-D_ENABLE_AVX2)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma")
 endif()
 
 if(ENABLE_NEON)
@@ -22,7 +25,7 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g") 
+
 if(WIN32)
 	set(OpenCV_DIR "D:/opencv343/build")
 endif()
