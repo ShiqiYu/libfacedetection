@@ -10,14 +10,14 @@ examples/libfacedetectcnn-example.cpp shows how to use the library.
 
 ![Examples](/images/cnnresult.png "Detection example")
 
-# How to Compile
+## How to Compile
 
 * Please add -O3 to turn on optimizations when you compile the source code using g++.
 * Please choose 'Maximize Speed/-O2' when you compile the source code using Microsoft Visual Studio.
 
 mkdir -p build; cd build; rm -rf *;
 
-## Cross build for aarch64
+### Cross build for aarch64
 1. set cross compiler for aarch64
 2. set opencv path since the example code depends on opencv
 OPENCV_SRC="/opencv/source/path"
@@ -33,7 +33,7 @@ cmake \
 make
 ```
 
-## Native build for avx2
+### Native build for avx2
 ```
 cmake \
     -DENABLE_INT8=ON \
@@ -44,7 +44,7 @@ cmake \
 make
 ```
 
-# CNN-based Face Detection on Windows
+## CNN-based Face Detection on Windows
 
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
@@ -61,7 +61,7 @@ make
 * Minimal face size ~12x12
 * Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz.
 
-# CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
+## CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
 
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
@@ -76,13 +76,13 @@ make
 * Raspberry Pi 3 B+, Broadcom BCM2837B0, Cortex-A53 (ARMv8) 64-bit SoC @ 1.4GHz
 
 
-# Author
+## Author
 * Shiqi Yu, <shiqi.yu@gmail.com>
 
-# Contributors
+## Contributors
 * Jia Wu
 * Shengyin Wu
 * Dong Xu
 
-# Acknowledgment
+## Acknowledgment
 The work is partly supported by the Science Foundation of Shenzhen (Grant No. JCYJ20150324141711699).
