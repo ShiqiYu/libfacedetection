@@ -7,12 +7,11 @@ cmake_minimum_required(VERSION 2.8)
 option(ENABLE_INT8 "use int8" OFF)
 option(ENABLE_AVX2 "use avx2" OFF)
 option(ENABLE_NEON "whether use neon, if use arm please set it on" OFF)
-option(EXAMPLE "build the example" OFF)
+option(DEMO "build the demo" OFF)
 
 SET(fdt_base_dir   ${PROJECT_SOURCE_DIR})
 SET(fdt_src_dir    ${fdt_base_dir}/src)
 SET(fdt_inc_dir    ${fdt_base_dir}/src)
-SET(fdt_tst_dir    ${fdt_base_dir}/example)
 
 SET(fdt_lib_name   facedetection)
 SET(fdt_lib_static ${fdt_lib_name})
@@ -43,20 +42,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 INCLUDE_DIRECTORIES(${fdt_inc_dir})
 
-# create a static library (.a)
+# Create a static library (.a)
 ADD_LIBRARY(${fdt_lib_static} STATIC ${fdt_source_files})
 
-# create a shared library (.so)
+# Create a shared library (.so)
 ADD_LIBRARY(${fdt_lib_shared} SHARED ${fdt_source_files})
 SET_TARGET_PROPERTIES(${fdt_lib_shared} PROPERTIES OUTPUT_NAME "${fdt_lib_name}")
 SET_TARGET_PROPERTIES(${fdt_lib_shared} PROPERTIES PREFIX "lib")
 
-# create demo
-if (EXAMPLE)
+# Create demo. OpenCV is requred.
+if (DEMO)
     find_package(OpenCV REQUIRED)
     include_directories(${OpenCV_INCLUDE_DIRS})
-    AUX_SOURCE_DIRECTORY(src LIB_SRC)
-    AUX_SOURCE_DIRECTORY(example EXAMPLE_SRC)
-    add_executable(demo ${LIB_SRC} ${EXAMPLE_SRC})
-    target_link_libraries(demo ${OpenCV_LIBS})
+
+    set(fdt_demo_files ${fdt_base_dir}/example/libfacedetectcnn-example.cpp)
+    add_executable(demo ${fdt_demo_files})
+    target_link_libraries(demo ${fdt_lib_static} ${OpenCV_LIBS})
 endif()
