@@ -585,7 +585,7 @@ bool convolution(CDataBlob *inputData, const Filters* filters, CDataBlob *output
             outputW = inputData->width;
             outputH = inputData->height;
         }
-        else if (filterS = 2 && filterP == 1)
+        else if (filterS == 2 && filterP == 1)
         {
             outputW = (inputData->width + 1) / 2;
             outputH = (inputData->height + 1) / 2;
