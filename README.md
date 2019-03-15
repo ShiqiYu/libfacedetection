@@ -22,20 +22,20 @@ mkdir -p build; cd build; rm -rf *;
 2. set opencv path since the example code depends on opencv
 OPENCV_SRC="/opencv/source/path"
 
-cmake \
-    -DENABLE_INT8=ON \
-    -DENABLE_NEON=ON \
-    -DCMAKE_BUILD_TYPE=RELEASE \
-    -DCMAKE_TOOLCHAIN_FILE=/${OPENCV_SRC}/platforms/linux/aarch64-gnu.toolchain.cmake \
+cmake \\
+    -DENABLE_INT8=ON \\
+    -DENABLE_NEON=ON \\
+    -DCMAKE_BUILD_TYPE=RELEASE \\
+    -DCMAKE_TOOLCHAIN_FILE=/${OPENCV_SRC}/platforms/linux/aarch64-gnu.toolchain.cmake \\
      ..
 
 make
 
 # Native build for avx2
-cmake \
-    -DENABLE_INT8=ON \
-    -DENABLE_AVX2=ON \
-    -DCMAKE_BUILD_TYPE=RELEASE \
+cmake \\
+    -DENABLE_INT8=ON \\
+    -DENABLE_AVX2=ON \\
+    -DCMAKE_BUILD_TYPE=RELEASE \\
      ..
 
 make
