@@ -32,6 +32,7 @@ cmake \
     -DENABLE_NEON=ON \
     -DCMAKE_BUILD_TYPE=RELEASE \
     -DCMAKE_TOOLCHAIN_FILE=/${OPENCV_SRC}/platforms/linux/aarch64-gnu.toolchain.cmake \
+    -DDEMO=ON \
      ..
 
 make
@@ -43,6 +44,7 @@ cmake \
     -DENABLE_INT8=ON \
     -DENABLE_AVX2=ON \
     -DCMAKE_BUILD_TYPE=RELEASE \
+    -DDEMO=ON \
      ..
 
 make

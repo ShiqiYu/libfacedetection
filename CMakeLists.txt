@@ -56,6 +56,6 @@ if (DEMO)
     include_directories(${OpenCV_INCLUDE_DIRS})
 
     set(fdt_demo_files ${fdt_base_dir}/example/libfacedetectcnn-example.cpp)
-    add_executable(demo ${fdt_demo_files})
-    target_link_libraries(demo ${fdt_lib_static} ${OpenCV_LIBS})
+    add_executable(fdt_demo ${fdt_demo_files})
+    target_link_libraries(fdt_demo ${fdt_lib_static} ${OpenCV_LIBS})
 endif()
