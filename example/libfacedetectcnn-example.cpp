@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 	pResults = facedetect_cnn(pBuffer, (unsigned char*)(image.ptr(0)), image.cols, image.rows, (int)image.step);
 
     printf("%d faces detected.\n", (pResults ? *pResults : 0));
-	Mat result_cnn = image.clone();;
+	Mat result_cnn = image.clone();
 	//print the detection results
 	for(int i = 0; i < (pResults ? *pResults : 0); i++)
 	{
