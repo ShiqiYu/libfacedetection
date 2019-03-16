@@ -15,10 +15,10 @@ examples/libfacedetectcnn-example.cpp shows how to use the library.
 * Please add -O3 to turn on optimizations when you compile the source code using g++.
 * Please choose 'Maximize Speed/-O2' when you compile the source code using Microsoft Visual Studio.
 
-Create a folder build
+Create a build folder:
 
 ```
-mkdir -p build; cd build; rm -rf *;
+mkdir build; cd build; rm -rf *
 ```
 
 ### Cross build for aarch64
