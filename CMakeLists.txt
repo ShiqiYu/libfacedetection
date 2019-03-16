@@ -62,3 +62,34 @@ if (DEMO)
     add_executable(fdt_demo ${fdt_demo_files})
     target_link_libraries(fdt_demo ${fdt_lib_static} ${OpenCV_LIBS})
 endif()
+
+if (GSTREAMER)
+    find_package(OpenCV REQUIRED)
+
+    include(FindPkgConfig)
+    pkg_search_module(GSTREAMER REQUIRED gstreamer-1.0)
+    pkg_search_module(GSTREAMER_BASE REQUIRED gstreamer-base-1.0)
+    pkg_search_module(GSTREAMER_VIDEO REQUIRED gstreamer-video-1.0)
+
+    add_library(gstfacedetect SHARED
+        example/libfacedetect.cpp
+    )
+
+    include_directories(gstfacedetect PRIVATE
+        ${GSTREAMER_INCLUDE_DIRS}
+        ${GSTREAMER_BASE_INCLUDE_DIRS}
+        ${GSTREAMER_VIDEO_INCLUDE_DIRS}
+        ${OpenCV_INCLUDE_DIRS}
+    )
+
+    target_link_libraries(gstfacedetect
+        ${GSTREAMER_LIBRARIES}
+        ${GSTREAMER_BASE_LIBRARIES}
+        ${GSTREAMER_VIDEO_LIBRARIES}
+        ${OpenCV_LIBS}
+        ${fdt_lib_shared}
+    )
+
+
+
+endif()
