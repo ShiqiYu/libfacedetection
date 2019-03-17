@@ -49,6 +49,12 @@ the use of this software, even if advised of the possibility of such damage.
 #define SSE_256ELEMENT(vec, idx) vec[(idx)]
 #endif
 
+#if !defined(_ENABLE_OPENMP_SIMD) && ((defined(_OPENMP) && (_OPENMP >= 201307L)))
+#  define _ENABLE_OPENMP_SIMD
+#elif defined(__cilk)
+#  define _ENABLE_CILKPLUS
+#endif
+
 typedef struct NormalizedBBox_
 {
     float xmin;
@@ -138,6 +144,9 @@ inline float dotProductFloatChGeneral(float* p1, float * p2, int num, int length
 #else
     float sum = 0;
 
+#if defined(_ENABLE_OPENMP_SIMD)
+#pragma omp simd reduction(+:sum)
+#endif
     for (int i = 0; i < num; i++)
     {
         sum += (p1[i] * p2[i]);
@@ -220,6 +229,9 @@ inline int dotProductInt8ChGeneral(signed char * p1, signed char * p2, int num, 
 
     int sum = 0;
 
+#if defined(_ENABLE_OPENMP_SIMD)
+#pragma omp simd reduction(+:sum)
+#endif
     for (int i = 0; i < num; i++)
     {
         sum += ( int(p1[i]) * int(p2[i]));
@@ -417,7 +429,6 @@ bool convertFloat2Int8(CDataBlob * dataBlob)
 #endif
 
     float scale = 1.f;
-    float tmp;
 
     if (dataBlob->int8_data_valid)
         return true;
@@ -438,8 +449,12 @@ bool convertFloat2Int8(CDataBlob * dataBlob)
             }
 #else
 
+#if defined(_ENABLE_OPENMP_SIMD)
+#pragma omp simd reduction(max:maxval)
+#endif
             for (int ch = 0; ch < dataBlob->channels; ch++)
             {
+                float tmp;
                 //tmp = fabs(pF[ch]);
                 //maxval = MAX(maxval, tmp);
                 tmp = pF[ch];
@@ -475,7 +490,6 @@ bool convertFloat2Int8(CDataBlob * dataBlob)
 #endif
     for (int row = 0; row < dataBlob->height; row++)
     {
-        float tmp;
         for (int col = 0; col < dataBlob->width; col++)
         {
             float * pF = (dataBlob->data_float + (row*dataBlob->width + col)*dataBlob->floatChannelStepInByte / sizeof(float));
@@ -484,6 +498,7 @@ bool convertFloat2Int8(CDataBlob * dataBlob)
 #if defined(_ENABLE_NEON)
             for (int ch = 0; ch < dataBlob->channels; ch+=4)
             {
+                float tmp;
                 float32x4_t a = vld1q_f32(pF + ch);
                 float32x4_t resultvec = vmulq_f32(a, scalevec);
                 
@@ -504,8 +519,12 @@ bool convertFloat2Int8(CDataBlob * dataBlob)
                 pI[ch+3] = (signed char)(tmp + ((tmp>0) - 0.5f));
             }
 #else
+#if defined(_ENABLE_OPENMP_SIMD)
+#pragma omp simd
+#endif
             for (int ch = 0; ch < dataBlob->channels; ch++)
             {
+                float tmp;
                 //pI[ch] = (signed char)round(pF[ch] * scale);
                 //to speedup round() using the following code
                 tmp = pF[ch];
@@ -732,6 +751,9 @@ bool maxpooling2x2S2(const CDataBlob *inputData, CDataBlob *outputData)
             for (int ch = 0; ch < outputData->channels; ch++)
             {
                 float maxval = pIn[ch + inputMatOffsetsInElement[0]];
+#if defined(_ENABLE_OPENMP_SIMD)
+#pragma omp simd reduction(max:maxval)
+#endif
                 for (int el = 1; el < elementCount; el++)
                 {
                     maxval = MAX(maxval, pIn[ch + inputMatOffsetsInElement[el]]);
@@ -832,6 +854,9 @@ bool scale(CDataBlob * dataBlob, float scale)
             }
 
 #else
+#if defined(_ENABLE_OPENMP_SIMD)
+#pragma omp simd
+#endif
             for (int ch = 0; ch < dataBlob->channels; ch++)
             {
                 pF[ch] *= scale;
@@ -879,6 +904,9 @@ bool relu(const CDataBlob *inputOutputData)
                 _mm256_store_ps(pData + ch, a);
             }
 #else
+#if defined(_ENABLE_OPENMP_SIMD)
+#pragma omp simd
+#endif
             for (int ch = 0; ch < inputOutputData->channels; ch++)
                 pData[ch] = MAX(pData[ch], 0);
 #endif
@@ -1010,10 +1038,16 @@ bool normalize(CDataBlob * inputOutputData, float * pScale)
             }
 #else
 
+#if defined(_ENABLE_OPENMP_SIMD)
+#pragma omp simd reduction(+:sum)
+#endif
             for (int ch = 0; ch < inputOutputData->channels; ch++)
                 sum += (pData[ch] * pData[ch]);
 
             s = 1.0f/sqrt(sum);
+#if defined(_ENABLE_OPENMP_SIMD)
+#pragma omp simd
+#endif
             for (int ch = 0; ch < inputOutputData->channels; ch++)
                 pData[ch] = pData[ch] * pScale[ch] * s;
 #endif            
