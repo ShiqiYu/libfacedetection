@@ -45,7 +45,6 @@ make
 ### Native build for avx2
 ```
 cmake \
-    -DENABLE_INT8=ON \
     -DENABLE_AVX2=ON \
     -DCMAKE_BUILD_TYPE=RELEASE \
     -DDEMO=ON \
