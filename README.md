@@ -21,15 +21,15 @@ Some tips:
 * The source code can only run in single thread. If you want to run parally, you can call the face detection function in multiple threads. Yes, multiple-thread is complex in programming.
 * If you want to achieve best performance, you can run the model (not the source code) using OpenVINO on Intel CPU or Tengine on ARM CPU.
 
-If you want to compile and run the example, you can create a build folder first, and then:
+If you want to compile and run the example, you can create a build folder first, then run the command:
 
 ```
 mkdir build; cd build; rm -rf *
 ```
 
 ### Cross build for aarch64
-1. set cross compiler for aarch64 (please refer to aarch64-toolchain.cmake)
-2. set opencv path since the example code depends on opencv
+1. Set cross compiler for aarch64 (please refer to aarch64-toolchain.cmake)
+2. Set opencv path since the example code depends on opencv
 
 ```
 cmake \
@@ -66,9 +66,9 @@ make
 |cnn (CPU, 128x96)   |   2.35ms     | 425.95      |  0.64ms      | 1562.10     |
 
 * OpenCV Haar+AdaBoost runs with minimal face size 48x48
-* Face detection only, and no landmark detection included.
+* Face detection only, and no landmark detection included
 * Minimal face size ~12x12
-* Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz.
+* Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz
 
 ## CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
 
