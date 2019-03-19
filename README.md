@@ -10,12 +10,18 @@ examples/libfacedetectcnn-example.cpp shows how to use the library.
 
 ![Examples](/images/cnnresult.png "Detection example")
 
-## How to Compile
+## How to use the code
 
+You can copy the files in directory src/ into your project, and compile them as the other files in your project. The source code is written in standard C/C++. It should be compiled at any platform which support C/C++.
+
+Some tips:
 * Please add -O3 to turn on optimizations when you compile the source code using g++.
 * Please choose 'Maximize Speed/-O2' when you compile the source code using Microsoft Visual Studio.
+* ENABLE_INT8=ON is recommended for ARM, but it is not recommended for Intel CPU since it cannot gain better speed sometime even worse.
+* The source code can only run in single thread. If you want to run parally, you can call the face detection function in multiple threads. Yes, multiple-thread is complex in programming.
+* If you want to achieve best performance, you can run the model (not the source code) using OpenVINO on Intel CPU or Tengine on ARM CPU.
 
-Create a build folder:
+If you want to compile and run the example, you can create a build folder first, and then:
 
 ```
 mkdir build; cd build; rm -rf *
@@ -89,4 +95,4 @@ make
 * Dong Xu
 
 ## Acknowledgment
-The work is partly supported by the Science Foundation of Shenzhen (Grant No. JCYJ20150324141711699).
+The work is partly supported by the Science Foundation of Shenzhen (Grant No. JCYJ20150324141711699 and 20170504160426188).
