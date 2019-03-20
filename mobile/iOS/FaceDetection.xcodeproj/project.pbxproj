@@ -1,0 +1,413 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00E75F61223B3E9C000D9FE7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F60223B3E9C000D9FE7 /* AppDelegate.m */; };
+		00E75F64223B3E9C000D9FE7 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F63223B3E9C000D9FE7 /* ViewController.mm */; };
+		00E75F67223B3E9C000D9FE7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00E75F65223B3E9C000D9FE7 /* Main.storyboard */; };
+		00E75F69223B3E9D000D9FE7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00E75F68223B3E9D000D9FE7 /* Assets.xcassets */; };
+		00E75F6C223B3E9D000D9FE7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00E75F6A223B3E9D000D9FE7 /* LaunchScreen.storyboard */; };
+		00E75F6F223B3E9D000D9FE7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F6E223B3E9D000D9FE7 /* main.m */; };
+		00E75F7B223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F76223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp */; };
+		00E75F7C223B3EAC000D9FE7 /* facedetectcnn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F77223B3EAC000D9FE7 /* facedetectcnn.cpp */; };
+		00E75F7D223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F79223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp */; };
+		00E75F7E223B3EAC000D9FE7 /* facedetectcnn-model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F7A223B3EAC000D9FE7 /* facedetectcnn-model.cpp */; };
+		00E75F80223B443C000D9FE7 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E75F7F223B443C000D9FE7 /* opencv2.framework */; };
+		00E75F83223B4538000D9FE7 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E75F82223B4538000D9FE7 /* libc++.tbd */; };
+		00E75F85223B4540000D9FE7 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E75F84223B4540000D9FE7 /* AVFoundation.framework */; };
+		00E75F87223B4546000D9FE7 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E75F86223B4546000D9FE7 /* CoreImage.framework */; };
+		00E75F89223B4552000D9FE7 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E75F88223B4552000D9FE7 /* CoreGraphics.framework */; };
+		00E75F8B223B455A000D9FE7 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E75F8A223B455A000D9FE7 /* Accelerate.framework */; };
+		00E75F8D223B49BF000D9FE7 /* test.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 00E75F8C223B49BF000D9FE7 /* test.jpg */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		00E75F5C223B3E9C000D9FE7 /* FaceDetection.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FaceDetection.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E75F5F223B3E9C000D9FE7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		00E75F60223B3E9C000D9FE7 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		00E75F62223B3E9C000D9FE7 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		00E75F63223B3E9C000D9FE7 /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
+		00E75F66223B3E9C000D9FE7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		00E75F68223B3E9D000D9FE7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		00E75F6B223B3E9D000D9FE7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		00E75F6D223B3E9D000D9FE7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		00E75F6E223B3E9D000D9FE7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		00E75F76223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "facedetectcnn-floatdata.cpp"; sourceTree = "<group>"; };
+		00E75F77223B3EAC000D9FE7 /* facedetectcnn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = facedetectcnn.cpp; sourceTree = "<group>"; };
+		00E75F78223B3EAC000D9FE7 /* facedetectcnn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = facedetectcnn.h; sourceTree = "<group>"; };
+		00E75F79223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "facedetectcnn-int8data.cpp"; sourceTree = "<group>"; };
+		00E75F7A223B3EAC000D9FE7 /* facedetectcnn-model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "facedetectcnn-model.cpp"; sourceTree = "<group>"; };
+		00E75F7F223B443C000D9FE7 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
+		00E75F82223B4538000D9FE7 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		00E75F84223B4540000D9FE7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		00E75F86223B4546000D9FE7 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		00E75F88223B4552000D9FE7 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		00E75F8A223B455A000D9FE7 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		00E75F8C223B49BF000D9FE7 /* test.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test.jpg; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		00E75F59223B3E9C000D9FE7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00E75F8B223B455A000D9FE7 /* Accelerate.framework in Frameworks */,
+				00E75F89223B4552000D9FE7 /* CoreGraphics.framework in Frameworks */,
+				00E75F87223B4546000D9FE7 /* CoreImage.framework in Frameworks */,
+				00E75F85223B4540000D9FE7 /* AVFoundation.framework in Frameworks */,
+				00E75F83223B4538000D9FE7 /* libc++.tbd in Frameworks */,
+				00E75F80223B443C000D9FE7 /* opencv2.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		00E75F53223B3E9C000D9FE7 = {
+			isa = PBXGroup;
+			children = (
+				00E75F5E223B3E9C000D9FE7 /* FaceDetection */,
+				00E75F5D223B3E9C000D9FE7 /* Products */,
+				00E75F81223B4537000D9FE7 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		00E75F5D223B3E9C000D9FE7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				00E75F5C223B3E9C000D9FE7 /* FaceDetection.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		00E75F5E223B3E9C000D9FE7 /* FaceDetection */ = {
+			isa = PBXGroup;
+			children = (
+				00E75F8C223B49BF000D9FE7 /* test.jpg */,
+				00E75F75223B3EAC000D9FE7 /* src */,
+				00E75F5F223B3E9C000D9FE7 /* AppDelegate.h */,
+				00E75F60223B3E9C000D9FE7 /* AppDelegate.m */,
+				00E75F62223B3E9C000D9FE7 /* ViewController.h */,
+				00E75F63223B3E9C000D9FE7 /* ViewController.mm */,
+				00E75F7F223B443C000D9FE7 /* opencv2.framework */,
+				00E75F65223B3E9C000D9FE7 /* Main.storyboard */,
+				00E75F68223B3E9D000D9FE7 /* Assets.xcassets */,
+				00E75F6A223B3E9D000D9FE7 /* LaunchScreen.storyboard */,
+				00E75F6D223B3E9D000D9FE7 /* Info.plist */,
+				00E75F6E223B3E9D000D9FE7 /* main.m */,
+			);
+			path = FaceDetection;
+			sourceTree = "<group>";
+		};
+		00E75F75223B3EAC000D9FE7 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				00E75F76223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp */,
+				00E75F77223B3EAC000D9FE7 /* facedetectcnn.cpp */,
+				00E75F78223B3EAC000D9FE7 /* facedetectcnn.h */,
+				00E75F79223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp */,
+				00E75F7A223B3EAC000D9FE7 /* facedetectcnn-model.cpp */,
+			);
+			name = src;
+			path = ../../libfacedetection/src;
+			sourceTree = "<group>";
+		};
+		00E75F81223B4537000D9FE7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				00E75F8A223B455A000D9FE7 /* Accelerate.framework */,
+				00E75F88223B4552000D9FE7 /* CoreGraphics.framework */,
+				00E75F86223B4546000D9FE7 /* CoreImage.framework */,
+				00E75F84223B4540000D9FE7 /* AVFoundation.framework */,
+				00E75F82223B4538000D9FE7 /* libc++.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		00E75F5B223B3E9C000D9FE7 /* FaceDetection */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00E75F72223B3E9D000D9FE7 /* Build configuration list for PBXNativeTarget "FaceDetection" */;
+			buildPhases = (
+				00E75F58223B3E9C000D9FE7 /* Sources */,
+				00E75F59223B3E9C000D9FE7 /* Frameworks */,
+				00E75F5A223B3E9C000D9FE7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FaceDetection;
+			productName = FaceDetection;
+			productReference = 00E75F5C223B3E9C000D9FE7 /* FaceDetection.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		00E75F54223B3E9C000D9FE7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = TendCloud;
+				TargetAttributes = {
+					00E75F5B223B3E9C000D9FE7 = {
+						CreatedOnToolsVersion = 10.1;
+					};
+				};
+			};
+			buildConfigurationList = 00E75F57223B3E9C000D9FE7 /* Build configuration list for PBXProject "FaceDetection" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 00E75F53223B3E9C000D9FE7;
+			productRefGroup = 00E75F5D223B3E9C000D9FE7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				00E75F5B223B3E9C000D9FE7 /* FaceDetection */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		00E75F5A223B3E9C000D9FE7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00E75F6C223B3E9D000D9FE7 /* LaunchScreen.storyboard in Resources */,
+				00E75F69223B3E9D000D9FE7 /* Assets.xcassets in Resources */,
+				00E75F8D223B49BF000D9FE7 /* test.jpg in Resources */,
+				00E75F67223B3E9C000D9FE7 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		00E75F58223B3E9C000D9FE7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00E75F7D223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp in Sources */,
+				00E75F7E223B3EAC000D9FE7 /* facedetectcnn-model.cpp in Sources */,
+				00E75F7B223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp in Sources */,
+				00E75F64223B3E9C000D9FE7 /* ViewController.mm in Sources */,
+				00E75F7C223B3EAC000D9FE7 /* facedetectcnn.cpp in Sources */,
+				00E75F6F223B3E9D000D9FE7 /* main.m in Sources */,
+				00E75F61223B3E9C000D9FE7 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		00E75F65223B3E9C000D9FE7 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				00E75F66223B3E9C000D9FE7 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		00E75F6A223B3E9D000D9FE7 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				00E75F6B223B3E9D000D9FE7 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		00E75F70223B3E9D000D9FE7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		00E75F71223B3E9D000D9FE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		00E75F73223B3E9D000D9FE7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = W7YDEDGW4E;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/FaceDetection",
+				);
+				INFOPLIST_FILE = FaceDetection/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.TalkingData.FaceDetection;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		00E75F74223B3E9D000D9FE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = W7YDEDGW4E;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/FaceDetection",
+				);
+				INFOPLIST_FILE = FaceDetection/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.TalkingData.FaceDetection;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		00E75F57223B3E9C000D9FE7 /* Build configuration list for PBXProject "FaceDetection" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00E75F70223B3E9D000D9FE7 /* Debug */,
+				00E75F71223B3E9D000D9FE7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00E75F72223B3E9D000D9FE7 /* Build configuration list for PBXNativeTarget "FaceDetection" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00E75F73223B3E9D000D9FE7 /* Debug */,
+				00E75F74223B3E9D000D9FE7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 00E75F54223B3E9C000D9FE7 /* Project object */;
+}
