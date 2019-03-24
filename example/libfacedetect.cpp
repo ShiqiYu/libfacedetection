@@ -127,11 +127,11 @@ static GstFlowReturn transform_ip(GstBaseTransform *trans, GstBuffer *buf) {
         int y = p[1];
         int w = p[2];
         int h = p[3];
-        int neighbors = p[4];
+        int confidence = p[4];
         int angle = p[5];
 
-        GST_ERROR("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d", x,y,w,h,neighbors, angle);
-        if (neighbors >= self->thresh) {
+        GST_ERROR("face_rect=[%d, %d, %d, %d], confidence=%d, angle=%d", x,y,w,h,confidence, angle);
+        if (confidence >= self->thresh) {
             if (self->boxes) {
                 rectangle(image, Rect(x, y, w, h), Scalar(0, 255, 0), 2);
             }
