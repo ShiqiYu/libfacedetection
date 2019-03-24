@@ -89,10 +89,10 @@ int main(int argc, char* argv[])
 		int y = p[1];
 		int w = p[2];
 		int h = p[3];
-		int neighbors = p[4];
+		int confidence = p[4];
 		int angle = p[5];
 
-		printf("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d\n", x,y,w,h,neighbors, angle);
+		printf("face_rect=[%d, %d, %d, %d], confidence=%d, angle=%d\n", x,y,w,h,confidence, angle);
 		rectangle(result_cnn, Rect(x, y, w, h), Scalar(0, 255, 0), 2);
 	}
 	imshow("result_cnn", result_cnn);
