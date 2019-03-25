@@ -1,3 +1,25 @@
+##Android
+
+Just transport this lib to Andtoid and run successful with some optimization.
+
+Already integrated opencv 4.0.1 for android, modified cmakelist.txt for android. So all you need to do is to clone this project and RUN IT.
+
+I also build an apk in the release folder so you can just install it on your phone to test it.
+
+Steps for developers:  
+1.clone this porject.  
+2.download cmake,ndk and lldb(if u need debug c++ code).   
+3.run it!
+
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Screenshot1.jpg)
+
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Screenshot2.jpg)
+
+ 
+
+
+##iOS
+
 This lib is very useful! I try it in iOS and successful run. 
 
 1. download or clone this lib in your computer;
