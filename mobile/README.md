@@ -1,4 +1,5 @@
-##mobile support for iOS and android
+##mobile support for iOS and android. 
+
 ##iOS
 
 This lib is very useful! I try it in iOS and successful run. 
