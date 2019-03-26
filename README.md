@@ -27,6 +27,11 @@ If you want to compile and run the example, you can create a build folder first,
 mkdir build; cd build; rm -rf *
 ```
 
+### Use Tengine to Speedup the detection on ARM
+The model has been added to [Tengine](https://github.com/OAID/Tengine). Tengine, developed by OPEN AI LAB, is a lite, high-performance, and modular inference engine for embedded device. 
+
+The model in Tengine can run faster than the C++ source code here because Tengine has been optimized according to ARM CPU. There are detailed manual and example at Tengine web site: https://github.com/OAID/Tengine/tree/master/examples/YuFaceDetectNet
+
 ### Cross build for aarch64
 1. Set cross compiler for aarch64 (please refer to aarch64-toolchain.cmake)
 2. Set opencv path since the example code depends on opencv
