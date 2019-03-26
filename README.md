@@ -94,9 +94,12 @@ make
 * Shiqi Yu, <shiqi.yu@gmail.com>
 
 ## Contributors
-* Jia Wu
-* Shengyin Wu
-* Dong Xu
+Some contributors are listed [here](https://github.com/ShiqiYu/libfacedetection/graphs/contributors). 
+
+The contributors who are not listed at GitHub.com:
+* Jia Wu (吴佳)
+* Dong Xu (徐栋)
+* shengyin Wu (伍圣寅)
 
 ## Acknowledgment
 The work is partly supported by the Science Foundation of Shenzhen (Grant No. JCYJ20150324141711699 and 20170504160426188).
