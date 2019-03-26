@@ -99,7 +99,7 @@ Some contributors are listed [here](https://github.com/ShiqiYu/libfacedetection/
 The contributors who are not listed at GitHub.com:
 * Jia Wu (吴佳)
 * Dong Xu (徐栋)
-* shengyin Wu (伍圣寅)
+* Shengyin Wu (伍圣寅)
 
 ## Acknowledgment
 The work is partly supported by the Science Foundation of Shenzhen (Grant No. JCYJ20150324141711699 and 20170504160426188).
