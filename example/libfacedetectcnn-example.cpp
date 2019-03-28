@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 	// CNN face detection 
 	// Best detection rate
 	//////////////////////////////////////////
-	//!!! The input image must be a RGB one (three-channel)
+	//!!! The input image must be a BGR one (three-channel) instead of RGB
 	//!!! DO NOT RELEASE pResults !!!
 	pResults = facedetect_cnn(pBuffer, (unsigned char*)(image.ptr(0)), image.cols, image.rows, (int)image.step);
 
