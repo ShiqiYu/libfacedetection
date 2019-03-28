@@ -16,11 +16,11 @@ Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */
 {
     jobjectArray faceArgs = nullptr;
     Mat& img  = *(Mat*)matAddr;
-    Mat rgb = img.clone();
-    cvtColor(img, rgb, COLOR_RGBA2RGB);
+    Mat bgr = img.clone();
+    cvtColor(img, bgr, COLOR_RGBA2BGR);
     __android_log_print(ANDROID_LOG_ERROR, JNITag,"convert RGBA to RGB");
     //load an image and convert it to gray (single-channel)
-    if(rgb.empty())
+    if(bgr.empty())
     {
         fprintf(stderr, "Can not convert image");
         return faceArgs;
@@ -43,7 +43,7 @@ Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */
     //////////////////////////////////////////
     //!!! The input image must be a RGB one (three-channel)
     //!!! DO NOT RELEASE pResults !!!
-    pResults = facedetect_cnn(pBuffer, (unsigned char*)(rgb.ptr(0)), rgb.cols, rgb.rows, (int)rgb.step);
+    pResults = facedetect_cnn(pBuffer, (unsigned char*)(bgr.ptr(0)), bgr.cols, bgr.rows, (int)bgr.step);
     int numOfFaces = pResults ? *pResults : 0;
     __android_log_print(ANDROID_LOG_ERROR, JNITag,"%d faces detected.\n", numOfFaces);
 
