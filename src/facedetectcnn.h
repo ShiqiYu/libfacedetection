@@ -43,7 +43,7 @@ the use of this software, even if advised of the possibility of such damage.
 
 
 int * facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing face detection results, !!its size must be 0x20000 Bytes!!
-                    unsigned char * rgb_image_data, int width, int height, int step); //input image, it must be RGB (three-channel) image!
+                    unsigned char * rgb_image_data, int width, int height, int step); //input image, it must be BGR (three channels) insteed of RGB image!
 
 
 
