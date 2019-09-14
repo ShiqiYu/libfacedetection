@@ -56,13 +56,8 @@ the use of this software, even if advised of the possibility of such damage.
 
 #define NUM_CONV_LAYER 24
 
-#if defined(_ENABLE_INT8_CONV)
 extern signed char * param_ppConvCoefInt8[NUM_CONV_LAYER];
-#else
-extern float * param_ppConvCoefFloat[NUM_CONV_LAYER];
-#endif
 extern float param_pConvCoefScales[NUM_CONV_LAYER];
-
 
 typedef struct SConvInfo_{
 	int pad;
@@ -76,35 +71,34 @@ typedef struct SConvInfo_{
 
 Filters param_pFilters[NUM_CONV_LAYER]; //NUM_CONV_LAYER conv layers
 
-int param_pMean[3] = { 104,117,123 };
-float param_pConv3Norm[32] = { 6.592306137084961f, 6.558613300323486f, 6.324647903442383f, 6.125812530517578f, 6.558647632598877f, 6.526843547821045f, 6.558306694030762f, 6.556366443634033f, 6.638453483581543f, 6.558482646942139f, 6.631646633148193f, 6.536031246185303f, 6.456478118896484f, 6.558736801147461f, 6.567635536193848f, 5.369370937347412f, 6.567112445831299f, 6.5589985847473145f, 6.602363586425781f, 6.558731555938721f, 6.419933795928955f, 6.138179779052734f, 6.250294208526611f, 6.562124252319336f, 6.579089164733887f, 6.553215503692627f, 6.191119194030762f, 3.9663331508636475f, 6.459974765777588f, 6.555095195770264f, 6.545119762420654f, 6.626718997955322f };
-float param_pConv4Norm[64] = { 5.24936056137085f, 5.249833106994629f, 5.201494216918945f, 5.252224445343018f, 5.2574462890625f, 5.226278305053711f, 5.258802890777588f, 5.254302024841309f, 5.1779465675354f, 5.24658203125f, 5.252774238586426f, 5.248640060424805f, 5.209632396697998f, 5.256057262420654f, 5.198976039886475f, 5.259532928466797f, 5.150023460388184f, 5.225643634796143f, 5.25822114944458f, 5.247387886047363f, 5.2590227127075195f, 5.25047492980957f, 5.264795303344727f, 5.24699592590332f, 5.249448299407959f, 5.205463409423828f, 5.252189636230469f, 5.255984783172607f, 5.209300994873047f, 5.261776447296143f, 5.251255035400391f, 5.254635810852051f, 5.25943660736084f, 5.248631477355957f, 5.285300254821777f, 5.254481792449951f, 5.248084545135498f, 5.249952793121338f, 5.234015941619873f, 5.263407230377197f, 5.245810508728027f, 5.2482500076293945f, 5.102107048034668f, 5.221688747406006f, 5.245429515838623f, 5.251964569091797f, 5.305455684661865f, 5.1277570724487305f, 5.28142786026001f, 5.235960006713867f, 5.205482482910156f, 5.251782417297363f, 5.182538032531738f, 5.27116584777832f, 5.198187351226807f, 5.248366832733154f, 5.254012584686279f, 5.251954555511475f, 5.259944438934326f, 5.248141288757324f, 5.183408737182617f, 5.265050888061523f, 5.24997615814209f, 5.262747287750244f };
-float param_pConv5Norm[128] = { 3.2798357009887695f, 3.279853582382202f, 3.316532850265503f, 3.2797908782958984f, 3.283681631088257f, 3.292001962661743f, 3.2796599864959717f, 3.301004409790039f, 3.279745101928711f, 3.2916154861450195f, 3.304828405380249f, 3.2860844135284424f, 3.2962393760681152f, 3.2914977073669434f, 3.311239719390869f, 3.2796378135681152f, 3.30684757232666f, 3.2795956134796143f, 3.3049705028533936f, 3.2912471294403076f, 3.2799410820007324f, 3.280548095703125f, 3.279585838317871f, 3.3002915382385254f, 3.351128339767456f, 3.285721778869629f, 3.308690071105957f, 3.286360025405884f, 3.286612033843994f, 3.323331117630005f, 3.280801296234131f, 3.279557228088379f, 3.325319290161133f, 3.292274236679077f, 3.284330129623413f, 3.3016438484191895f, 3.305274248123169f, 3.293483257293701f, 3.2965309619903564f, 3.343932628631592f, 3.2799618244171143f, 3.281886100769043f, 3.2855217456817627f, 3.283858299255371f, 3.299082040786743f, 3.295645236968994f, 3.291444778442383f, 3.279492139816284f, 3.2956502437591553f, 3.3284802436828613f, 3.2878544330596924f, 3.291749954223633f, 3.3015894889831543f, 3.2998600006103516f, 3.2887396812438965f, 3.2832252979278564f, 3.285311698913574f, 3.30757474899292f, 3.284590721130371f, 3.3025388717651367f, 3.2936882972717285f, 3.279754877090454f, 3.307007312774658f, 3.2958528995513916f, 3.3630170822143555f, 3.326841354370117f, 3.2800698280334473f, 3.2920491695404053f, 3.2991254329681396f, 3.309135913848877f, 3.2799878120422363f, 3.2878851890563965f, 3.302861452102661f, 3.315964698791504f, 3.279761791229248f, 3.3086979389190674f, 3.2836644649505615f, 3.29606294631958f, 3.2939038276672363f, 3.296156883239746f, 3.300607204437256f, 3.3293192386627197f, 3.2886781692504883f, 3.292102098464966f, 3.279629945755005f, 3.2798566818237305f, 3.2876806259155273f, 3.281590223312378f, 3.281094789505005f, 3.2978975772857666f, 3.2799761295318604f, 3.3351552486419678f, 3.2866907119750977f, 3.338275671005249f, 3.2797188758850098f, 3.280174493789673f, 3.296318531036377f, 3.281552314758301f, 3.2805323600769043f, 3.294194459915161f, 3.279611349105835f, 3.3100433349609375f, 3.2793779373168945f, 3.2797317504882812f, 3.2823593616485596f, 3.2944772243499756f, 3.280740976333618f, 3.2863688468933105f, 3.299750804901123f, 3.282517194747925f, 3.2863147258758545f, 3.286238193511963f, 3.280881881713867f, 3.2873098850250244f, 3.2873218059539795f, 3.2804245948791504f, 3.306823968887329f, 3.312803030014038f, 3.2798690795898438f, 3.288886785507202f, 3.3185698986053467f, 3.299873113632202f, 3.279698610305786f, 3.3057520389556885f, 3.3125710487365723f, 3.2796096801757812f, 3.2905843257904053f, 3.2902579307556152f };
-float param_pConv6Norm[128] = { 3.2981998920440674f, 3.2801780700683594f, 3.2922229766845703f, 3.2955803871154785f, 3.294820547103882f, 3.292754888534546f, 3.2865407466888428f, 3.286324977874756f, 3.2815260887145996f, 3.2840657234191895f, 3.282493829727173f, 3.333282470703125f, 3.289398193359375f, 3.2884361743927f, 3.2864975929260254f, 3.2839083671569824f, 3.2875373363494873f, 3.322467565536499f, 3.28637433052063f, 3.286494731903076f, 3.291119337081909f, 3.322329044342041f, 3.2931485176086426f, 3.279733896255493f, 3.2803969383239746f, 3.295511245727539f, 3.2980639934539795f, 3.280717134475708f, 3.2957653999328613f, 3.317964553833008f, 3.2798070907592773f, 3.3057520389556885f, 3.305992841720581f, 3.348924160003662f, 3.291982650756836f, 3.3030447959899902f, 3.288562774658203f, 3.2987096309661865f, 3.2800376415252686f, 3.336385488510132f, 3.2968106269836426f, 3.296558380126953f, 3.2796730995178223f, 3.286644458770752f, 3.2797164916992188f, 3.2899343967437744f, 3.3156163692474365f, 3.3474082946777344f, 3.291513442993164f, 3.3053133487701416f, 3.283517360687256f, 3.305210828781128f, 3.303983211517334f, 3.282759189605713f, 3.280306816101074f, 3.2799665927886963f, 3.285292387008667f, 3.3079776763916016f, 3.29679274559021f, 3.280120849609375f, 3.2796525955200195f, 3.28070068359375f, 3.2877960205078125f, 3.302424192428589f, 3.2920310497283936f, 3.286226511001587f, 3.2799699306488037f, 3.2863574028015137f, 3.324301242828369f, 3.291632890701294f, 3.294870376586914f, 3.289574146270752f, 3.297481060028076f, 3.304020881652832f, 3.2841410636901855f, 3.2966504096984863f, 3.280271530151367f, 3.2840888500213623f, 3.3100359439849854f, 3.282552719116211f, 3.2812161445617676f, 3.3106632232666016f, 3.2951345443725586f, 3.280796766281128f, 3.283688545227051f, 3.328918695449829f, 3.2930126190185547f, 3.291832685470581f, 3.2913215160369873f, 3.282050609588623f, 3.280987501144409f, 3.303039073944092f, 3.2960453033447266f, 3.2923476696014404f, 3.2912893295288086f, 3.283773422241211f, 3.308786392211914f, 3.294309377670288f, 3.2953407764434814f, 3.2821991443634033f, 3.2892892360687256f, 3.2869884967803955f, 3.3056561946868896f, 3.281874895095825f, 3.337285280227661f, 3.2868685722351074f, 3.2931010723114014f, 3.279754638671875f, 3.2797317504882812f, 3.3095757961273193f, 3.2800772190093994f, 3.299697160720825f, 3.2798924446105957f, 3.2848010063171387f, 3.2815306186676025f, 3.29996919631958f, 3.29498553276062f, 3.317089557647705f, 3.2876529693603516f, 3.2813613414764404f, 3.290708065032959f, 3.2828986644744873f, 3.2800583839416504f, 3.3065834045410156f, 3.287909746170044f, 3.2797391414642334f, 3.3226301670074463f, 3.323007345199585f };
+float param_pConv3Norm[64] = { 6.067704200744629f, 6.086832523345947f, 6.075444221496582f, 4.864563465118408f, 4.982297897338867f, 6.065876483917236f, 6.065804958343506f, 6.066604137420654f, 6.091238498687744f, 6.066442489624023f, 6.067852020263672f, 6.065065383911133f, 6.111854076385498f, 5.854933738708496f, 5.094123363494873f, 5.611084938049316f, 5.638108253479004f, 6.075394153594971f, 6.086704730987549f, 6.040279865264893f, 5.760599136352539f, 6.066614627838135f, 6.067028999328613f, 6.090893268585205f, 6.067197799682617f, 6.0027570724487305f, 6.122867107391357f, 5.662094593048096f, 6.065771102905273f, 6.100675106048584f, 6.06779670715332f, 6.067671298980713f, 6.066753387451172f, 5.737717151641846f, 4.2541680335998535f, 6.091390609741211f, 6.082061767578125f, 6.048476696014404f, 5.471676349639893f, 6.0827765464782715f, 5.785499572753906f, 6.0660271644592285f, 6.075671195983887f, 6.097797393798828f, 6.047597885131836f, 5.906824111938477f, 5.394303798675537f, 6.067469596862793f, 6.061819553375244f, 5.82515811920166f, 5.5635809898376465f, 6.114983081817627f, 5.813036918640137f, 6.084056854248047f, 5.945978164672852f, 5.97323751449585f, 6.09974479675293f, 5.745806694030762f, 5.416194915771484f, 5.367262363433838f, 6.10166072845459f, 6.092775344848633f, 6.067975044250488f, 5.756527900695801f };
+float param_pConv4Norm[128] = { 4.853384494781494f, 4.889324188232422f, 4.874561786651611f, 4.852031230926514f, 4.922458648681641f, 4.826481342315674f, 4.852572441101074f, 4.854414939880371f, 4.861706256866455f, 4.847333908081055f, 4.850497722625732f, 4.8718366622924805f, 4.846635818481445f, 4.853606700897217f, 4.8193840980529785f, 4.8496294021606445f, 4.852749824523926f, 4.856253147125244f, 4.873744964599609f, 4.82371187210083f, 4.8532867431640625f, 4.856527328491211f, 4.85302734375f, 4.852819919586182f, 4.8583760261535645f, 4.854391574859619f, 4.8661627769470215f, 4.872909069061279f, 4.860682010650635f, 4.870107173919678f, 4.864952087402344f, 4.8647074699401855f, 4.875209331512451f, 4.841148376464844f, 4.853340148925781f, 4.815730094909668f, 4.8606181144714355f, 4.864851474761963f, 4.853943347930908f, 4.857072353363037f, 4.865845203399658f, 4.83903169631958f, 4.839323997497559f, 4.853547096252441f, 4.861319065093994f, 4.854262351989746f, 4.85335111618042f, 4.848951816558838f, 4.857367038726807f, 4.8540472984313965f, 4.854204177856445f, 4.853390693664551f, 4.850429058074951f, 4.8542256355285645f, 4.84539270401001f, 4.872445106506348f, 4.8350419998168945f, 4.855948448181152f, 4.791098594665527f, 4.860246658325195f, 4.85080099105835f, 4.824630260467529f, 4.852724552154541f, 4.83675479888916f, 4.853806495666504f, 4.831771373748779f, 4.839821815490723f, 4.856444835662842f, 4.853408336639404f, 4.839377403259277f, 4.888157367706299f, 4.847803592681885f, 4.926937580108643f, 4.86123514175415f, 4.8530097007751465f, 4.843791484832764f, 4.8553466796875f, 4.862685203552246f, 4.836782932281494f, 4.829556941986084f, 4.865046977996826f, 4.949220180511475f, 4.853907585144043f, 4.858654022216797f, 4.852842330932617f, 4.852590084075928f, 4.853270053863525f, 4.857703685760498f, 4.831657409667969f, 4.831831455230713f, 4.835714817047119f, 4.873287677764893f, 4.861383438110352f, 4.849035263061523f, 4.826011657714844f, 4.859689712524414f, 4.840816497802734f, 4.861761093139648f, 4.822288513183594f, 4.901276588439941f, 4.821767330169678f, 4.8713788986206055f, 4.8542914390563965f, 4.85370397567749f, 4.84406042098999f, 4.8527445793151855f, 4.876774311065674f, 4.875062942504883f, 4.885288238525391f, 4.8349103927612305f, 4.853190898895264f, 4.860854148864746f, 4.837437152862549f, 4.8570475578308105f, 4.856215953826904f, 4.8456034660339355f, 4.860386371612549f, 4.851935386657715f, 4.846256256103516f, 4.8642497062683105f, 4.861553192138672f, 4.850989818572998f, 4.867442607879639f, 4.852613925933838f, 4.856968879699707f, 4.855709552764893f, 4.85834264755249f, 4.854826927185059f };
+float param_pConv5Norm[128] = { 3.079456090927124f, 3.039461135864258f, 3.0351147651672363f, 3.037583589553833f, 3.048778533935547f, 3.0725064277648926f, 3.0622661113739014f, 3.064093828201294f, 3.048044443130493f, 3.036616086959839f, 3.1058716773986816f, 3.048161745071411f, 3.058666467666626f, 3.045867919921875f, 3.043402671813965f, 3.053333282470703f, 3.045125722885132f, 3.04072642326355f, 3.050602436065674f, 3.0699708461761475f, 3.0647435188293457f, 3.0702977180480957f, 3.061201810836792f, 3.0459437370300293f, 3.0622904300689697f, 3.067882776260376f, 3.0438363552093506f, 3.0610761642456055f, 3.044037103652954f, 3.0485501289367676f, 3.0330629348754883f, 3.048556327819824f, 3.0330440998077393f, 3.0585777759552f, 3.0413095951080322f, 3.0553483963012695f, 3.0651161670684814f, 3.0932703018188477f, 3.0698587894439697f, 3.067293167114258f, 3.040133237838745f, 3.0340847969055176f, 3.042184591293335f, 3.044334650039673f, 3.033623695373535f, 3.0592658519744873f, 3.0473034381866455f, 3.0568149089813232f, 3.0512683391571045f, 3.0338335037231445f, 3.0865068435668945f, 3.0527186393737793f, 3.035172700881958f, 3.0331568717956543f, 3.0637283325195312f, 3.0530037879943848f, 3.041080951690674f, 3.054175853729248f, 3.045405387878418f, 3.060072898864746f, 3.052427291870117f, 3.0673320293426514f, 3.0618369579315186f, 3.056979179382324f, 3.0732641220092773f, 3.049957275390625f, 3.033128261566162f, 3.0706357955932617f, 3.060206651687622f, 3.058335304260254f, 3.0502429008483887f, 3.033816337585449f, 3.0882437229156494f, 3.039879083633423f, 3.064310312271118f, 3.0645105838775635f, 3.0497498512268066f, 3.0598857402801514f, 3.0345287322998047f, 3.0501859188079834f, 3.0384273529052734f, 3.0725810527801514f, 3.089094638824463f, 3.074632406234741f, 3.0437800884246826f, 3.05190110206604f, 3.0339508056640625f, 3.033148765563965f, 3.0332436561584473f, 3.0683743953704834f, 3.075549602508545f, 3.057891845703125f, 3.0438103675842285f, 3.037956476211548f, 3.0511362552642822f, 3.0402984619140625f, 3.0735790729522705f, 3.068497896194458f, 3.039294719696045f, 3.0881500244140625f, 3.047109842300415f, 3.0450427532196045f, 3.0337936878204346f, 3.035036087036133f, 3.0530760288238525f, 3.034095048904419f, 3.074824571609497f, 3.0406930446624756f, 3.0669476985931396f, 3.049168109893799f, 3.076056480407715f, 3.046610116958618f, 3.083836317062378f, 3.080292224884033f, 3.0445592403411865f, 3.0415334701538086f, 3.057447671890259f, 3.0389440059661865f, 3.058000326156616f, 3.033161163330078f, 3.0331573486328125f, 3.044421911239624f, 3.039666175842285f, 3.054525375366211f, 3.098982572555542f, 3.0593252182006836f, 3.038623094558716f, 3.0782241821289062f };
+float param_pConv6Norm[128] = { 3.0690505504608154f, 3.0386440753936768f, 3.0784153938293457f, 3.064088821411133f, 3.058891773223877f, 3.036539316177368f, 3.0579793453216553f, 3.053611993789673f, 3.050058603286743f, 3.0333425998687744f, 3.097348213195801f, 3.06592059135437f, 3.068408489227295f, 3.0698347091674805f, 3.0762569904327393f, 3.054143190383911f, 3.054262399673462f, 3.0519206523895264f, 3.0427865982055664f, 3.046510934829712f, 3.054152250289917f, 3.101977586746216f, 3.0366146564483643f, 3.06791615486145f, 3.044861316680908f, 3.05081844329834f, 3.0827019214630127f, 3.046961784362793f, 3.0690267086029053f, 3.073493242263794f, 3.036958932876587f, 3.0742595195770264f, 3.0346856117248535f, 3.044112205505371f, 3.0804336071014404f, 3.0559825897216797f, 3.039485454559326f, 3.0536017417907715f, 3.035005569458008f, 3.0331103801727295f, 3.0532901287078857f, 3.041443347930908f, 3.075648307800293f, 3.033519744873047f, 3.057023525238037f, 3.0344996452331543f, 3.069003105163574f, 3.041029453277588f, 3.055204153060913f, 3.0332140922546387f, 3.058738946914673f, 3.033165454864502f, 3.041567802429199f, 3.0333807468414307f, 3.0331976413726807f, 3.0732359886169434f, 3.0440356731414795f, 3.0499985218048096f, 3.0332562923431396f, 3.0454604625701904f, 3.044590473175049f, 3.0364391803741455f, 3.034428596496582f, 3.040388584136963f, 3.0335984230041504f, 3.0358216762542725f, 3.037226676940918f, 3.0331900119781494f, 3.033982992172241f, 3.0461173057556152f, 3.0425851345062256f, 3.0333290100097656f, 3.0733861923217773f, 3.0609347820281982f, 3.0564520359039307f, 3.0463502407073975f, 3.066772699356079f, 3.0337183475494385f, 3.0710198879241943f, 3.0378026962280273f, 3.0489232540130615f, 3.0642757415771484f, 3.062023878097534f, 3.0553982257843018f, 3.0353715419769287f, 3.0331521034240723f, 3.033599615097046f, 3.038581609725952f, 3.0468997955322266f, 3.070789098739624f, 3.0823018550872803f, 3.045168399810791f, 3.050402879714966f, 3.04396390914917f, 3.053098678588867f, 3.073054790496826f, 3.036590814590454f, 3.0514144897460938f, 3.067574977874756f, 3.0603926181793213f, 3.04386568069458f, 3.069430112838745f, 3.0422122478485107f, 3.0464704036712646f, 3.0503995418548584f, 3.03448486328125f, 3.047955274581909f, 3.034306287765503f, 3.034529447555542f, 3.0360774993896484f, 3.0508804321289062f, 3.0470383167266846f, 3.05137038230896f, 3.0441949367523193f, 3.065099000930786f, 3.0329136848449707f, 3.0651464462280273f, 3.075334310531616f, 3.03696870803833f, 3.033154249191284f, 3.0385067462921143f, 3.0376787185668945f, 3.0448710918426514f, 3.0523617267608643f, 3.0374507904052734f, 3.0359244346618652f, 3.040173292160034f, 3.03313946723938f };
 
 SConvInfo param_pConvInfo[NUM_CONV_LAYER] = {
     //conv1_1
-    { 1, 2, 3, 3, 3,  16 },
+    { 1, 2, 3, 3, 3,  32 },
     //conv1_2
-    { 0, 1, 1, 1, 16, 16 },
+    { 0, 1, 1, 1, 32, 16 },
     //conv2_1
-    { 1, 1, 3, 3, 16, 16 },
-    //conv2_2
-    { 0, 1, 1, 1, 16, 16 },
-    //conv3_1
     { 1, 1, 3, 3, 16, 32 },
     //conv2_2
-    { 0, 1, 1, 1, 32, 32 },
+    { 0, 1, 1, 1, 32, 16 },
+    //conv3_1
+    { 1, 1, 3, 3, 16, 64 },
+    //conv2_2
+    { 0, 1, 1, 1, 64, 32 },
     //conv3_3
-    { 1, 1, 3, 3, 32, 32 },
-    //conv4_1
     { 1, 1, 3, 3, 32, 64 },
+    //conv4_1
+    { 1, 1, 3, 3, 64, 128 },
     //conv4_2
-    { 0, 1, 1, 1, 64, 64 },
+    { 0, 1, 1, 1, 128, 64 },
     //conv4_3
-    { 1, 1, 3, 3, 64, 64 },
+    { 1, 1, 3, 3, 64, 128 },
     //conv5_1
-    { 1, 1, 3, 3, 64,128 },
+    { 1, 1, 3, 3, 128,128 },
     //conv5_2
     { 0, 1, 1, 1,128,128 },
     //conv5_3
@@ -116,13 +110,13 @@ SConvInfo param_pConvInfo[NUM_CONV_LAYER] = {
     //conv6_3
     { 1, 1, 3, 3,128,128 },
     //loc3
-    { 1, 1, 3, 3, 32, 12 },
+    { 1, 1, 3, 3, 64, 12 },
     //conf3
-    { 1, 1, 3, 3, 32,  6 },
+    { 1, 1, 3, 3, 64,  6 },
     //loc4
-    { 1, 1, 3, 3, 64,  8 },
+    { 1, 1, 3, 3, 128,  8 },
     //conf4
-    { 1, 1, 3, 3, 64,  4 },
+    { 1, 1, 3, 3, 128,  4 },
     //loc5
     { 1, 1, 3, 3,128,  8 },
     //conf5
@@ -147,17 +141,11 @@ void init_parameters()
         
         for(int ff = 0; ff < param_pConvInfo[i].num; ff++)
         {
-            CDataBlob * b3x3 = new CDataBlob(param_pConvInfo[i].width, param_pConvInfo[i].height, param_pConvInfo[i].channels);
-            CDataBlob * b1x1 = new CDataBlob();
-#if defined(_ENABLE_INT8_CONV)
-            b3x3->setInt8DataFromCaffeFormat(param_ppConvCoefInt8[i] + ff * offset, 
+            CDataBlob<signed char> * b3x3 = new CDataBlob<signed char>(param_pConvInfo[i].width, param_pConvInfo[i].height, param_pConvInfo[i].channels);
+            CDataBlob<signed char> * b1x1 = new CDataBlob<signed char>();
+            b3x3->setInt8DataFromCaffeFormat(param_ppConvCoefInt8[i] + ff * offset,
                                             param_pConvInfo[i].width, param_pConvInfo[i].height, param_pConvInfo[i].channels);
-            blob2vector(b3x3, b1x1, false);
-#else
-            b3x3->setFloatDataFromCaffeFormat(param_ppConvCoefFloat[i] + ff * offset,
-                                            param_pConvInfo[i].width, param_pConvInfo[i].height, param_pConvInfo[i].channels);
-            blob2vector(b3x3, b1x1, true);
-#endif
+            blob2vector<signed char>(b3x3, b1x1);
             delete b3x3;
             b3x3 = 0;
             param_pFilters[i].filters.push_back(b1x1);            
@@ -173,14 +161,9 @@ void init_parameters()
         
         for(int ff = 0; ff < param_pConvInfo[i].num; ff++)
         {
-            CDataBlob * b = new CDataBlob(param_pConvInfo[i].width, param_pConvInfo[i].height, param_pConvInfo[i].channels);
-#if defined(_ENABLE_INT8_CONV)
+            CDataBlob<signed char> * b = new CDataBlob<signed char>(param_pConvInfo[i].width, param_pConvInfo[i].height, param_pConvInfo[i].channels);
             b->setInt8DataFromCaffeFormat(param_ppConvCoefInt8[i] + ff * offset, 
                                             param_pConvInfo[i].width, param_pConvInfo[i].height, param_pConvInfo[i].channels);
-#else
-            b->setFloatDataFromCaffeFormat(param_ppConvCoefFloat[i] + ff * offset,
-                                            param_pConvInfo[i].width, param_pConvInfo[i].height, param_pConvInfo[i].channels);
-#endif
             param_pFilters[i].filters.push_back(b);            
         }
     }
@@ -188,14 +171,18 @@ void init_parameters()
 
 vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int height, int step)
 {
-    CDataBlob inputImage;
-    CDataBlob pConvDataBlobs[NUM_CONV_LAYER];
-    CDataBlob pool1, pool2, pool3, pool4, pool5;
-    CDataBlob conv3norm, conv4norm, conv5norm, conv6norm;
-    CDataBlob conv3priorbox, conv4priorbox, conv5priorbox, conv6priorbox;
-    CDataBlob conv3priorbox_flat, conv4priorbox_flat, conv5priorbox_flat, conv6priorbox_flat, mbox_priorbox;
-    CDataBlob conv3loc_flat, conv4loc_flat, conv5loc_flat, conv6loc_flat, mbox_loc;
-    CDataBlob conv3conf_flat, conv4conf_flat, conv5conf_flat, conv6conf_flat, mbox_conf;
+    CDataBlob<unsigned char> inputImage;
+    CDataBlob<unsigned char> pConvDataBlobs[NUM_CONV_LAYER-8];
+    CDataBlob<int> pConvDataBlobsBranch[8];
+    CDataBlob<unsigned char> pool1, pool2, pool3, pool4, pool5;
+    CDataBlob<float> conv3priorbox, conv4priorbox, conv5priorbox, conv6priorbox;
+    CDataBlob<float> conv3priorbox_flat, conv4priorbox_flat, conv5priorbox_flat, conv6priorbox_flat, mbox_priorbox;
+    CDataBlob<int> conv3loc_flat, conv4loc_flat, conv5loc_flat, conv6loc_flat;
+    CDataBlob<float> conv3loc_flat_float, conv4loc_flat_float, conv5loc_flat_float, conv6loc_flat_float;
+    CDataBlob<float> mbox_loc_float;        ;
+    CDataBlob<int> conv3conf_flat, conv4conf_flat, conv5conf_flat, conv6conf_flat;
+    CDataBlob<float> conv3conf_flat_float, conv4conf_flat_float, conv5conf_flat_float, conv6conf_flat_float;
+    CDataBlob<float> mbox_conf_float;
 
     double total = 0.0;
     double t = 0.0;
@@ -213,26 +200,20 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
   
     TIME_START;
     //inputImage.setDataFromImage(rgbImageData, width, height, 3, step, param_pMean);
-    inputImage.setDataFrom3x3S2P1to1x1S1P0FromImage(rgbImageData, width, height, 3, step, param_pMean);
+    inputImage.setDataFrom3x3S2P1to1x1S1P0FromImage(rgbImageData, width, height, 3, step);
     TIME_END("convert data");
 
 
 /***************CONV1*********************/
     int convidx = 0;
     TIME_START;
-    convolution(&inputImage, param_pFilters + convidx, pConvDataBlobs + convidx);
+    convolution_relu(&inputImage, param_pFilters + convidx, pConvDataBlobs + convidx);
     TIME_END("conv11");
-    TIME_START;
-    relu(pConvDataBlobs+convidx);
-    TIME_END("relu11");
 
     convidx++;
     TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
     TIME_END("conv12");
-    TIME_START;
-    relu(pConvDataBlobs+convidx);
-    TIME_END("relu12");
 
     TIME_START;
     maxpooling2x2S2(pConvDataBlobs+convidx, &pool1);
@@ -240,136 +221,96 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
 
 /***************CONV2*********************/
     convidx++;
-TIME_START;
-    convolution(&pool1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv21");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu21");
+    TIME_START;
+    convolution_relu(&pool1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv21");
 
-convidx++;
-TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv22");
-TIME_START
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu22");
+    convidx++;
+    TIME_START;
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv22");
 
-TIME_START;
+    TIME_START;
     maxpooling2x2S2(pConvDataBlobs+convidx, &pool2);
-TIME_END("pool2");
+    TIME_END("pool2");
 
 /***************CONV3*********************/
     convidx++;
-TIME_START;
-    convolution(&pool2, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv31");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu31");
+    TIME_START;
+    convolution_relu(&pool2, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv31");
 
-convidx++;
-TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv32");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu32");
+    convidx++;
+    TIME_START;
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv32");
 
-convidx++;
-TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv33");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu33");
+    convidx++;
+    TIME_START;
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv33");
 
-TIME_START;
+    TIME_START;
     maxpooling2x2S2(pConvDataBlobs+convidx, &pool3);
-TIME_END("pool3");
+    TIME_END("pool3");
 
 /***************CONV4*********************/
     convidx++;
-TIME_START;
-    convolution(&pool3, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv41");
-TIME_START
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu41");
+    TIME_START;
+    convolution_relu(&pool3, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv41");
 
-convidx++;
-TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv42");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu42");
+    convidx++;
+    TIME_START;
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv42");
 
-convidx++;
-TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv43");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu43");
+    convidx++;
+    TIME_START;
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv43");
 
-TIME_START;
+    TIME_START;
     maxpooling2x2S2(pConvDataBlobs+convidx, &pool4);
-TIME_END("pool4");
+    TIME_END("pool4");
 
 /***************CONV5*********************/
     convidx++;
-TIME_START;
-    convolution(&pool4, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv51");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu51");
+    TIME_START;
+    convolution_relu(&pool4, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv51");
 
-convidx++;
-TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv52");
-TIME_START
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu52");
+    convidx++;
+    TIME_START;
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv52");
 
-convidx++;
-TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv53");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu53");
+    convidx++;
+    TIME_START;
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv53");
 
-TIME_START;
+    TIME_START;
     maxpooling2x2S2(pConvDataBlobs+convidx, &pool5);
-TIME_END("pool5");
+    TIME_END("pool5");
 
 /***************CONV6*********************/
     convidx++;
-TIME_START;
-    convolution(&pool5, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv61");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu61");
+    TIME_START;
+    convolution_relu(&pool5, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv61");
 
-convidx++;
-TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv62");
-TIME_START
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu62");
+    convidx++;
+    TIME_START;
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv62");
 
-convidx++;
-TIME_START;
-    convolution(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
-TIME_END("conv63");
-TIME_START;
-    relu(pConvDataBlobs+convidx);
-TIME_END("relu63");
+
+    convidx++;
+    TIME_START;
+    convolution_relu(pConvDataBlobs+convidx-1, param_pFilters+convidx, pConvDataBlobs+convidx);
+    TIME_END("conv63");
+
 
     /***************PRIORBOX3*********************/
     int conv3idx = 6;
@@ -379,12 +320,12 @@ TIME_END("relu63");
 
     convidx++;
     TIME_START
-    convolution(pConvDataBlobs+ conv3idx, param_pFilters+convidx, pConvDataBlobs+convidx);
+    convolution(pConvDataBlobs+ conv3idx, param_pFilters+convidx, pConvDataBlobsBranch + 0);
     TIME_END("prior3 loc");
 
     convidx++;
     TIME_START;
-    convolution(pConvDataBlobs+ conv3idx, param_pFilters+convidx, pConvDataBlobs+convidx);
+    convolution(pConvDataBlobs+ conv3idx, param_pFilters+convidx, pConvDataBlobsBranch + 1);
     TIME_END("prior3 conf");
 
     TIME_START;
@@ -400,12 +341,12 @@ TIME_END("relu63");
 
     convidx++;
     TIME_START
-        convolution(pConvDataBlobs + conv4idx, param_pFilters + convidx, pConvDataBlobs + convidx);
+    convolution(pConvDataBlobs + conv4idx, param_pFilters + convidx, pConvDataBlobsBranch + 2);
     TIME_END("prior4 loc");
 
     convidx++;
     TIME_START;
-    convolution(pConvDataBlobs + conv4idx, param_pFilters + convidx, pConvDataBlobs + convidx);
+    convolution(pConvDataBlobs + conv4idx, param_pFilters + convidx, pConvDataBlobsBranch + 3);
     TIME_END("prior4 conf");
 
     TIME_START;
@@ -421,12 +362,12 @@ TIME_END("relu63");
 
     convidx++;
     TIME_START
-        convolution(pConvDataBlobs + conv5idx, param_pFilters + convidx, pConvDataBlobs + convidx);
+    convolution(pConvDataBlobs + conv5idx, param_pFilters + convidx, pConvDataBlobsBranch + 4);
     TIME_END("prior5 loc");
 
     convidx++;
     TIME_START;
-    convolution(pConvDataBlobs + conv5idx, param_pFilters + convidx, pConvDataBlobs + convidx);
+    convolution(pConvDataBlobs + conv5idx, param_pFilters + convidx, pConvDataBlobsBranch + 5);
     TIME_END("prior5 conf");
 
     TIME_START;
@@ -442,12 +383,12 @@ TIME_END("relu63");
 
     convidx++;
     TIME_START
-        convolution(pConvDataBlobs + conv6idx, param_pFilters + convidx, pConvDataBlobs + convidx);
+    convolution(pConvDataBlobs + conv6idx, param_pFilters + convidx, pConvDataBlobsBranch + 6);
     TIME_END("prior6 loc");
 
     convidx++;
     TIME_START;
-    convolution(pConvDataBlobs + conv6idx, param_pFilters + convidx, pConvDataBlobs + convidx);
+    convolution(pConvDataBlobs + conv6idx, param_pFilters + convidx, pConvDataBlobsBranch + 7);
     TIME_END("prior6 conf");
 
     TIME_START;
@@ -458,39 +399,48 @@ TIME_END("relu63");
 
 
 TIME_START;
-    blob2vector(&conv3priorbox, &conv3priorbox_flat, true);
-    blob2vector(pConvDataBlobs + 16, &conv3loc_flat, true);
-    blob2vector(pConvDataBlobs + 17, &conv3conf_flat, true);
+    blob2vector(&conv3priorbox, &conv3priorbox_flat);
+    blob2vector(pConvDataBlobsBranch + 0, &conv3loc_flat);
+    blob2vector(pConvDataBlobsBranch + 1, &conv3conf_flat);
 
-    blob2vector(&conv4priorbox, &conv4priorbox_flat, true);
-    blob2vector(pConvDataBlobs + 18, &conv4loc_flat, true);
-    blob2vector(pConvDataBlobs + 19, &conv4conf_flat, true);
+    blob2vector(&conv4priorbox, &conv4priorbox_flat);
+    blob2vector(pConvDataBlobsBranch + 2, &conv4loc_flat);
+    blob2vector(pConvDataBlobsBranch + 3, &conv4conf_flat);
 
-    blob2vector(&conv5priorbox, &conv5priorbox_flat, true);
-    blob2vector(pConvDataBlobs + 20, &conv5loc_flat, true);
-    blob2vector(pConvDataBlobs + 21, &conv5conf_flat, true);
+    blob2vector(&conv5priorbox, &conv5priorbox_flat);
+    blob2vector(pConvDataBlobsBranch + 4, &conv5loc_flat);
+    blob2vector(pConvDataBlobsBranch + 5, &conv5conf_flat);
 
-    blob2vector(&conv6priorbox, &conv6priorbox_flat, true);
-    blob2vector(pConvDataBlobs + 22, &conv6loc_flat, true);
-    blob2vector(pConvDataBlobs + 23, &conv6conf_flat, true);
+    blob2vector(&conv6priorbox, &conv6priorbox_flat);
+    blob2vector(pConvDataBlobsBranch + 6, &conv6loc_flat);
+    blob2vector(pConvDataBlobsBranch + 7, &conv6conf_flat);
 TIME_END("prior flat");
 
-
+TIME_START
+    convertInt2Float(&conv3loc_flat, &conv3loc_flat_float);
+    convertInt2Float(&conv4loc_flat, &conv4loc_flat_float);
+    convertInt2Float(&conv5loc_flat, &conv5loc_flat_float);
+    convertInt2Float(&conv6loc_flat, &conv6loc_flat_float);
+    convertInt2Float(&conv3conf_flat, &conv3conf_flat_float);
+    convertInt2Float(&conv4conf_flat, &conv4conf_flat_float);
+    convertInt2Float(&conv5conf_flat, &conv5conf_flat_float);
+    convertInt2Float(&conv6conf_flat, &conv6conf_flat_float);
+TIME_END("convert int to float");
 
 TIME_START
     concat4(&conv3priorbox_flat, &conv4priorbox_flat, &conv5priorbox_flat, &conv6priorbox_flat, &mbox_priorbox);
-    concat4(&conv3loc_flat, &conv4loc_flat, &conv5loc_flat, &conv6loc_flat, &mbox_loc);
-    concat4(&conv3conf_flat, &conv4conf_flat, &conv5conf_flat, &conv6conf_flat, &mbox_conf);
+    concat4(&conv3loc_flat_float, &conv4loc_flat_float, &conv5loc_flat_float, &conv6loc_flat_float, &mbox_loc_float);
+    concat4(&conv3conf_flat_float, &conv4conf_flat_float, &conv5conf_flat_float, &conv6conf_flat_float, &mbox_conf_float);
 TIME_END("concat prior")
 
 TIME_START
-    softmax1vector2class(&mbox_conf);
+    softmax1vector2class(&mbox_conf_float);
 TIME_END("softmax")
 
 
-    CDataBlob facesInfo;
+    CDataBlob<float> facesInfo;
     TIME_START;
-    detection_output(&mbox_priorbox, &mbox_loc, &mbox_conf, 0.3f, 0.5f, 100, 50, &facesInfo);
+    detection_output(&mbox_priorbox, &mbox_loc_float, &mbox_conf_float, 0.3f, 0.5f, 100, 50, &facesInfo);
     TIME_END("detection output")
 
 
@@ -499,11 +449,11 @@ TIME_END("softmax")
     std::vector<FaceRect> faces;
     for (int i = 0; i < facesInfo.width; i++)
     {
-        float score = facesInfo.getElementFloat(i, 0, 0);
-        float bbxmin = facesInfo.getElementFloat(i, 0, 1);
-        float bbymin = facesInfo.getElementFloat(i, 0, 2);
-        float bbxmax = facesInfo.getElementFloat(i, 0, 3);
-        float bbymax = facesInfo.getElementFloat(i, 0, 4);
+        float score = facesInfo.getElement(i, 0, 0);
+        float bbxmin = facesInfo.getElement(i, 0, 1);
+        float bbymin = facesInfo.getElement(i, 0, 2);
+        float bbxmax = facesInfo.getElement(i, 0, 3);
+        float bbymax = facesInfo.getElement(i, 0, 4);
         FaceRect r;
         r.score = score;
         //r.x = int(bbxmin * width + 0.5f);
@@ -527,9 +477,6 @@ TIME_END("softmax")
 int * facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing face detection results, !!its size must be 0x20000 Bytes!!
     unsigned char * rgb_image_data, int width, int height, int step) //input image, it must be RGB (three-channel) image!
 {
-#ifdef	__CALL_LIMIT__
-    static int call_count = 0;
-#endif
 
     if (!result_buffer)
     {
@@ -563,14 +510,6 @@ int * facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing 
         p[3] = (short)faces[i].h;
         p[4] = (short)(faces[i].score * faces[i].score * 100);
     }
-#ifdef	__CALL_LIMIT__
-    if(call_count>1814403)
-    {
-        memset(result_buffer, 0 , 4+284*num_faces);
-    }
-    else
-        call_count++;
-#endif
 
     TIME_END("call detection");
     return pCount;

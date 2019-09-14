@@ -60,23 +60,25 @@ make
 
 ## CNN-based Face Detection on Windows
 
+
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |  X64         |X64          |  X64         |X64          |
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
 |OpenCV Haar+AdaBoost (640x480)|   --         | --          | 12.33ms      |   81.1      |
-|cnn (CPU, 640x480)  |  64.21ms     | 15.57       | 15.59ms      |   64.16     |
-|cnn (CPU, 320x240)  |  15.23ms     | 65.68       |  3.99ms      |  250.40     |
-|cnn (CPU, 160x120)  |   3.47ms     | 288.08      |  0.95ms      | 1052.20     |
-|cnn (CPU, 128x96)   |   2.35ms     | 425.95      |  0.64ms      | 1562.10     |
+|cnn (CPU, 640x480)  |  64.55ms     | 15.49       | 15.78ms      |  63.36      |
+|cnn (CPU, 320x240)  |  15.48ms     | 64.60       |  3.92ms      |  255.01     |
+|cnn (CPU, 160x120)  |   3.86ms     | 259.01      |  1.07ms      |  938.71     |
+|cnn (CPU, 128x96)   |   2.46ms     | 406.33      |  0.68ms      | 1479.79     |
 
 * OpenCV Haar+AdaBoost runs with minimal face size 48x48
 * Face detection only, and no landmark detection included
-* Minimal face size ~12x12
+* Minimal face size ~10x10
 * Intel(R) Core(TM) i7-7700 CPU @ 3.6GHz
 
 ## CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
 
+(* to be updated)
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
@@ -86,7 +88,7 @@ make
 |cnn (CPU, 128x96)   |   17.78ms    | 56.24       |    6.12ms    | 163.50      |
 
 * Face detection only, and no landmark detection included.
-* Minimal face size ~12x12
+* Minimal face size ~10x10
 * Raspberry Pi 3 B+, Broadcom BCM2837B0, Cortex-A53 (ARMv8) 64-bit SoC @ 1.4GHz
 
 
