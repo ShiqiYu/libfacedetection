@@ -459,7 +459,7 @@ bool maxpooling2x2S2(const CDataBlob<unsigned char> *inputData, CDataBlob<unsign
 #if defined(_ENABLE_NEON)
 
 #elif defined(_ENABLE_AVX2)
-            for (int ch = 0; ch < outputData->channels; ch += 8)
+            for (int ch = 0; ch < outputData->channels; ch += 32)
             {
                 __m256i a;
                 __m256i maxval_uint8x32 = _mm256_load_si256((__m256i const *)(pIn + ch + inputMatOffsetsInElement[0]));
