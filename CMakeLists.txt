@@ -4,7 +4,6 @@ project(facedetection)
 
 cmake_minimum_required(VERSION 2.8)
 
-option(ENABLE_INT8 "use int8" OFF)
 option(ENABLE_AVX2 "use avx2" OFF)
 option(ENABLE_NEON "whether use neon, if use arm please set it on" OFF)
 option(DEMO "build the demo" OFF)
@@ -19,11 +18,6 @@ SET(fdt_lib_shared ${fdt_lib_name}_shared)
 
 FILE(GLOB_RECURSE fdt_source_files ${fdt_src_dir}/*.cpp)
 LIST(SORT         fdt_source_files)
-
-if(ENABLE_INT8)
-	message("using int8")
-	add_definitions(-D_ENABLE_INT8)
-endif()
 
 if(ENABLE_AVX2)
 	message("using avx2")
