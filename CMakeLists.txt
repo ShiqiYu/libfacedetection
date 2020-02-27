@@ -1,12 +1,13 @@
 # CMakeLists for libfacedetectcnn
 
-project(facedetection)
+project(libfacedetection)
 
 cmake_minimum_required(VERSION 2.8)
 
-option(ENABLE_AVX2 "use avx2" OFF)
+option(ENABLE_AVX512 "use avx512" OFF)
+option(ENABLE_AVX2 "use avx2" ON)
 option(ENABLE_NEON "whether use neon, if use arm please set it on" OFF)
-option(DEMO "build the demo" OFF)
+option(DEMO "build the demo" ON)
 
 SET(fdt_base_dir   ${PROJECT_SOURCE_DIR})
 SET(fdt_src_dir    ${fdt_base_dir}/src)
@@ -19,20 +20,34 @@ SET(fdt_lib_shared ${fdt_lib_name}_shared)
 FILE(GLOB_RECURSE fdt_source_files ${fdt_src_dir}/*.cpp)
 LIST(SORT         fdt_source_files)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+#use -O3 to speedup
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
+
+if(ENABLE_AVX512)
+	add_definitions(-D_ENABLE_AVX512)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx512bw")
+endif()
+
 if(ENABLE_AVX2)
-	message("using avx2")
 	add_definitions(-D_ENABLE_AVX2)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma")
 endif()
 
 if(ENABLE_NEON)
-	message("using arm")
+	message("Using ENON")
 	add_definitions(-D_ENABLE_NEON)
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+#FIND_PACKAGE(OpenMP)
+#if(OPENMP_FOUND)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+#endif()
 
 INCLUDE_DIRECTORIES(${fdt_inc_dir})
 
@@ -46,15 +61,17 @@ SET_TARGET_PROPERTIES(${fdt_lib_shared} PROPERTIES PREFIX "lib")
 
 # Create demo. OpenCV is requred.
 if (DEMO)
-    #if(WIN32)
-    #    set(OpenCV_DIR "D:/opencv343/build") # TODO
-    #endif()
     find_package(OpenCV REQUIRED)
     include_directories(${OpenCV_INCLUDE_DIRS})
 
-    set(fdt_demo_files ${fdt_base_dir}/example/libfacedetectcnn-example.cpp)
-    add_executable(fdt_demo ${fdt_demo_files})
-    target_link_libraries(fdt_demo ${fdt_lib_static} ${OpenCV_LIBS})
+    add_executable(detect-image-demo ${fdt_base_dir}/example/detect-image.cpp)
+    target_link_libraries(detect-image-demo ${fdt_lib_static} ${OpenCV_LIBS})
+
+    add_executable(detect-camera-demo ${fdt_base_dir}/example/detect-camera.cpp)
+    target_link_libraries(detect-camera-demo ${fdt_lib_static} ${OpenCV_LIBS})
+    
+        add_executable(benchmark ${fdt_base_dir}/example/benchmark.cpp)
+    target_link_libraries(benchmark ${fdt_lib_static} ${OpenCV_LIBS})
 endif()
 
 if (GSTREAMER)
@@ -84,6 +101,10 @@ if (GSTREAMER)
         ${fdt_lib_shared}
     )
 
-
-
 endif()
+
+message("AVX512 = ${ENABLE_AVX512}")
+message("AVX2 = ${ENABLE_AVX2}")
+message("NEON = ${ENABLE_NEON}")
+message("OpenMP = ${OPENMP_FOUND}")
+message("DEMO = ${DEMO}")

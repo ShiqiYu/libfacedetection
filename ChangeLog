@@ -1,3 +1,9 @@
+2020-02-27
+---------------------
+* Update the model to v3. The computational cost similar with the previous one.
+* Now the algorithm can support 5 landmakr detection.
+* AVX512 support is added.
+
 2019-09-14
 ---------------------
 * Update the model to v2. The computational cost is doubled. But the speed is almost the same with the previous one because int8 convolutional operation is carried out by AVX2.
