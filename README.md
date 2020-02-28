@@ -36,7 +36,6 @@ The model in Tengine can run faster than the C++ source code here because Tengin
 
 ```
 cmake \
-    -DENABLE_INT8=ON \
     -DENABLE_NEON=ON \
     -DCMAKE_BUILD_TYPE=RELEASE \
     -DCMAKE_TOOLCHAIN_FILE=../aarch64-toolchain.cmake \
