@@ -8,6 +8,8 @@ The model file has also been provided in directory ./models/.
 
 examples/detect-image.cpp and examples/detect-camera.cpp show how to use the library.
 
+The library was trained by [libfacedetection.train](https://github.com/ShiqiYu/libfacedetection.train).
+
 ![Examples](/images/cnnresult.png "Detection example")
 
 ## How to use the code
