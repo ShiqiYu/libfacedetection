@@ -5,7 +5,7 @@ Step:
 
 - Complie it
 
-```
+```bash
 mkdir build
 cd build
 cmake .. -DCMAKE_PREFIX_INSTALL=install
@@ -27,10 +27,11 @@ endif()
 ```
 
 ## Example
+
 - Examples of this project  
 If you want to run the examples. you must be isntalled opencv library and set OpenCV_DIR first, then run the command:
 
-```
+```bash
 mkdir build
 cd build
 cmake .. -DDEMO=ON -DOpenCV_DIR=
@@ -43,15 +44,17 @@ cmak --build .
     It's a cross-platforms programe. It's supported windows, linux, android etc.
 
 ## Use Tengine to Speedup the detection on ARM
+
 The model has been added to [Tengine](https://github.com/OAID/Tengine). Tengine, developed by OPEN AI LAB, is a lite, high-performance, and modular inference engine for embedded device. 
 
 The model in Tengine can run faster than the C++ source code here because Tengine has been optimized according to ARM CPU. There are detailed manual and example at Tengine web site: https://github.com/OAID/Tengine/tree/master/examples/YuFaceDetectNet
 
 ## Cross build for aarch64
+
 1. Set cross compiler for aarch64 (please refer to aarch64-toolchain.cmake)
 2. Set opencv path since the example code depends on opencv
 
-```
+```bash
 cmake \
     -DENABLE_NEON=ON \
     -DCMAKE_BUILD_TYPE=RELEASE \
@@ -62,7 +65,8 @@ make
 ```
 
 ## Native build for avx2
-```
+
+```bash
 cmake \
     -DENABLE_AVX2=ON \
     -DCMAKE_BUILD_TYPE=RELEASE \
@@ -73,6 +77,7 @@ make
 ```
 
 ## Android platform compilation instructions
+
 + Install ndk
   - Download and install to /home/android-ndk from https://developer.android.com/ndk/downloads 
   - Setting environment variables
