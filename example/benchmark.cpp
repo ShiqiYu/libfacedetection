@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
-#include <omp.h>
 #include "facedetectcnn.h"
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 using namespace cv;
 using namespace std;
