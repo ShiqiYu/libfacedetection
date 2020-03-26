@@ -63,6 +63,12 @@ You can also compile the source code to a static or dynamic library, and then us
 * Raspberry Pi 3 B+, Broadcom BCM2837B0, Cortex-A53 (ARMv8) 64-bit SoC @ 1.4GHz
 -->
 
+## Performance on WIDER Face
+Run on default settings: scales=[1.], confidence_threshold=0.3, floating point:
+```
+AP_easy=0.849, AP_medium=0.816, AP_hard=0.601
+```
+
 ## Author
 * Shiqi Yu, <shiqi.yu@gmail.com>
 
