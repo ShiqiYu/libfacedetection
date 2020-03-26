@@ -21,6 +21,7 @@ It should be compiled at any platform which support C/C++.
 
 Some tips:
 
+  * Please add facedetection_export.h file in the position of your copy facedetectcnn.h files，add #define FACEDETECTION_EXPORT to the facedetection_export.h file. See: [issues #222](https://github.com/ShiqiYu/libfacedetection/issues/222)
   * Please add -O3 to turn on optimizations when you compile the source code using g++.
   * Please choose 'Maximize Speed/-O2' when you compile the source code using Microsoft Visual Studio.
   * You can enable OpenMP to speedup. But the best solution is to call the detection function in different threads.
