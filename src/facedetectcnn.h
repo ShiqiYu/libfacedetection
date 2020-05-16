@@ -390,6 +390,14 @@ public:
         stride = 0;
         scale = 0;
     }
+    ~Filters()
+    {
+	for (int i = 0; i < filters.size(); i++)
+	{
+	    delete filters[i];
+	    filters[i] = 0;
+	}
+    }
 };
 
 bool convertInt2Float(CDataBlob<int> * inputData, CDataBlob<float> * outputData);
