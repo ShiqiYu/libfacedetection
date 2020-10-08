@@ -100,7 +100,7 @@ std::vector<Face> PriorBox::decode(const cv::Mat& loc,
         float y_n  = (priors[i].center.y + loc_v[i*14+11] * variance[0] * priors[i].h) * out_h;
         float x_mr = (priors[i].center.x + loc_v[i*14+12] * variance[0] * priors[i].w) * out_w;
         float y_mr = (priors[i].center.y + loc_v[i*14+13] * variance[0] * priors[i].h) * out_h;
-        Landmarks_10 landmarks = { {x_re, y_re}, // right eye
+        Landmarks_5 landmarks = { {x_re, y_re}, // right eye
                                    {x_le, y_le}, // left eye
                                    {x_ml, y_ml}, // mouth left
                                    {x_n,  y_n },  // nose

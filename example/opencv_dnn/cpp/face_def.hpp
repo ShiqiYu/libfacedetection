@@ -21,7 +21,7 @@ typedef struct BndBox_xyxy {
     }
 } BndBox_xyxy;
 
-typedef struct Landmarks_10 {
+typedef struct Landmarks_5 {
     // right eye
     cv::Point2f right_eye;
     // left eye
@@ -32,11 +32,11 @@ typedef struct Landmarks_10 {
     cv::Point2f nose_tip;
     // mouth right
     cv::Point2f mouth_right;
-} Landmarks_10;
+} Landmarks_5;
 
 typedef struct Face {
     BndBox_xyxy bbox;
-    Landmarks_10 landmarks;
+    Landmarks_5 landmarks;
     float score;
 } Face;
 
