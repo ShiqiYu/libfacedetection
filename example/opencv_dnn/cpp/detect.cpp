@@ -20,7 +20,7 @@ cv::Size get_input_shape(std::string model_fpath) {
 
 int main(int argc, char* argv[]) {
     // Location
-    std::string img_fpath = "../example_image.jpg";
+    std::string img_fpath = "../example2.jpg";
     std::string model_fpath = "../YuFaceDetectNet_320.onnx";
     // Inference
     float conf_thresh = 0.6;
@@ -40,9 +40,7 @@ int main(int argc, char* argv[]) {
     // Build blob
     cv::Mat img = cv::imread(img_fpath, cv::IMREAD_COLOR);
     cv::Size output_shape = img.size();
-    cv::Mat img_resize;
-    cv::resize(img, img_resize, input_shape);
-    cv::Mat blob = cv::dnn::blobFromImage(img_resize, 1.0, input_shape);
+    cv::Mat blob = cv::dnn::blobFromImage(img, 1.0, input_shape);
 
     // Forward
     std::vector<cv::String> output_names = { "loc", "conf" };

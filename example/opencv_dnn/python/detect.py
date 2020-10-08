@@ -76,11 +76,8 @@ img = cv2.imread(args.image, cv2.IMREAD_COLOR)
 h, w, _ = img.shape
 print('Original size: h={}, w={}'.format(h, w))
 
-img_resize = cv2.resize(img, dst=None, dsize=(input_shape), interpolation=cv2.INTER_LINEAR)
-hr, wr, _ = img_resize.shape
-print('Network input size: h={}, w={}'.format(hr, wr))
-
-blob = cv2.dnn.blobFromImage(img_resize, size=input_shape)
+blob = cv2.dnn.blobFromImage(img, size=input_shape) # 'size' param resize the output to the given shape
+print('Network input size: h={}, w={}'.format(input_shape[0], input_shape[1]))
 
 
 
