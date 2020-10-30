@@ -2,6 +2,8 @@
 
 Example to deploy libfacedetection with the OpenCV DNN module and [ONNX](https://github.com/onnx/onnx) in both Python and C++.
 
+***NOTE***: The OpenCV DNN module currently only supports ONNX models with fixed-size input, resulting in a performance drop comparing with the ones taking random-size input. We will update our code once the OpenCV DNN module supports this feature.
+
 Envrionment tested:
 - System: Ubuntu 18.04 LTS / 20.04 LTS
 - OpenCV 4.3.0 / 4.4.0
