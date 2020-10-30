@@ -83,3 +83,7 @@ The contributors who were not listed at GitHub.com:
 
 ## Acknowledgment
 The work is partly supported by the Science Foundation of Shenzhen (Grant No. 20170504160426188).
+
+
+## Citation
+Our paper, which introduces a novel loss named Extended IoU (EIoU), is coming out soon. We trained our model using the EIoU loss and obtained a performance boost, see [Performance on WIDER Face (Val)](https://github.com/ShiqiYu/libfacedetection.train#performance-on-wider-face-val) for details. Stay tune for the release of our paper!
