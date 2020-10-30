@@ -56,7 +56,7 @@ class PriorBox(object):
                     )
         return anchors
 
-    def decode(self, loc: np.ndarray, conf: np.ndarray) -> np.ndarray:
+    def decode(self, loc: np.ndarray, conf: np.ndarray, iou: np.ndarray) -> np.ndarray:
         '''Decodes the locations (x1, y1, x2, y2) and scores (c) from the priors, and the given loc and conf.
         Args:
             loc (np.ndarray): loc produced from loc layers of shape [num_priors, 4], num_priors * [x_c, y_c, w, h].
@@ -71,7 +71,7 @@ class PriorBox(object):
             self.priors[:, 0:2]+loc[:, 0:2]*self.variance[0]*self.priors[:, 2:4],
             self.priors[:, 2:4]*np.exp(loc[:, 2:4]*self.variance)
         ))
-        # from (x_c, y_c, w, h) -> (x1, y1, x2, y2)
+        # (x_c, y_c, w, h) -> (x1, y1, x2, y2)
         bboxes[:, 0:2] -= bboxes[:, 2:4] / 2
         bboxes[:, 2:4] += bboxes[:, 0:2]
         # scale recover
@@ -91,7 +91,9 @@ class PriorBox(object):
         landmarks = landmarks * landmark_scale
 
         # get score
-        scores = conf[:, 1]
+        cls_scores = conf[:, 1]
+        iou_scores = iou[:, 0]
+        scores = np.sqrt(cls_scores * iou_scores)
         scores = scores[:, np.newaxis]
 
         dets = np.hstack((bboxes, landmarks, scores))
@@ -102,8 +104,9 @@ if __name__ == '__main__':
     pb = PriorBox()
     print(pb.generate_priors().shape)
 
-    loc = np.random.randn(1, 4385, 14)
-    conf = np.random.randn(1, 4385, 2)
+    loc = np.random.rand(1, 4385, 14)
+    conf = np.random.rand(1, 4385, 2)
+    iou = np.random.rand(1, 4385, 1)
 
-    dets = pb.decode(np.squeeze(loc, axis=0), np.squeeze(conf, axis=0))
+    dets = pb.decode(np.squeeze(loc, axis=0), np.squeeze(conf, axis=0), np.squeeze(iou, axis=0))
     print(dets.shape)

@@ -72,11 +72,13 @@ std::vector<BndBox_xywh> PriorBox::generate_priors() {
 }
 
 std::vector<Face> PriorBox::decode(const cv::Mat& loc,
-                                   const cv::Mat& conf) {
+                                   const cv::Mat& conf,
+                                   const cv::Mat& iou) {
     std::vector<Face> dets; // num * [x1, y1, x2, y2, x_re, y_re, x_le, y_le, x_ml, y_ml, x_n, y_n, x_mr, y_ml]
 
     float* loc_v = (float*)(loc.data);
     float* conf_v = (float*)(conf.data);
+    float* iou_v = (float*)(iou.data);
     for (auto i = 0; i < priors.size(); ++i) {
         float cx = priors[i].center.x + loc_v[i*14+0] * variance[0] * priors[i].w;
         float cy = priors[i].center.y + loc_v[i*14+1] * variance[0] * priors[i].h;
@@ -100,14 +102,17 @@ std::vector<Face> PriorBox::decode(const cv::Mat& loc,
         float y_n  = (priors[i].center.y + loc_v[i*14+11] * variance[0] * priors[i].h) * out_h;
         float x_mr = (priors[i].center.x + loc_v[i*14+12] * variance[0] * priors[i].w) * out_w;
         float y_mr = (priors[i].center.y + loc_v[i*14+13] * variance[0] * priors[i].h) * out_h;
-        Landmarks_5 landmarks = { {x_re, y_re}, // right eye
-                                   {x_le, y_le}, // left eye
-                                   {x_ml, y_ml}, // mouth left
-                                   {x_n,  y_n },  // nose
-                                   {x_mr, y_mr}  // mouth right
+        Landmarks_5 landmarks = {
+            {x_re, y_re}, // right eye
+            {x_le, y_le}, // left eye
+            {x_ml, y_ml}, // mouth left
+            {x_n,  y_n },  // nose
+            {x_mr, y_mr}  // mouth right
         };
         // get score
-        float score = conf_v[i*2+1];
+        float cls_score = conf_v[i*2+1];
+        float iou_score = iou_v[i];
+        float score = std::sqrt(cls_score * iou_score);
 
 
         Face det = { bbox, landmarks, score };

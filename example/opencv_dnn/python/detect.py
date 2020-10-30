@@ -44,7 +44,7 @@ parser.add_argument('--target', choices=targets, default=cv2.dnn.DNN_TARGET_CPU,
 parser.add_argument('--image', help='Path to the image.')
 parser.add_argument('--model', type=str, help='Path to .onnx model file.')
 # Inference
-parser.add_argument('--conf_thresh', default=0.6, type=float, help='Threshold for filtering out faces with conf < conf_thresh.')
+parser.add_argument('--conf_thresh', default=0.3, type=float, help='Threshold for filtering out faces with conf < conf_thresh.')
 parser.add_argument('--nms_thresh', default=0.3, type=float, help='Threshold for non-max suppression.')
 parser.add_argument('--keep_top_k', default=750, type=int, help='Keep keep_top_k for results outputing.')
 # Result
@@ -77,20 +77,20 @@ h, w, _ = img.shape
 print('Original size: h={}, w={}'.format(h, w))
 
 blob = cv2.dnn.blobFromImage(img, size=input_shape) # 'size' param resize the output to the given shape
-print('Network input size: h={}, w={}'.format(input_shape[0], input_shape[1]))
+print('Network input size: h={}, w={}'.format(input_shape[1], input_shape[0]))
 
 
 
 # run the net
-output_names = ['loc', 'conf']
+output_names = ['loc', 'conf', 'iou']
 net.setInput(blob)
-loc, conf = net.forward(output_names)
+loc, conf, iou = net.forward(output_names)
 
 
 
 # Decode bboxes and landmarks
 pb = PriorBox(input_shape=input_shape, output_shape=(w, h))
-dets = pb.decode(np.squeeze(loc, axis=0), np.squeeze(conf, axis=0))
+dets = pb.decode(np.squeeze(loc, axis=0), np.squeeze(conf, axis=0), np.squeeze(iou, axis=0))
 
 
 

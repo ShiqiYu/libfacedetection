@@ -43,14 +43,14 @@ int main(int argc, char* argv[]) {
     cv::Mat blob = cv::dnn::blobFromImage(img, 1.0, input_shape);
 
     // Forward
-    std::vector<cv::String> output_names = { "loc", "conf" };
+    std::vector<cv::String> output_names = { "loc", "conf", "iou" };
     std::vector<cv::Mat> output_blobs;
     net.setInput(blob);
     net.forward(output_blobs, output_names);
 
     // Decode bboxes, landmarks and scores
     PriorBox pb(input_shape, output_shape);
-    std::vector<Face> dets = pb.decode(output_blobs[0], output_blobs[1]);
+    std::vector<Face> dets = pb.decode(output_blobs[0], output_blobs[1], output_blobs[2]);
 
     // Ignore low scores
     dets.erase(
