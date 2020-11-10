@@ -727,6 +727,32 @@ bool softmax1vector2class(CDataBlob<float> *inputOutputData)
     }
     return true;
 }
+bool clamp1vector(CDataBlob<float> *inputOutputData)
+{
+    if (inputOutputData == NULL )
+    {
+        cerr << __FUNCTION__ << ": The input data is null." << endl;
+        return false;
+    }
+
+    if(inputOutputData->width != 1 || inputOutputData->height != 1)
+    {
+        cerr << __FUNCTION__ << ": The input data must be Cx1x1." << endl;
+        return false;
+    }
+
+    int num = inputOutputData->channels;
+    float * pData = inputOutputData->data;
+
+    for (int i = 0; i < num; i++)
+    {
+        float& v = pData[i];
+        if (v < 0) { v = 0.f; }
+        else if (v > 1) { v = 1.f; }
+        else { continue; }
+    }
+    return true;
+}
 
 template<typename T>
 bool blob2vector(const CDataBlob<T> * inputData, CDataBlob<T> * outputData)
@@ -807,18 +833,26 @@ bool SortScoreBBoxPairDescend(const pair<float, NormalizedBBox>& pair1,   const 
 }
 
 
-bool detection_output(const CDataBlob<float> * priorbox, const CDataBlob<float> * loc, const CDataBlob<float> * conf, float overlap_threshold, float confidence_threshold, int top_k, int keep_top_k, CDataBlob<float> * outputData)
+bool detection_output(const CDataBlob<float> * priorbox,
+                      const CDataBlob<float> * loc,
+                      const CDataBlob<float> * conf,
+                      const CDataBlob<float> * iou,
+                      float overlap_threshold,
+                      float confidence_threshold,
+                      int top_k,
+                      int keep_top_k,
+                      CDataBlob<float> * outputData)
 {
-    if (priorbox->data == NULL || loc->data == NULL || conf->data == NULL)
+    if (priorbox->data == NULL || loc->data == NULL || conf->data == NULL || iou->data == NULL)
     {
         cerr << __FUNCTION__ << ": The input data is null." << endl;
         return 0;
     }
 
-    if (priorbox->channels != conf->channels * 2 || loc->channels != conf->channels*7 )
+    if (priorbox->channels != conf->channels * 2 || loc->channels != conf->channels*7 || conf->channels != iou->channels*2)
     {
         cerr << __FUNCTION__ << ": The sizes of the inputs are not match." << endl;
-        cerr << "priorbox channels=" << priorbox->channels << ", loc channels=" << loc->channels << ", conf channels=" << conf->channels << endl;
+        cerr << "priorbox channels=" << priorbox->channels << ", loc channels=" << loc->channels << ", conf channels=" << conf->channels << ", iou->channels=" << iou->channels << endl;
         return 0;
     }
 
@@ -826,6 +860,7 @@ bool detection_output(const CDataBlob<float> * priorbox, const CDataBlob<float> 
     float * pPriorBox = priorbox->data;
     float * pLoc = loc->data;
     float * pConf = conf->data;
+    float * pIoU = iou->data;
 
     vector<pair<float, NormalizedBBox> > score_bbox_vec;
     vector<pair<float, NormalizedBBox> > final_score_bbox_vec;
@@ -833,8 +868,10 @@ bool detection_output(const CDataBlob<float> * priorbox, const CDataBlob<float> 
     //get the candidates those are > confidence_threshold
     for(int i = 0; i < conf->channels; i+=2)
     {
-        float conf = pConf[i + 1];
+        float cls_score = pConf[i + 1];
         int face_idx = i / 2;
+        float iou_score = pIoU[face_idx];
+        float conf = sqrtf(cls_score * iou_score);
         if(conf > confidence_threshold)
         {
             float fBox_x1 = pPriorBox[face_idx * 4];

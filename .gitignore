@@ -189,3 +189,6 @@ android/.idea/
 android/android.iml
 android/gradle/
 android/gradlew
+
+**/__pycache__
+.vscode

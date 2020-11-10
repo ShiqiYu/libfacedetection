@@ -52,7 +52,7 @@ cv::TickMeter cvtm;
 #endif
 
 
-#define NUM_CONV_LAYER 24
+#define NUM_CONV_LAYER 28
 
 extern ConvInfoStruct param_pConvInfo[NUM_CONV_LAYER];
 Filters g_pFilters[NUM_CONV_LAYER]; //NUM_CONV_LAYER conv layers
@@ -103,16 +103,22 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
 {
     CDataBlob<unsigned char> inputImage;
     CDataBlob<unsigned char> pConvDataBlobs[NUM_CONV_LAYER-8];
-    CDataBlob<int> pConvDataBlobsBranch[8];
+    CDataBlob<int> pConvDataBlobsBranch[12];
     CDataBlob<unsigned char> pool1, pool2, pool3, pool4, pool5;
     CDataBlob<float> conv3priorbox, conv4priorbox, conv5priorbox, conv6priorbox;
     CDataBlob<float> conv3priorbox_flat, conv4priorbox_flat, conv5priorbox_flat, conv6priorbox_flat, mbox_priorbox;
+    // loc
     CDataBlob<int> conv3loc_flat, conv4loc_flat, conv5loc_flat, conv6loc_flat;
     CDataBlob<float> conv3loc_flat_float, conv4loc_flat_float, conv5loc_flat_float, conv6loc_flat_float;
-    CDataBlob<float> mbox_loc_float;        ;
+    CDataBlob<float> mbox_loc_float;
+    // conf
     CDataBlob<int> conv3conf_flat, conv4conf_flat, conv5conf_flat, conv6conf_flat;
     CDataBlob<float> conv3conf_flat_float, conv4conf_flat_float, conv5conf_flat_float, conv6conf_flat_float;
     CDataBlob<float> mbox_conf_float;
+    // iou
+    CDataBlob<int> conv3iou_flat, conv4iou_flat, conv5iou_flat, conv6iou_flat;
+    CDataBlob<float> conv3iou_flat_float, conv4iou_flat_float, conv5iou_flat_float, conv6iou_flat_float;
+    CDataBlob<float> mbox_iou_float;
 
     TIME_START;
     if (!param_initialized)
@@ -249,6 +255,11 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
     convolution(pConvDataBlobs+ conv3idx, g_pFilters+convidx, pConvDataBlobsBranch + 1);
     TIME_END("prior3 conf");
 
+    convidx++;
+    TIME_START;
+    convolution(pConvDataBlobs+ conv3idx, g_pFilters+convidx, pConvDataBlobsBranch + 2);
+    TIME_END("prior3 iou");
+
     TIME_START;
     float pSizes3[3] = {10, 16, 24};
     priorbox(pConvDataBlobs+ conv3idx, width, height, 8, 3, pSizes3, &conv3priorbox);
@@ -259,13 +270,18 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
 
     convidx++;
     TIME_START
-    convolution(pConvDataBlobs + conv4idx, g_pFilters + convidx, pConvDataBlobsBranch + 2);
+    convolution(pConvDataBlobs + conv4idx, g_pFilters + convidx, pConvDataBlobsBranch + 3);
     TIME_END("prior4 loc");
 
     convidx++;
     TIME_START;
-    convolution(pConvDataBlobs + conv4idx, g_pFilters + convidx, pConvDataBlobsBranch + 3);
+    convolution(pConvDataBlobs + conv4idx, g_pFilters + convidx, pConvDataBlobsBranch + 4);
     TIME_END("prior4 conf");
+
+    convidx++;
+    TIME_START;
+    convolution(pConvDataBlobs + conv4idx, g_pFilters + convidx, pConvDataBlobsBranch + 5);
+    TIME_END("prior4 iou");
 
     TIME_START;
     float pSizes4[2] = { 32, 48};
@@ -277,13 +293,18 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
 
     convidx++;
     TIME_START
-    convolution(pConvDataBlobs + conv5idx, g_pFilters + convidx, pConvDataBlobsBranch + 4);
+    convolution(pConvDataBlobs + conv5idx, g_pFilters + convidx, pConvDataBlobsBranch + 6);
     TIME_END("prior5 loc");
 
     convidx++;
     TIME_START;
-    convolution(pConvDataBlobs + conv5idx, g_pFilters + convidx, pConvDataBlobsBranch + 5);
+    convolution(pConvDataBlobs + conv5idx, g_pFilters + convidx, pConvDataBlobsBranch + 7);
     TIME_END("prior5 conf");
+
+    convidx++;
+    TIME_START;
+    convolution(pConvDataBlobs + conv5idx, g_pFilters + convidx, pConvDataBlobsBranch + 8);
+    TIME_END("prior5 iou");
 
     TIME_START;
     float pSizes5[2] = { 64, 96 };
@@ -295,13 +316,18 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
 
     convidx++;
     TIME_START
-    convolution(pConvDataBlobs + conv6idx, g_pFilters + convidx, pConvDataBlobsBranch + 6);
+    convolution(pConvDataBlobs + conv6idx, g_pFilters + convidx, pConvDataBlobsBranch + 9);
     TIME_END("prior6 loc");
 
     convidx++;
     TIME_START;
-    convolution(pConvDataBlobs + conv6idx, g_pFilters + convidx, pConvDataBlobsBranch + 7);
+    convolution(pConvDataBlobs + conv6idx, g_pFilters + convidx, pConvDataBlobsBranch + 10);
     TIME_END("prior6 conf");
+
+    convidx++;
+    TIME_START;
+    convolution(pConvDataBlobs + conv6idx, g_pFilters + convidx, pConvDataBlobsBranch + 11);
+    TIME_END("prior6 iou");
 
     TIME_START;
     float pSizes6[3] = { 128, 192, 256 };
@@ -314,45 +340,58 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
     blob2vector(&conv3priorbox, &conv3priorbox_flat);
     blob2vector(pConvDataBlobsBranch + 0, &conv3loc_flat);
     blob2vector(pConvDataBlobsBranch + 1, &conv3conf_flat);
+    blob2vector(pConvDataBlobsBranch + 2, &conv3iou_flat);
 
     blob2vector(&conv4priorbox, &conv4priorbox_flat);
-    blob2vector(pConvDataBlobsBranch + 2, &conv4loc_flat);
-    blob2vector(pConvDataBlobsBranch + 3, &conv4conf_flat);
+    blob2vector(pConvDataBlobsBranch + 3, &conv4loc_flat);
+    blob2vector(pConvDataBlobsBranch + 4, &conv4conf_flat);
+    blob2vector(pConvDataBlobsBranch + 5, &conv4iou_flat);
 
     blob2vector(&conv5priorbox, &conv5priorbox_flat);
-    blob2vector(pConvDataBlobsBranch + 4, &conv5loc_flat);
-    blob2vector(pConvDataBlobsBranch + 5, &conv5conf_flat);
+    blob2vector(pConvDataBlobsBranch + 6, &conv5loc_flat);
+    blob2vector(pConvDataBlobsBranch + 7, &conv5conf_flat);
+    blob2vector(pConvDataBlobsBranch + 8, &conv5iou_flat);
 
     blob2vector(&conv6priorbox, &conv6priorbox_flat);
-    blob2vector(pConvDataBlobsBranch + 6, &conv6loc_flat);
-    blob2vector(pConvDataBlobsBranch + 7, &conv6conf_flat);
+    blob2vector(pConvDataBlobsBranch + 9, &conv6loc_flat);
+    blob2vector(pConvDataBlobsBranch + 10, &conv6conf_flat);
+    blob2vector(pConvDataBlobsBranch + 11, &conv6iou_flat);
     TIME_END("prior flat");
 
     TIME_START
+    // loc
     convertInt2Float(&conv3loc_flat, &conv3loc_flat_float);
     convertInt2Float(&conv4loc_flat, &conv4loc_flat_float);
     convertInt2Float(&conv5loc_flat, &conv5loc_flat_float);
     convertInt2Float(&conv6loc_flat, &conv6loc_flat_float);
+    // conf
     convertInt2Float(&conv3conf_flat, &conv3conf_flat_float);
     convertInt2Float(&conv4conf_flat, &conv4conf_flat_float);
     convertInt2Float(&conv5conf_flat, &conv5conf_flat_float);
     convertInt2Float(&conv6conf_flat, &conv6conf_flat_float);
+    // iou
+    convertInt2Float(&conv3iou_flat, &conv3iou_flat_float);
+    convertInt2Float(&conv4iou_flat, &conv4iou_flat_float);
+    convertInt2Float(&conv5iou_flat, &conv5iou_flat_float);
+    convertInt2Float(&conv6iou_flat, &conv6iou_flat_float);
     TIME_END("convert int to float");
 
     TIME_START
     concat4(&conv3priorbox_flat, &conv4priorbox_flat, &conv5priorbox_flat, &conv6priorbox_flat, &mbox_priorbox);
     concat4(&conv3loc_flat_float, &conv4loc_flat_float, &conv5loc_flat_float, &conv6loc_flat_float, &mbox_loc_float);
     concat4(&conv3conf_flat_float, &conv4conf_flat_float, &conv5conf_flat_float, &conv6conf_flat_float, &mbox_conf_float);
+    concat4(&conv3iou_flat_float, &conv4iou_flat_float, &conv5iou_flat_float, &conv6iou_flat_float, &mbox_iou_float);
     TIME_END("concat prior")
 
     TIME_START
     softmax1vector2class(&mbox_conf_float);
+    clamp1vector(&mbox_iou_float);
     TIME_END("softmax")
 
 
     CDataBlob<float> facesInfo;
     TIME_START;
-    detection_output(&mbox_priorbox, &mbox_loc_float, &mbox_conf_float, 0.3f, 0.5f, 1000, 100, &facesInfo);
+    detection_output(&mbox_priorbox, &mbox_loc_float, &mbox_conf_float, &mbox_iou_float, 0.3f, 0.5f, 1000, 100, &facesInfo);
     TIME_END("detection output")
 
 
@@ -391,6 +430,7 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
 
     return faces;
 }
+
 int * facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing face detection results, !!its size must be 0x20000 Bytes!!
     unsigned char * rgb_image_data, int width, int height, int step) //input image, it must be RGB (three-channel) image!
 {

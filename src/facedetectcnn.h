@@ -418,7 +418,16 @@ template<typename T>
 bool blob2vector(const CDataBlob<T> * inputData, CDataBlob<T> * outputData);
 
 bool softmax1vector2class(CDataBlob<float> *inputOutputData);
+bool clamp1vector(CDataBlob<float> *inputOutputData);
 
-bool detection_output(const CDataBlob<float> * priorbox, const CDataBlob<float> * loc, const CDataBlob<float> * conf, float overlap_threshold, float confidence_threshold, int top_k, int keep_top_k, CDataBlob<float> * outputData);
+bool detection_output(const CDataBlob<float> * priorbox,
+                      const CDataBlob<float> * loc,
+                      const CDataBlob<float> * conf,
+                      const CDataBlob<float> * iou,
+                      float overlap_threshold,
+                      float confidence_threshold,
+                      int top_k,
+                      int keep_top_k,
+                      CDataBlob<float> * outputData);
 
 vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int with, int height, int step);
