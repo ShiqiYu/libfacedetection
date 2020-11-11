@@ -112,6 +112,13 @@ std::vector<Face> PriorBox::decode(const cv::Mat& loc,
         // get score
         float cls_score = conf_v[i*2+1];
         float iou_score = iou_v[i];
+        // clamp
+        if (iou_score < 0.f) {
+            iou_score = 0.f;
+        }
+        else if (iou_score > 1.f) {
+            iou_score = 1.f;
+        }
         float score = std::sqrt(cls_score * iou_score);
 
 

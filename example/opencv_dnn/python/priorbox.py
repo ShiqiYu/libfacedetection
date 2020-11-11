@@ -93,6 +93,10 @@ class PriorBox(object):
         # get score
         cls_scores = conf[:, 1]
         iou_scores = iou[:, 0]
+        _idx = np.where(iou_scores < 0.)
+        iou_scores[_idx] = 0.
+        _idx = np.where(iou_scores > 1.)
+        iou_scores[_idx] = 1.
         scores = np.sqrt(cls_scores * iou_scores)
         scores = scores[:, np.newaxis]
 
