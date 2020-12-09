@@ -871,8 +871,8 @@ bool detection_output(const CDataBlob<float> * priorbox,
         float cls_score = pConf[i + 1];
         int face_idx = i / 2;
         float iou_score = pIoU[face_idx];
-        float conf = sqrtf(cls_score * iou_score);
-        if(conf > confidence_threshold)
+        float confidence = sqrtf(cls_score * iou_score);
+        if(confidence > confidence_threshold)
         {
             float fBox_x1 = pPriorBox[face_idx * 4];
             float fBox_y1 = pPriorBox[face_idx * 4 + 1];
@@ -920,7 +920,7 @@ bool detection_output(const CDataBlob<float> * priorbox,
                 bb.lm[i * 2 + 1] = lmy;
             }
 
-            score_bbox_vec.push_back(std::make_pair(conf, bb));
+            score_bbox_vec.push_back(std::make_pair(confidence, bb));
         }
     }
 
