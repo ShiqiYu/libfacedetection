@@ -206,10 +206,10 @@ public:
 //#endif
         for (int r = 0; r < this->height; r++)
         {
-            for (int c = 0; c < this->width; c++)
+            for (int col = 0; col < this->width; col++)
             {
                 int pixel_end = this->channelStep / sizeof(T);
-                T * pI = (this->data + (size_t(r) * this->width + c) * this->channelStep /sizeof(T));
+                T * pI = (this->data + (size_t(r) * this->width + col) * this->channelStep /sizeof(T));
                 for (int ch = this->channels; ch < pixel_end; ch++)
                     pI[ch] = 0;
             }
@@ -218,7 +218,7 @@ public:
         return true;
 	}
 
-    bool setInt8FilterData(signed char * pData, int bias, int dataWidth, int dataHeight, int dataChannels)
+    bool setInt8FilterData(signed char * pData, int dataBias, int dataWidth, int dataHeight, int dataChannels)
     {
         if (pData == NULL)
         {
@@ -250,7 +250,7 @@ public:
                 }
             }
         
-        this->bias = bias;
+        this->bias = dataBias;
         return true;
     }
 
