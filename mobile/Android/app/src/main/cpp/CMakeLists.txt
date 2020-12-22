@@ -73,14 +73,6 @@ if(ENABLE_NEON)
     add_definitions(-D_ENABLE_NEON)
 endif()
 
-if(USE_OPENMP)
-    FIND_PACKAGE(OpenMP)
-    if(OPENMP_FOUND)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-    endif()
-endif()
-
 INCLUDE_DIRECTORIES(${fdt_inc_dir})
 
 
