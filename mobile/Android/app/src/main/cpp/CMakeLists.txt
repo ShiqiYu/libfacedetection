@@ -105,61 +105,61 @@ if (ENABLE_OPENCV)
     set_target_properties(libopencv_java4 PROPERTIES
             IMPORTED_LOCATION "${OpenCV_SHARED_LIBS}/libopencv_java4.so")
 
-    add_library(libopencv_calib3d STATIC IMPORTED )
-    set_target_properties(libopencv_calib3d PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_calib3d.a")
-
-    add_library(libopencv_core STATIC IMPORTED )
-    set_target_properties(libopencv_core PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_core.a")
-
-    add_library(libopencv_dnn STATIC IMPORTED )
-    set_target_properties(libopencv_dnn PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_dnn.a")
-
-    add_library(libopencv_features2d STATIC IMPORTED )
-    set_target_properties(libopencv_features2d PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_features2d.a")
-
-    add_library(libopencv_flann STATIC IMPORTED )
-    set_target_properties(libopencv_flann PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_flann.a")
-
-    add_library(libopencv_highgui STATIC IMPORTED )
-    set_target_properties(libopencv_highgui PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_highgui.a")
-
-    add_library(libopencv_imgcodecs STATIC IMPORTED )
-    set_target_properties(libopencv_imgcodecs PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_imgcodecs.a")
-
-    add_library(libopencv_imgproc STATIC IMPORTED )
-    set_target_properties(libopencv_imgproc PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_imgproc.a")
-
-    add_library(libopencv_ml STATIC IMPORTED )
-    set_target_properties(libopencv_ml PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_ml.a")
-
-    add_library(libopencv_objdetect STATIC IMPORTED )
-    set_target_properties(libopencv_objdetect PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_objdetect.a")
-
-    add_library(libopencv_photo STATIC IMPORTED )
-    set_target_properties(libopencv_photo PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_photo.a")
-
-    add_library(libopencv_stitching STATIC IMPORTED )
-    set_target_properties(libopencv_stitching PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_stitching.a")
-
-    add_library(libopencv_video STATIC IMPORTED )
-    set_target_properties(libopencv_video PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_video.a")
-
-    add_library(libopencv_videoio STATIC IMPORTED )
-    set_target_properties(libopencv_videoio PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_videoio.a")
+#    add_library(libopencv_calib3d STATIC IMPORTED )
+#    set_target_properties(libopencv_calib3d PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_calib3d.a")
+#
+#    add_library(libopencv_core STATIC IMPORTED )
+#    set_target_properties(libopencv_core PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_core.a")
+#
+#    add_library(libopencv_dnn STATIC IMPORTED )
+#    set_target_properties(libopencv_dnn PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_dnn.a")
+#
+#    add_library(libopencv_features2d STATIC IMPORTED )
+#    set_target_properties(libopencv_features2d PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_features2d.a")
+#
+#    add_library(libopencv_flann STATIC IMPORTED )
+#    set_target_properties(libopencv_flann PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_flann.a")
+#
+#    add_library(libopencv_highgui STATIC IMPORTED )
+#    set_target_properties(libopencv_highgui PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_highgui.a")
+#
+#    add_library(libopencv_imgcodecs STATIC IMPORTED )
+#    set_target_properties(libopencv_imgcodecs PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_imgcodecs.a")
+#
+#    add_library(libopencv_imgproc STATIC IMPORTED )
+#    set_target_properties(libopencv_imgproc PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_imgproc.a")
+#
+#    add_library(libopencv_ml STATIC IMPORTED )
+#    set_target_properties(libopencv_ml PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_ml.a")
+#
+#    add_library(libopencv_objdetect STATIC IMPORTED )
+#    set_target_properties(libopencv_objdetect PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_objdetect.a")
+#
+#    add_library(libopencv_photo STATIC IMPORTED )
+#    set_target_properties(libopencv_photo PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_photo.a")
+#
+#    add_library(libopencv_stitching STATIC IMPORTED )
+#    set_target_properties(libopencv_stitching PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_stitching.a")
+#
+#    add_library(libopencv_video STATIC IMPORTED )
+#    set_target_properties(libopencv_video PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_video.a")
+#
+#    add_library(libopencv_videoio STATIC IMPORTED )
+#    set_target_properties(libopencv_videoio PROPERTIES
+#            IMPORTED_LOCATION "${OpenCV_STATIC_LIBS}/libopencv_videoio.a")
     find_library( # Sets the name of the path variable.
             log-lib
 
