@@ -1,4 +1,23 @@
 ##Mobile support for iOS and Android. 
+##Android
+
+Just transport this latetest libfacedetection to Android and run successfully and simplified use for opencv in only 3 steps.
+
+I also update apk in `Android/Facedetection/release` folder so you can just install on your android device to test it.
+
+Modified cmakelist.txt for android and configures for opencv. So all you need to do is to add opencv for android to it and RUN IT.
+
+Here is the steps for developers:
+   
+1.clone this porject and make sure cmake,ndk and lldb(if u need debug c++ code) is downloaded.    
+2.download opencv sdk for android from [OpenCV-release](https://opencv.org/releases.html) and unzip `OpenCV-android-sdk` to the root dir of this project.  
+3.run it!
+
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/screenshot1-android.jpg)
+
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/screenshot2-android.jpg)
+
+
 
 ##iOS
 
@@ -98,23 +117,3 @@ using namespace cv;
 ![IMG_0428](https://user-images.githubusercontent.com/5406305/54405990-50f9a700-4713-11e9-8f9e-bb6e54a0423a.PNG)
 ![IMG_0429](https://user-images.githubusercontent.com/5406305/54405991-51923d80-4713-11e9-9400-1ebe95e3abe5.PNG)
 ![IMG_0430](https://user-images.githubusercontent.com/5406305/54405993-535c0100-4713-11e9-9a4a-bbb5b3f6c21a.PNG)
-
-##Android
-
-Just transport this latetest libfacedetection to Android and run successfully and simplified use for opencv in only 3 steps.
-
-I also update apk in `Android/Facedetection/release` folder so you can just install on your android device to test it.
-
-Modified cmakelist.txt for android and configures for opencv. So all you need to do is to add opencv for android to it and RUN IT.
-
-Here is the steps for developers:
-   
-1.clone this porject and make sure cmake,ndk and lldb(if u need debug c++ code) is downloaded.    
-2.download opencv sdk for android from [OpenCV-release](https://opencv.org/releases.html) and unzip `OpenCV-android-sdk` to the root dir of this project.  
-3.run it!
-
-![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Screenshot1.jpg)
-
-![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Screenshot2.jpg)
-
-
