@@ -9,7 +9,7 @@
 using namespace cv;
 
 extern "C"  {
-char *JNITag = const_cast<char *>("dp-jni");
+char *JNITag = const_cast<char *>("facedetection-jni");
 
 JNIEXPORT jobjectArray JNICALL
 Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */,jlong matAddr)
@@ -18,7 +18,7 @@ Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */
     Mat& img  = *(Mat*)matAddr;
     Mat bgr = img.clone();
     cvtColor(img, bgr, COLOR_RGBA2BGR);
-    __android_log_print(ANDROID_LOG_ERROR, JNITag,"convert RGBA to RGB");
+    __android_log_print(ANDROID_LOG_ERROR, JNITag,"convert RGBA to BGR");
     //load an image and convert it to gray (single-channel)
     if(bgr.empty())
     {
@@ -41,7 +41,7 @@ Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */
     // CNN face detection
     // Best detection rate
     //////////////////////////////////////////
-    //!!! The input image must be a RGB one (three-channel)
+    //!!! The input image must be a BGR one (three-channel)
     //!!! DO NOT RELEASE pResults !!!
     pResults = facedetect_cnn(pBuffer, (unsigned char*)(bgr.ptr(0)), bgr.cols, bgr.rows, (int)bgr.step);
     int numOfFaces = pResults ? *pResults : 0;
@@ -53,9 +53,8 @@ Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */
     jclass faceClass = env->FindClass("org/dp/facedetection/Face");//获取Face类
     jmethodID faceClassInitID = (env)->GetMethodID(faceClass, "<init>", "()V");
     jfieldID faceConfidence = env->GetFieldID(faceClass, "faceConfidence", "I");//获取int类型参数confidence
-    jfieldID faceAngle = env->GetFieldID(faceClass, "faceAngle", "I");//获取int数组类型参数angle
-    jfieldID faceRect = env->GetFieldID(faceClass, "faceRect",
-                                      "Lorg/opencv/core/Rect;");//获取faceRect的签名
+    jfieldID faceLandmarks = env->GetFieldID(faceClass, "faceLandmarks", "[Lorg/opencv/core/Point;");//获取List类型参数landmarks
+    jfieldID faceRect = env->GetFieldID(faceClass, "faceRect","Lorg/opencv/core/Rect;");//获取faceRect签名
     /**
      * 获取RECT类以及对应参数的签名
      */
@@ -66,18 +65,27 @@ Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */
     jfieldID rect_width = env->GetFieldID(rectClass, "width", "I");//获取width的签名
     jfieldID rect_height = env->GetFieldID(rectClass, "height", "I");//获取height的签名
 
+    /**
+    * 获取Point类以及对应参数的签名
+    */
+    jclass pointClass = env->FindClass("org/opencv/core/Point");//获取到Point类
+    jmethodID pointClassInitID = (env)->GetMethodID(pointClass, "<init>", "()V");
+    jfieldID point_x = env->GetFieldID(pointClass, "x", "D");//获取x的签名
+    jfieldID point_y = env->GetFieldID(pointClass, "y", "D");//获取y的签名
+
+
     faceArgs = (env)->NewObjectArray(numOfFaces, faceClass, 0);
     //print the detection results
     for(int i = 0; i < (pResults ? *pResults : 0); i++)
     {
         short * p = ((short*)(pResults+1))+142*i;
-        int x = p[0];
-        int y = p[1];
-        int w = p[2];
-        int h = p[3];
-        int confidence = p[4];
-        int angle = p[5];
-        __android_log_print(ANDROID_LOG_ERROR, JNITag,"face_rect=[%d, %d, %d, %d], confidence=%d, angle=%d\n", x,y,w,h,confidence, angle);
+        int confidence = p[0];
+        int x = p[1];
+        int y = p[2];
+        int w = p[3];
+        int h = p[4];
+
+        __android_log_print(ANDROID_LOG_ERROR, JNITag,"face %d rect=[%d, %d, %d, %d], confidence=%d\n",i,x,y,w,h,confidence);
         jobject  newFace = (env)->NewObject(faceClass, faceClassInitID);
         jobject  newRect = (env)->NewObject(rectClass, rectClassInitID);
 
@@ -86,11 +94,28 @@ Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */
         (env)->SetIntField(newRect, rect_width, w);
         (env)->SetIntField(newRect, rect_height, h);
         (env)->SetObjectField(newFace,faceRect,newRect);
+        env->DeleteLocalRef(newRect);
+
+        jobjectArray newPoints = (env)->NewObjectArray(5, pointClass, 0);
+        for (int j = 5; j < 14; j += 2){
+            int p_x = p[j];
+            int p_y = p[j+1];
+            jobject  newPoint = (env)->NewObject(pointClass, pointClassInitID);
+            (env)->SetDoubleField(newPoint, point_x, (double)p_x);
+            (env)->SetDoubleField(newPoint, point_y, (double)p_y);
+            int index = (j-5)/2;
+            (env)->SetObjectArrayElement(newPoints, index, newPoint);
+            env->DeleteLocalRef(newPoint);
+            __android_log_print(ANDROID_LOG_ERROR, JNITag,"landmark %d =[%f, %f]\n",index,(double)p_x,(double)p_y);
+        }
+        (env)->SetObjectField(newFace,faceLandmarks,newPoints);
+        env->DeleteLocalRef(newPoints);
 
         (env)->SetIntField(newFace,faceConfidence,confidence);
-        (env)->SetIntField(newFace,faceAngle,angle);
 
         (env)->SetObjectArrayElement(faceArgs, i, newFace);
+        env->DeleteLocalRef(newFace);
+
     }
 
     //release the buffer
@@ -98,4 +123,4 @@ Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */
 
     return faceArgs;
 }
-};
+}

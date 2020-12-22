@@ -7,9 +7,12 @@ import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_main.*
 import org.opencv.android.Utils
 import org.opencv.core.MatOfRect
+import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
+import org.opencv.imgproc.Imgproc.FONT_HERSHEY_SIMPLEX
 import java.io.IOException
+import kotlin.math.PI
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun testFacedetect() {
-        val bmp = getImageFromAssets("test.jpg") ?: return
+        val bmp = getImageFromAssets("test2.jpg") ?: return
         var str = "image size = ${bmp.width}x${bmp.height}\n"
         imageView.setImageBitmap(bmp)
         val mat = MatOfRect()
@@ -29,13 +32,19 @@ class MainActivity : AppCompatActivity() {
         Utils.bitmapToMat(bmp, mat)
         val FACE_RECT_COLOR = Scalar(255.0, 0.0, 0.0)
         val FACE_RECT_THICKNESS = 3
+        val TEXT_SIZE = 2.0
         val startTime = System.currentTimeMillis()
         val facesArray = facedetect(mat.nativeObjAddr)
-        str = str + "face num = ${facesArray.size}\n"
-        for (face in facesArray) {
-            Imgproc.rectangle(mat, face.faceRect, FACE_RECT_COLOR, FACE_RECT_THICKNESS)
-        }
         str = str + "detectTime = ${System.currentTimeMillis() - startTime}ms\n"
+        for (face in facesArray) {
+            val text_pos = Point(face.faceRect.x.toDouble() - FACE_RECT_THICKNESS,face.faceRect.y - FACE_RECT_THICKNESS.toDouble())
+            Imgproc.putText(mat,face.faceConfidence.toString(),text_pos,FONT_HERSHEY_SIMPLEX,TEXT_SIZE,FACE_RECT_COLOR)
+            Imgproc.rectangle(mat, face.faceRect, FACE_RECT_COLOR, FACE_RECT_THICKNESS)
+            for (landmark in face.faceLandmarks){
+                Imgproc.circle(mat, landmark, FACE_RECT_THICKNESS, FACE_RECT_COLOR,-1,Imgproc.LINE_AA)
+            }
+        }
+        str = str + "face num = ${facesArray.size}\n"
         Utils.matToBitmap(mat, bmp2)
         imageView.setImageBitmap(bmp2)
         textView.text = str
