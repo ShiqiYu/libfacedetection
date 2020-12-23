@@ -106,9 +106,9 @@ short * p = ((short*)(pResults+1))+142*i;
 
 @end
 ```
-![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/iOS/screenshot1.jpg)
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/iOS/screenshot1.png)
 
-![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/iOS/screenshot2.jpg)
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/iOS/screenshot2.png)
 
 ##Android
 
@@ -124,6 +124,6 @@ Here is the steps for developers:
 2.download opencv sdk for android from [OpenCV-release](https://opencv.org/releases.html) and unzip `OpenCV-android-sdk` to the root dir of this project.  
 3.run it!
 
-![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Android/screenshot1.png)
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Android/screenshot1.jpg)
 
-![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Android/screenshot2.png)
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Android/screenshot2.jpg)
