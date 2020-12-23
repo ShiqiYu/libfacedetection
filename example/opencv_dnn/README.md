@@ -10,7 +10,7 @@ Envrionment tested:
 - Python >= 3.6
 
 Download the converted `onnx` model from https://github.com/ShiqiYu/libfacedetection.train/tree/master/tasks/task1/onnx and place it in this directory.
-You can view the network architecture here[[netron]](https://lutzroeder.github.io/netron/?url=https://raw.githubusercontent.com/ShiqiYu/libfacedetection.train/master/tasks/task1/onnx/YuFaceDetectNet.onnx).
+You can view the network architecture here[[netron]](https://netron.app/?url=https://raw.githubusercontent.com/ShiqiYu/libfacedetection.train/master/tasks/task1/onnx/YuFaceDetectNet.onnx).
 
 ## Python
 1. Install `numpy` and `opencv-python`.
