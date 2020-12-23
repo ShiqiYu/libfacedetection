@@ -7,40 +7,33 @@
 
 #include "opencv2/opencv.hpp"
 
-cv::Size get_input_shape(std::string model_fpath) {
-    size_t start = model_fpath.find("_") + 1;
-    size_t end = model_fpath.find(".onnx");
-    int width = std::stoi(
-        model_fpath.substr(start, end-start)
-    );
-    int height = int(0.75 * width);
-
-    return cv::Size(width, height);
-}
-
 int main(int argc, char* argv[]) {
-    // Location
-    std::string img_fpath = "../example2.jpg";
-    std::string model_fpath = "../YuFaceDetectNet_320.onnx";
-    // Inference
+    if (argc != 3) {
+        std::cout << "Usage: " << argv[0] << " <image_file_name> <net_file_name>\n";
+        return -1;
+    }
+
+    // Build blob
+    cv::Mat img = cv::imread(argv[1], cv::IMREAD_COLOR);
+    if (img.empty()) {
+        std::cerr << "Cannot load the image file " << argv[1] << ".\n";
+        return -1;
+    }
+    cv::Size img_shape = img.size();
+    cv::Mat blob = cv::dnn::blobFromImage(img);
+
+    // Load .onnx model using OpenCV's DNN module
+    cv::dnn::Net net = cv::dnn::readNet(argv[2]);
+    net.setPreferableBackend(cv::dnn::DNN_BACKEND_DEFAULT);
+    net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
+
+    // Inference hyperparameters
     float conf_thresh = 0.6;
     float nms_thresh = 0.3;
     int keep_top_k = 750;
     // Result
-    bool vis = true;
+    bool vis = false;
     std::string save_fpath = "./result.jpg";
-
-    cv::Size input_shape = get_input_shape(model_fpath);
-
-    // Load .onnx model using OpenCV's DNN module
-    cv::dnn::Net net = cv::dnn::readNet(model_fpath);
-    net.setPreferableBackend(cv::dnn::DNN_BACKEND_DEFAULT);
-    net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
-
-    // Build blob
-    cv::Mat img = cv::imread(img_fpath, cv::IMREAD_COLOR);
-    cv::Size output_shape = img.size();
-    cv::Mat blob = cv::dnn::blobFromImage(img, 1.0, input_shape);
 
     // Forward
     std::vector<cv::String> output_names = { "loc", "conf", "iou" };
@@ -49,14 +42,8 @@ int main(int argc, char* argv[]) {
     net.forward(output_blobs, output_names);
 
     // Decode bboxes, landmarks and scores
-    PriorBox pb(input_shape, output_shape);
-    std::vector<Face> dets = pb.decode(output_blobs[0], output_blobs[1], output_blobs[2]);
-
-    // Ignore low scores
-    dets.erase(
-        std::remove_if(dets.begin(), dets.end(), [&conf_thresh](const Face& f) { return f.score <= conf_thresh; }),
-        dets.end()
-    );
+    PriorBox pb(img_shape, img_shape);
+    std::vector<Face> dets = pb.decode(output_blobs[0], output_blobs[1], output_blobs[2], conf_thresh);
 
     // NMS
     if (dets.size() > 1) {
@@ -77,7 +64,7 @@ int main(int argc, char* argv[]) {
     // Draw and display
     draw(img, dets);
     if (vis) {
-        cv::String title = cv::String("Detection Results on") + img_fpath;
+        cv::String title = cv::String("Detection Results on") + cv::String(argv[1]);
         cv::imshow(title, img);
         cv::waitKey(0);
         cv::destroyAllWindows();

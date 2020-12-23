@@ -53,14 +53,12 @@ parser.add_argument('--save', default='result.jpg', type=str, help='Path to save
 args = parser.parse_args()
 
 
-def get_input_shape(fname: str) -> Tuple:
-     w = int(fname[:-5].split('_')[-1])
-     h = int(0.75 * w)
-     return (w, h)
-# input_shape = (320, 240) # (w, h)
-input_shape = get_input_shape(args.model)
-
-
+# Build the blob
+assert os.path.exists(args.image), 'File {} does not exist!'.format(args.image)
+img = cv2.imread(args.image, cv2.IMREAD_COLOR)
+h, w, _ = img.shape
+print('Image size: h={}, w={}'.format(h, w))
+blob = cv2.dnn.blobFromImage(img) # 'size' param resize the output to the given shape
 
 
 # Load the net
@@ -69,35 +67,15 @@ net.setPreferableBackend(args.backend)
 net.setPreferableTarget(args.target)
 
 
-
-# build the blob
-assert os.path.exists(args.image), 'File {} does not exist!'.format(args.image)
-img = cv2.imread(args.image, cv2.IMREAD_COLOR)
-h, w, _ = img.shape
-print('Original size: h={}, w={}'.format(h, w))
-
-blob = cv2.dnn.blobFromImage(img, size=input_shape) # 'size' param resize the output to the given shape
-print('Network input size: h={}, w={}'.format(input_shape[1], input_shape[0]))
-
-
-
-# run the net
+# Run the net
 output_names = ['loc', 'conf', 'iou']
 net.setInput(blob)
 loc, conf, iou = net.forward(output_names)
 
 
-
 # Decode bboxes and landmarks
-pb = PriorBox(input_shape=input_shape, output_shape=(w, h))
-dets = pb.decode(np.squeeze(loc, axis=0), np.squeeze(conf, axis=0), np.squeeze(iou, axis=0))
-
-
-
-# Ignore low scores
-idx = np.where(dets[:, -1] > args.conf_thresh)[0]
-dets = dets[idx]
-
+pb = PriorBox(input_shape=(w, h), output_shape=(w, h))
+dets = pb.decode(np.squeeze(loc, axis=0), np.squeeze(conf, axis=0), np.squeeze(iou, axis=0), args.conf_thresh)
 
 
 # NMS
@@ -109,7 +87,6 @@ if dets.shape[0] > 0:
 else:
      print('No faces found.')
      exit()
-
 
 
 # Draw boudning boxes and landmarks on the original image

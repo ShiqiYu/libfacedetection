@@ -31,7 +31,7 @@ public:
     PriorBox(const cv::Size& input_shape,
              const cv::Size& output_shape);
     ~PriorBox();
-    std::vector<Face> decode(const cv::Mat& loc, const cv::Mat& conf, const cv::Mat& iou);
+    std::vector<Face> decode(const cv::Mat& loc, const cv::Mat& conf, const cv::Mat& iou, const float ignore_score=0.3);
 };
 
 #endif

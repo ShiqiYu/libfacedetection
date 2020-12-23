@@ -56,20 +56,40 @@ class PriorBox(object):
                     )
         return anchors
 
-    def decode(self, loc: np.ndarray, conf: np.ndarray, iou: np.ndarray) -> np.ndarray:
+    def decode(self, loc: np.ndarray, conf: np.ndarray, iou: np.ndarray, ignore_score: float = 0.6) -> np.ndarray:
         '''Decodes the locations (x1, y1, x2, y2) and scores (c) from the priors, and the given loc and conf.
+        Ignore low scores based on ignore_score.
         Args:
-            loc (np.ndarray): loc produced from loc layers of shape [num_priors, 4], num_priors * [x_c, y_c, w, h].
-            conf (np.ndarray): conf produced from conf layers of shape [num_priors, 2], num_priors * [p_non_face, p_face].
+            loc (np.ndarray): loc produced from loc layers of shape [num_priors, 4]. '4' for [x_c, y_c, w, h].
+            conf (np.ndarray): conf produced from conf layers of shape [num_priors, 2]. '2' for [p_non_face, p_face].
+            iou (np.ndarray): iou produced from iou layers of shape [num_priors, 1]. '1' for [iou].
+            ignore_score (float): used to filter out low score instances.
         Return:
-            dets (np.ndarray): dets is concatenated by bboxes, landmarks and scoress. 
+            dets (np.ndarray): dets is concatenated by bboxes, landmarks and scores. 
                 bboxes consists of num_priors * (x1, y1, x2, y2) of shape [num_priors, 4].
                 landmarks consists of num_priors * (x_le, y_le, x_re, y_r2, x_n, y_n, x_ml, y_ml, x_mr, y_mr) of shape [num_priors, 5*2].
         '''
+        # get score
+        cls_scores = conf[:, 1]
+        iou_scores = iou[:, 0]
+        # clamp
+        _idx = np.where(iou_scores < 0.)
+        iou_scores[_idx] = 0.
+        _idx = np.where(iou_scores > 1.)
+        iou_scores[_idx] = 1.
+        scores = np.sqrt(cls_scores * iou_scores)
+        scores = scores[:, np.newaxis]
+
+        # ignore low scores
+        idx = np.where(scores[:, 0] > ignore_score)[0]
+        scores = scores[idx]
+        loc = loc[idx]
+        priors = self.priors[idx]
+
         # get bboxes
         bboxes = np.hstack((
-            self.priors[:, 0:2]+loc[:, 0:2]*self.variance[0]*self.priors[:, 2:4],
-            self.priors[:, 2:4]*np.exp(loc[:, 2:4]*self.variance)
+            priors[:, 0:2]+loc[:, 0:2]*self.variance[0]*priors[:, 2:4],
+            priors[:, 2:4]*np.exp(loc[:, 2:4]*self.variance)
         ))
         # (x_c, y_c, w, h) -> (x1, y1, x2, y2)
         bboxes[:, 0:2] -= bboxes[:, 2:4] / 2
@@ -80,25 +100,15 @@ class PriorBox(object):
 
         # get landmarks
         landmarks = np.hstack((
-            self.priors[:, 0:2]+loc[:,  4: 6]*self.variance[0]*self.priors[:, 2:4],
-            self.priors[:, 0:2]+loc[:,  6: 8]*self.variance[0]*self.priors[:, 2:4],
-            self.priors[:, 0:2]+loc[:,  8:10]*self.variance[0]*self.priors[:, 2:4],
-            self.priors[:, 0:2]+loc[:, 10:12]*self.variance[0]*self.priors[:, 2:4],
-            self.priors[:, 0:2]+loc[:, 12:14]*self.variance[0]*self.priors[:, 2:4]
+            priors[:, 0:2]+loc[:,  4: 6]*self.variance[0]*priors[:, 2:4],
+            priors[:, 0:2]+loc[:,  6: 8]*self.variance[0]*priors[:, 2:4],
+            priors[:, 0:2]+loc[:,  8:10]*self.variance[0]*priors[:, 2:4],
+            priors[:, 0:2]+loc[:, 10:12]*self.variance[0]*priors[:, 2:4],
+            priors[:, 0:2]+loc[:, 12:14]*self.variance[0]*priors[:, 2:4]
         ))
         # scale recover
         landmark_scale = np.array([self.out_w, self.out_h]*5)
         landmarks = landmarks * landmark_scale
-
-        # get score
-        cls_scores = conf[:, 1]
-        iou_scores = iou[:, 0]
-        _idx = np.where(iou_scores < 0.)
-        iou_scores[_idx] = 0.
-        _idx = np.where(iou_scores > 1.)
-        iou_scores[_idx] = 1.
-        scores = np.sqrt(cls_scores * iou_scores)
-        scores = scores[:, np.newaxis]
 
         dets = np.hstack((bboxes, landmarks, scores))
         return dets
