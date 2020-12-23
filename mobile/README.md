@@ -1,27 +1,9 @@
 ##Mobile support for iOS and Android. 
-##Android
-
-Just transport this latetest libfacedetection to Android and run successfully and simplified use for opencv in only 3 steps.
-
-I also update apk in `Android/Facedetection/release` folder so you can just install on your android device to test it.
-
-Modified cmakelist.txt for android and configures for opencv. So all you need to do is to add opencv for android to it and RUN IT.
-
-Here is the steps for developers:
-   
-1.clone this porject and make sure cmake,ndk and lldb(if u need debug c++ code) is downloaded.    
-2.download opencv sdk for android from [OpenCV-release](https://opencv.org/releases.html) and unzip `OpenCV-android-sdk` to the root dir of this project.  
-3.run it!
-
-![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/screenshot1-android.jpg)
-
-![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/screenshot2-android.jpg)
-
 
 
 ##iOS
 
-This lib is very useful! I try it in iOS and successful run. 
+Updated for the latest libfacedetection! I try it in iOS and successful run. 
 
 1. download or clone this lib in your computer;
 2. create New Xcode project;
@@ -35,6 +17,8 @@ This lib is very useful! I try it in iOS and successful run.
 ```objc
 //#define _ENABLE_AVX2 //Please enable it if X64 CPU
 #define _ENABLE_NEON //Please enable it if ARM CPU
+//#include "facedetection_export.h"
+#define FACEDETECTION_EXPORT
 ```
 
 2. modify  `.m` to `.mm` 
@@ -45,6 +29,7 @@ This lib is very useful! I try it in iOS and successful run.
 #import "ViewController.h"
 #import "facedetectcnn.h"
 ```
+4. modify 
 > you must import the `opencv2/opencv.hpp` first  !!!
 
 
@@ -80,17 +65,24 @@ using namespace cv;
     //print the detection results
     for(int i = 0; i < (pResults ? *pResults : 0); i++)
     {
-        short * p = ((short*)(pResults+1))+142*i;
-        int x = p[0];
-        int y = p[1];
-        int w = p[2];
-        int h = p[3];
-        int neighbors = p[4];
-        int angle = p[5];
+short * p = ((short*)(pResults+1))+142*i;
+        int confidence = p[0];
+        int x = p[1];
+        int y = p[2];
+        int w = p[3];
+        int h = p[4];
         
-        printf("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d\n", x,y,w,h,neighbors, angle);
+        printf("face%drect=[%d, %d, %d, %d], confidence=%d\n",i,x,y,w,h,confidence);
         rectangle(result_cnn, cv::Rect(x, y, w, h), Scalar(0, 255, 0), 2);
-    }
+        string str = to_string(confidence);
+        putText(result_cnn, str, cv::Point(x-2,y-2), cv::FONT_HERSHEY_SIMPLEX, 1.0,Scalar(0, 255, 0));
+        for (int j = 5; j < 14; j += 2) {
+            int p_x = p[j];
+            int p_y = p[j+1];
+            printf("landmark%d=[%d, %d]\n",(j-5)/2,p_x,p_y);
+            circle(result_cnn, cv::Point(p_x,p_y), 2,Scalar(255, 0, 0),-1,cv::LINE_AA);
+        }
+     }
     
     free(pBuffer);
     
@@ -114,6 +106,24 @@ using namespace cv;
 
 @end
 ```
-![IMG_0428](https://user-images.githubusercontent.com/5406305/54405990-50f9a700-4713-11e9-8f9e-bb6e54a0423a.PNG)
-![IMG_0429](https://user-images.githubusercontent.com/5406305/54405991-51923d80-4713-11e9-9400-1ebe95e3abe5.PNG)
-![IMG_0430](https://user-images.githubusercontent.com/5406305/54405993-535c0100-4713-11e9-9a4a-bbb5b3f6c21a.PNG)
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/iOS/screenshot1.jpg)
+
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/iOS/screenshot2.jpg)
+
+##Android
+
+Just transport this latetest libfacedetection to Android and run successfully and simplified use for opencv in only 3 steps.
+
+I also update apk in `Android/Facedetection/release` folder so you can just install on your android device to test it.
+
+Modified cmakelist.txt for android and configures for opencv. So all you need to do is to add opencv for android to it and RUN IT.
+
+Here is the steps for developers:
+   
+1.clone this porject and make sure cmake,ndk and lldb(if u need debug c++ code) is downloaded.    
+2.download opencv sdk for android from [OpenCV-release](https://opencv.org/releases.html) and unzip `OpenCV-android-sdk` to the root dir of this project.  
+3.run it!
+
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Android/screenshot1.png)
+
+![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Android/screenshot2.png)
