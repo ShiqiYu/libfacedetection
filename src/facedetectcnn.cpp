@@ -871,7 +871,15 @@ bool detection_output(const CDataBlob<float> * priorbox,
         float cls_score = pConf[i + 1];
         int face_idx = i / 2;
         float iou_score = pIoU[face_idx];
+        // clamp
+        if (iou_score < 0.f) {
+            iou_score = 0.f;
+        }
+        else if (iou_score > 1.f) {
+            iou_score = 1.f;
+        }
         float conf = sqrtf(cls_score * iou_score);
+
         if(conf > confidence_threshold)
         {
             float fBox_x1 = pPriorBox[face_idx * 4];
