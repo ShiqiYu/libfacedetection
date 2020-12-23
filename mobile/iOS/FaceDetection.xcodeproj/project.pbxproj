@@ -13,7 +13,6 @@
 		00E75F69223B3E9D000D9FE7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00E75F68223B3E9D000D9FE7 /* Assets.xcassets */; };
 		00E75F6C223B3E9D000D9FE7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00E75F6A223B3E9D000D9FE7 /* LaunchScreen.storyboard */; };
 		00E75F6F223B3E9D000D9FE7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F6E223B3E9D000D9FE7 /* main.m */; };
-		00E75F7B223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F76223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp */; };
 		00E75F7C223B3EAC000D9FE7 /* facedetectcnn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F77223B3EAC000D9FE7 /* facedetectcnn.cpp */; };
 		00E75F7D223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F79223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp */; };
 		00E75F7E223B3EAC000D9FE7 /* facedetectcnn-model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F7A223B3EAC000D9FE7 /* facedetectcnn-model.cpp */; };
@@ -24,6 +23,8 @@
 		00E75F89223B4552000D9FE7 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E75F88223B4552000D9FE7 /* CoreGraphics.framework */; };
 		00E75F8B223B455A000D9FE7 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E75F8A223B455A000D9FE7 /* Accelerate.framework */; };
 		00E75F8D223B49BF000D9FE7 /* test.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 00E75F8C223B49BF000D9FE7 /* test.jpg */; };
+		E25870F62593177D004E9171 /* test2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E25870F52593177D004E9171 /* test2.jpg */; };
+		E2597524259228D1000B0C45 /* facedetectcnn.h in Sources */ = {isa = PBXBuildFile; fileRef = 00E75F78223B3EAC000D9FE7 /* facedetectcnn.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,7 +38,6 @@
 		00E75F6B223B3E9D000D9FE7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		00E75F6D223B3E9D000D9FE7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E75F6E223B3E9D000D9FE7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		00E75F76223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "facedetectcnn-floatdata.cpp"; sourceTree = "<group>"; };
 		00E75F77223B3EAC000D9FE7 /* facedetectcnn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = facedetectcnn.cpp; sourceTree = "<group>"; };
 		00E75F78223B3EAC000D9FE7 /* facedetectcnn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = facedetectcnn.h; sourceTree = "<group>"; };
 		00E75F79223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "facedetectcnn-int8data.cpp"; sourceTree = "<group>"; };
@@ -49,6 +49,7 @@
 		00E75F88223B4552000D9FE7 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		00E75F8A223B455A000D9FE7 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		00E75F8C223B49BF000D9FE7 /* test.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test.jpg; sourceTree = "<group>"; };
+		E25870F52593177D004E9171 /* test2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test2.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +89,7 @@
 		00E75F5E223B3E9C000D9FE7 /* FaceDetection */ = {
 			isa = PBXGroup;
 			children = (
+				E25870F52593177D004E9171 /* test2.jpg */,
 				00E75F8C223B49BF000D9FE7 /* test.jpg */,
 				00E75F75223B3EAC000D9FE7 /* src */,
 				00E75F5F223B3E9C000D9FE7 /* AppDelegate.h */,
@@ -107,14 +109,13 @@
 		00E75F75223B3EAC000D9FE7 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				00E75F76223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp */,
 				00E75F77223B3EAC000D9FE7 /* facedetectcnn.cpp */,
 				00E75F78223B3EAC000D9FE7 /* facedetectcnn.h */,
 				00E75F79223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp */,
 				00E75F7A223B3EAC000D9FE7 /* facedetectcnn-model.cpp */,
 			);
 			name = src;
-			path = ../../libfacedetection/src;
+			path = ../../../src;
 			sourceTree = "<group>";
 		};
 		00E75F81223B4537000D9FE7 /* Frameworks */ = {
@@ -187,6 +188,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00E75F6C223B3E9D000D9FE7 /* LaunchScreen.storyboard in Resources */,
+				E25870F62593177D004E9171 /* test2.jpg in Resources */,
 				00E75F69223B3E9D000D9FE7 /* Assets.xcassets in Resources */,
 				00E75F8D223B49BF000D9FE7 /* test.jpg in Resources */,
 				00E75F67223B3E9C000D9FE7 /* Main.storyboard in Resources */,
@@ -200,9 +202,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2597524259228D1000B0C45 /* facedetectcnn.h in Sources */,
 				00E75F7D223B3EAC000D9FE7 /* facedetectcnn-int8data.cpp in Sources */,
 				00E75F7E223B3EAC000D9FE7 /* facedetectcnn-model.cpp in Sources */,
-				00E75F7B223B3EAC000D9FE7 /* facedetectcnn-floatdata.cpp in Sources */,
 				00E75F64223B3E9C000D9FE7 /* ViewController.mm in Sources */,
 				00E75F7C223B3EAC000D9FE7 /* facedetectcnn.cpp in Sources */,
 				00E75F6F223B3E9D000D9FE7 /* main.m in Sources */,
@@ -349,7 +351,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W7YDEDGW4E;
+				DEVELOPMENT_TEAM = EXQD8EZF59;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/FaceDetection",
@@ -359,7 +361,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.TalkingData.FaceDetection;
+				PRODUCT_BUNDLE_IDENTIFIER = org.dp.FaceDetection;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -370,7 +372,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W7YDEDGW4E;
+				DEVELOPMENT_TEAM = EXQD8EZF59;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/FaceDetection",
@@ -380,7 +382,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.TalkingData.FaceDetection;
+				PRODUCT_BUNDLE_IDENTIFIER = org.dp.FaceDetection;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
