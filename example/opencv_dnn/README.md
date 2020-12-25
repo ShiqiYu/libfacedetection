@@ -33,5 +33,6 @@ You can view the network architecture here[[netron]](https://netron.app/?url=htt
     ```
 2. Run the example:
     ```shell
-    ./detect /path/to/image /path/to/YuFaceDetectNet.onnx
+    ./detect-image /path/to/image /path/to/YuFaceDetectNet.onnx
+    ./detect-camera 0 /path/to/YuFaceDetectNet.onnx  # '0' is your camera index.
     ```
