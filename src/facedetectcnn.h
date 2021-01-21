@@ -392,7 +392,7 @@ public:
     }
     ~Filters()
     {
-	for (int i = 0; i < filters.size(); i++)
+	for (int i = 0; i < (int)filters.size(); i++)
 	{
 	    delete filters[i];
 	    filters[i] = 0;
