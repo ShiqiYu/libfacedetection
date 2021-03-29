@@ -7,7 +7,7 @@ copy or use the software.
                   License Agreement For libfacedetection
                      (3-clause BSD License)
 
-Copyright (c) 2018-2020, Shiqi Yu, all rights reserved.
+Copyright (c) 2018-2021, Shiqi Yu, all rights reserved.
 shiqi.yu@gmail.com
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -52,73 +52,30 @@ cv::TickMeter cvtm;
 #endif
 
 
-#define NUM_CONV_LAYER 28
+#define NUM_CONV_LAYER 59
 
 extern ConvInfoStruct param_pConvInfo[NUM_CONV_LAYER];
-Filters g_pFilters[NUM_CONV_LAYER]; //NUM_CONV_LAYER conv layers
+Filters<float> g_pFilters[NUM_CONV_LAYER];
 
 bool param_initialized = false;
 
 void init_parameters()
 {
-    //set filters 0
-    {
-        int i = 0;
-        g_pFilters[i].stride = 1;// param_pConvInfo[i].stride;
-        g_pFilters[i].pad = 0;// param_pConvInfo[i].pad;
-        g_pFilters[i].scale = param_pConvInfo[i].scale;
-        int offset = param_pConvInfo[i].kernel_size * param_pConvInfo[i].kernel_size * param_pConvInfo[i].channels;
-        
-        for(int ff = 0; ff < param_pConvInfo[i].num; ff++)
-        {
-            CDataBlob<signed char> * b3x3 = new CDataBlob<signed char>(param_pConvInfo[i].kernel_size, param_pConvInfo[i].kernel_size, param_pConvInfo[i].channels);
-            CDataBlob<signed char> * b1x1 = new CDataBlob<signed char>();
-            b3x3->setInt8FilterData(param_pConvInfo[i].pWeights + size_t(ff) * offset, param_pConvInfo[i].pBias[ff],
-                                            param_pConvInfo[i].kernel_size, param_pConvInfo[i].kernel_size, param_pConvInfo[i].channels);
-            blob2vector<signed char>(b3x3, b1x1);
-            delete b3x3;
-            b3x3 = 0;
-            g_pFilters[i].filters.push_back(b1x1);            
-        }
-    }
-    //set the rest
-    for(int i = 1; i < NUM_CONV_LAYER; i++)
-    {
-        g_pFilters[i].stride = param_pConvInfo[i].stride;
-        g_pFilters[i].pad = param_pConvInfo[i].pad;
-        g_pFilters[i].scale = param_pConvInfo[i].scale;
-        int offset = param_pConvInfo[i].kernel_size * param_pConvInfo[i].kernel_size * param_pConvInfo[i].channels;
-        
-        for(int ff = 0; ff < param_pConvInfo[i].num; ff++)
-        {
-            CDataBlob<signed char> * b = new CDataBlob<signed char>(param_pConvInfo[i].kernel_size, param_pConvInfo[i].kernel_size, param_pConvInfo[i].channels);
-            b->setInt8FilterData(param_pConvInfo[i].pWeights + size_t(ff) * offset, param_pConvInfo[i].pBias[ff],
-                                            param_pConvInfo[i].kernel_size, param_pConvInfo[i].kernel_size, param_pConvInfo[i].channels);
-            g_pFilters[i].filters.push_back(b);
-        }
-    }
+    for(int i = 0; i < NUM_CONV_LAYER; i++)
+        g_pFilters[i] = param_pConvInfo[i];
 }
 
 vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int height, int step)
 {
-    CDataBlob<unsigned char> inputImage;
-    CDataBlob<unsigned char> pConvDataBlobs[NUM_CONV_LAYER-8];
-    CDataBlob<int> pConvDataBlobsBranch[12];
-    CDataBlob<unsigned char> pool1, pool2, pool3, pool4, pool5;
+    CDataBlob<float> dataBlobs[22];
     CDataBlob<float> conv3priorbox, conv4priorbox, conv5priorbox, conv6priorbox;
     CDataBlob<float> conv3priorbox_flat, conv4priorbox_flat, conv5priorbox_flat, conv6priorbox_flat, mbox_priorbox;
     // loc
-    CDataBlob<int> conv3loc_flat, conv4loc_flat, conv5loc_flat, conv6loc_flat;
-    CDataBlob<float> conv3loc_flat_float, conv4loc_flat_float, conv5loc_flat_float, conv6loc_flat_float;
-    CDataBlob<float> mbox_loc_float;
+    CDataBlob<float> conv3loc_flat, conv4loc_flat, conv5loc_flat, conv6loc_flat;
+    CDataBlob<float> mbox_loc;
     // conf
-    CDataBlob<int> conv3conf_flat, conv4conf_flat, conv5conf_flat, conv6conf_flat;
-    CDataBlob<float> conv3conf_flat_float, conv4conf_flat_float, conv5conf_flat_float, conv6conf_flat_float;
-    CDataBlob<float> mbox_conf_float;
-    // iou
-    CDataBlob<int> conv3iou_flat, conv4iou_flat, conv5iou_flat, conv6iou_flat;
-    CDataBlob<float> conv3iou_flat_float, conv4iou_flat_float, conv5iou_flat_float, conv6iou_flat_float;
-    CDataBlob<float> mbox_iou_float;
+    CDataBlob<float> conv3conf_flat, conv4conf_flat, conv5conf_flat, conv6conf_flat;
+    CDataBlob<float> mbox_conf;
 
     TIME_START;
     if (!param_initialized)
@@ -130,280 +87,163 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
 
  
     TIME_START;
-    inputImage.setDataFrom3x3S2P1to1x1S1P0FromImage(rgbImageData, width, height, 3, step);
+    dataBlobs[0].setDataFrom3x3S2P1to1x1S1P0FromImage(rgbImageData, width, height, 3, step);
     TIME_END("convert data");
 
-
-/***************CONV1*********************/
-    int convidx = 0;
+    /***************CONV0*********************/
     TIME_START;
-    convolution_relu(&inputImage, g_pFilters + convidx, pConvDataBlobs + convidx);
-    TIME_END("conv11");
-
-    convidx++;
-    TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv12");
+    convolution(dataBlobs[0], g_pFilters[0], dataBlobs[1]);
+    TIME_END("conv_head");
 
     TIME_START;
-    maxpooling2x2S2(pConvDataBlobs+convidx, &pool1);
-    TIME_END("pool1");
-
-/***************CONV2*********************/
-    convidx++;
-    TIME_START;
-    convolution_relu(&pool1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv21");
-
-    convidx++;
-    TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv22");
+    convolutionDP(dataBlobs[1], g_pFilters[1], g_pFilters[2], dataBlobs[2]);
+    TIME_END("conv0");
 
     TIME_START;
-    maxpooling2x2S2(pConvDataBlobs+convidx, &pool2);
-    TIME_END("pool2");
+    maxpooling2x2S2(dataBlobs[2], dataBlobs[3]);
+    TIME_END("pool0");
 
-/***************CONV3*********************/
-    convidx++;
+    /***************CONV1*********************/
     TIME_START;
-    convolution_relu(&pool2, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv31");
+    convolution4layerUnit(dataBlobs[3], g_pFilters[3], g_pFilters[4], g_pFilters[5], g_pFilters[6], dataBlobs[4]);
+    TIME_END("conv1");
 
-    convidx++;
+    /***************CONV2*********************/
     TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv32");
+    convolution4layerUnit(dataBlobs[4], g_pFilters[7], g_pFilters[8], g_pFilters[9], g_pFilters[10], dataBlobs[5]);
+    TIME_END("conv2");
 
-    convidx++;
+    /***************CONV3*********************/
     TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv33");
-
-    TIME_START;
-    maxpooling2x2S2(pConvDataBlobs+convidx, &pool3);
+    maxpooling2x2S2(dataBlobs[5], dataBlobs[6]);
     TIME_END("pool3");
-
-/***************CONV4*********************/
-    convidx++;
     TIME_START;
-    convolution_relu(&pool3, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv41");
+    convolution4layerUnit(dataBlobs[6], g_pFilters[11], g_pFilters[12], g_pFilters[13], g_pFilters[14], dataBlobs[7]);
+    TIME_END("conv3");
 
-    convidx++;
+    /***************CONV4*********************/
     TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv42");
-
-    convidx++;
-    TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv43");
-
-    TIME_START;
-    maxpooling2x2S2(pConvDataBlobs+convidx, &pool4);
+    maxpooling2x2S2(dataBlobs[7], dataBlobs[8]);
     TIME_END("pool4");
-
-/***************CONV5*********************/
-    convidx++;
     TIME_START;
-    convolution_relu(&pool4, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv51");
+    convolution4layerUnit(dataBlobs[8], g_pFilters[15], g_pFilters[16], g_pFilters[17], g_pFilters[18], dataBlobs[9]);
+    TIME_END("conv4");
 
-    convidx++;
+    /***************CONV5*********************/
     TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv52");
-
-    convidx++;
-    TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv53");
-
-    TIME_START;
-    maxpooling2x2S2(pConvDataBlobs+convidx, &pool5);
+    maxpooling2x2S2(dataBlobs[9], dataBlobs[10]);
     TIME_END("pool5");
-
-/***************CONV6*********************/
-    convidx++;
     TIME_START;
-    convolution_relu(&pool5, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv61");
+    convolution4layerUnit(dataBlobs[10], g_pFilters[19], g_pFilters[20], g_pFilters[21], g_pFilters[22], dataBlobs[11]);
+    TIME_END("conv5");
 
-    convidx++;
+    /***************CONV6*********************/
     TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv62");
-
-
-    convidx++;
+    maxpooling2x2S2(dataBlobs[11], dataBlobs[12]);
+    TIME_END("pool6");
     TIME_START;
-    convolution_relu(pConvDataBlobs+convidx-1, g_pFilters+convidx, pConvDataBlobs+convidx);
-    TIME_END("conv63");
+    convolution4layerUnit(dataBlobs[12], g_pFilters[23], g_pFilters[24], g_pFilters[25], g_pFilters[26], dataBlobs[13]);
+    TIME_END("conv6");
 
-
-    /***************PRIORBOX3*********************/
-    int conv3idx = 6;
-
-    convidx++;
-    TIME_START
-    convolution(pConvDataBlobs+ conv3idx, g_pFilters+convidx, pConvDataBlobsBranch + 0);
-    TIME_END("prior3 loc");
-
-    convidx++;
+    /***************branch3*********************/
     TIME_START;
-    convolution(pConvDataBlobs+ conv3idx, g_pFilters+convidx, pConvDataBlobsBranch + 1);
-    TIME_END("prior3 conf");
-
-    convidx++;
+    convolution4layerUnit(dataBlobs[7], g_pFilters[27], g_pFilters[28], g_pFilters[29], g_pFilters[30], dataBlobs[14], false);
+    TIME_END("branch3-loc");
     TIME_START;
-    convolution(pConvDataBlobs+ conv3idx, g_pFilters+convidx, pConvDataBlobsBranch + 2);
-    TIME_END("prior3 iou");
+    convolution4layerUnit(dataBlobs[7], g_pFilters[31], g_pFilters[32], g_pFilters[33], g_pFilters[34], dataBlobs[15], false);
+    TIME_END("branch3-conf");
 
+    /***************branch4*********************/
+    TIME_START;
+    convolution4layerUnit(dataBlobs[9], g_pFilters[35], g_pFilters[36], g_pFilters[37], g_pFilters[38], dataBlobs[16], false);
+    TIME_END("branch4-loc");
+    TIME_START;
+    convolution4layerUnit(dataBlobs[9], g_pFilters[39], g_pFilters[40], g_pFilters[41], g_pFilters[42], dataBlobs[17], false);
+    TIME_END("branch4-conf");
+
+    /***************branch5*********************/
+    TIME_START;
+    convolution4layerUnit(dataBlobs[11], g_pFilters[43], g_pFilters[44], g_pFilters[45], g_pFilters[46], dataBlobs[18], false);
+    TIME_END("branch5-loc");
+    TIME_START;
+    convolution4layerUnit(dataBlobs[11], g_pFilters[47], g_pFilters[48], g_pFilters[49], g_pFilters[50], dataBlobs[19], false);
+    TIME_END("branch5-conf");
+
+    /***************branch6*********************/
+    TIME_START;
+    convolution4layerUnit(dataBlobs[13], g_pFilters[51], g_pFilters[52], g_pFilters[53], g_pFilters[54], dataBlobs[20], false);
+    TIME_END("branch6-loc");
+    TIME_START;
+    convolution4layerUnit(dataBlobs[13], g_pFilters[55], g_pFilters[56], g_pFilters[57], g_pFilters[58], dataBlobs[21], false);
+    TIME_END("branch6-conf");
+    
+    /***************PRIORBOX*********************/
     TIME_START;
     float pSizes3[3] = {10, 16, 24};
-    priorbox(pConvDataBlobs+ conv3idx, width, height, 8, 3, pSizes3, &conv3priorbox);
+    priorbox(dataBlobs[7].cols, dataBlobs[7].rows, width, height, 8, 3, pSizes3, conv3priorbox);
     TIME_END("prior3");
-
-    /***************PRIORBOX4*********************/
-    int conv4idx = 9;
-
-    convidx++;
-    TIME_START
-    convolution(pConvDataBlobs + conv4idx, g_pFilters + convidx, pConvDataBlobsBranch + 3);
-    TIME_END("prior4 loc");
-
-    convidx++;
-    TIME_START;
-    convolution(pConvDataBlobs + conv4idx, g_pFilters + convidx, pConvDataBlobsBranch + 4);
-    TIME_END("prior4 conf");
-
-    convidx++;
-    TIME_START;
-    convolution(pConvDataBlobs + conv4idx, g_pFilters + convidx, pConvDataBlobsBranch + 5);
-    TIME_END("prior4 iou");
 
     TIME_START;
     float pSizes4[2] = { 32, 48};
-    priorbox(pConvDataBlobs + conv4idx, width, height, 16, 2, pSizes4, &conv4priorbox);
+    priorbox(dataBlobs[9].cols, dataBlobs[9].rows, width, height, 16, 2, pSizes4, conv4priorbox);
     TIME_END("prior4");
-
-    /***************PRIORBOX5*********************/
-    int conv5idx = 12;
-
-    convidx++;
-    TIME_START
-    convolution(pConvDataBlobs + conv5idx, g_pFilters + convidx, pConvDataBlobsBranch + 6);
-    TIME_END("prior5 loc");
-
-    convidx++;
-    TIME_START;
-    convolution(pConvDataBlobs + conv5idx, g_pFilters + convidx, pConvDataBlobsBranch + 7);
-    TIME_END("prior5 conf");
-
-    convidx++;
-    TIME_START;
-    convolution(pConvDataBlobs + conv5idx, g_pFilters + convidx, pConvDataBlobsBranch + 8);
-    TIME_END("prior5 iou");
 
     TIME_START;
     float pSizes5[2] = { 64, 96 };
-    priorbox(pConvDataBlobs + conv5idx, width, height, 32, 2, pSizes5, &conv5priorbox);
+    priorbox(dataBlobs[11].cols, dataBlobs[11].rows, width, height, 32, 2, pSizes5, conv5priorbox);
     TIME_END("prior5");
-
-    /***************PRIORBOX6*********************/
-    int conv6idx = 15;
-
-    convidx++;
-    TIME_START
-    convolution(pConvDataBlobs + conv6idx, g_pFilters + convidx, pConvDataBlobsBranch + 9);
-    TIME_END("prior6 loc");
-
-    convidx++;
-    TIME_START;
-    convolution(pConvDataBlobs + conv6idx, g_pFilters + convidx, pConvDataBlobsBranch + 10);
-    TIME_END("prior6 conf");
-
-    convidx++;
-    TIME_START;
-    convolution(pConvDataBlobs + conv6idx, g_pFilters + convidx, pConvDataBlobsBranch + 11);
-    TIME_END("prior6 iou");
 
     TIME_START;
     float pSizes6[3] = { 128, 192, 256 };
-    priorbox(pConvDataBlobs + conv6idx, width, height, 64, 3, pSizes6, &conv6priorbox);
+    priorbox(dataBlobs[13].cols, dataBlobs[13].rows, width, height, 64, 3, pSizes6, conv6priorbox);
     TIME_END("prior6");
 
-
-
+    /***************PRIORBOX*********************/
     TIME_START;
-    blob2vector(&conv3priorbox, &conv3priorbox_flat);
-    blob2vector(pConvDataBlobsBranch + 0, &conv3loc_flat);
-    blob2vector(pConvDataBlobsBranch + 1, &conv3conf_flat);
-    blob2vector(pConvDataBlobsBranch + 2, &conv3iou_flat);
+    blob2vector(conv3priorbox, conv3priorbox_flat);
+    blob2vector(dataBlobs[14], conv3loc_flat);
+    blob2vector(dataBlobs[15], conv3conf_flat);
 
-    blob2vector(&conv4priorbox, &conv4priorbox_flat);
-    blob2vector(pConvDataBlobsBranch + 3, &conv4loc_flat);
-    blob2vector(pConvDataBlobsBranch + 4, &conv4conf_flat);
-    blob2vector(pConvDataBlobsBranch + 5, &conv4iou_flat);
+    blob2vector(conv4priorbox, conv4priorbox_flat);
+    blob2vector(dataBlobs[16], conv4loc_flat);
+    blob2vector(dataBlobs[17], conv4conf_flat);
 
-    blob2vector(&conv5priorbox, &conv5priorbox_flat);
-    blob2vector(pConvDataBlobsBranch + 6, &conv5loc_flat);
-    blob2vector(pConvDataBlobsBranch + 7, &conv5conf_flat);
-    blob2vector(pConvDataBlobsBranch + 8, &conv5iou_flat);
+    blob2vector(conv5priorbox, conv5priorbox_flat);
+    blob2vector(dataBlobs[18], conv5loc_flat);
+    blob2vector(dataBlobs[19], conv5conf_flat);
 
-    blob2vector(&conv6priorbox, &conv6priorbox_flat);
-    blob2vector(pConvDataBlobsBranch + 9, &conv6loc_flat);
-    blob2vector(pConvDataBlobsBranch + 10, &conv6conf_flat);
-    blob2vector(pConvDataBlobsBranch + 11, &conv6iou_flat);
+    blob2vector(conv6priorbox, conv6priorbox_flat);
+    blob2vector(dataBlobs[20], conv6loc_flat);
+    blob2vector(dataBlobs[21], conv6conf_flat);
     TIME_END("prior flat");
 
-    TIME_START
-    // loc
-    convertInt2Float(&conv3loc_flat, &conv3loc_flat_float);
-    convertInt2Float(&conv4loc_flat, &conv4loc_flat_float);
-    convertInt2Float(&conv5loc_flat, &conv5loc_flat_float);
-    convertInt2Float(&conv6loc_flat, &conv6loc_flat_float);
-    // conf
-    convertInt2Float(&conv3conf_flat, &conv3conf_flat_float);
-    convertInt2Float(&conv4conf_flat, &conv4conf_flat_float);
-    convertInt2Float(&conv5conf_flat, &conv5conf_flat_float);
-    convertInt2Float(&conv6conf_flat, &conv6conf_flat_float);
-    // iou
-    convertInt2Float(&conv3iou_flat, &conv3iou_flat_float);
-    convertInt2Float(&conv4iou_flat, &conv4iou_flat_float);
-    convertInt2Float(&conv5iou_flat, &conv5iou_flat_float);
-    convertInt2Float(&conv6iou_flat, &conv6iou_flat_float);
-    TIME_END("convert int to float");
 
     TIME_START
-    concat4(&conv3priorbox_flat, &conv4priorbox_flat, &conv5priorbox_flat, &conv6priorbox_flat, &mbox_priorbox);
-    concat4(&conv3loc_flat_float, &conv4loc_flat_float, &conv5loc_flat_float, &conv6loc_flat_float, &mbox_loc_float);
-    concat4(&conv3conf_flat_float, &conv4conf_flat_float, &conv5conf_flat_float, &conv6conf_flat_float, &mbox_conf_float);
-    concat4(&conv3iou_flat_float, &conv4iou_flat_float, &conv5iou_flat_float, &conv6iou_flat_float, &mbox_iou_float);
+    concat4(conv3priorbox_flat, conv4priorbox_flat, conv5priorbox_flat, conv6priorbox_flat, mbox_priorbox);
+    concat4(conv3loc_flat, conv4loc_flat, conv5loc_flat, conv6loc_flat, mbox_loc);
+    concat4(conv3conf_flat, conv4conf_flat, conv5conf_flat, conv6conf_flat, mbox_conf);
     TIME_END("concat prior")
 
     TIME_START
-    softmax1vector2class(&mbox_conf_float);
-    clamp1vector(&mbox_iou_float);
+    softmax1vector2class(mbox_conf);
+    //clamp1vector(&mbox_iou);
     TIME_END("softmax")
-
 
     CDataBlob<float> facesInfo;
     TIME_START;
-    detection_output(&mbox_priorbox, &mbox_loc_float, &mbox_conf_float, &mbox_iou_float, 0.3f, 0.5f, 1000, 100, &facesInfo);
+    detection_output(mbox_priorbox, mbox_loc, mbox_conf, 0.3f, 0.5f, 1000, 100, facesInfo);
     TIME_END("detection output")
-
 
     TIME_START;
     std::vector<FaceRect> faces;
-    for (int i = 0; i < facesInfo.width; i++)
+    for (int i = 0; i < facesInfo.cols; i++)
     {
-        float score = facesInfo.getElement(i, 0, 0);
-        float bbxmin = facesInfo.getElement(i, 0, 1);
-        float bbymin = facesInfo.getElement(i, 0, 2);
-        float bbxmax = facesInfo.getElement(i, 0, 3);
-        float bbymax = facesInfo.getElement(i, 0, 4);
+        float * pFaceData = facesInfo.ptr(0,i);
+        float score = pFaceData[0];
+        float bbxmin = pFaceData[1];
+        float bbymin = pFaceData[2];
+        float bbxmax = pFaceData[3];
+        float bbymax = pFaceData[4];
         FaceRect r;
         r.score = score;
         r.x = int(bbxmin * width + 0.5f);
@@ -419,14 +259,32 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
 
         for (int lmidx = 0; lmidx < 5; lmidx++)
         {
-            r.lm[lmidx * 2] = int(facesInfo.getElement(i, 0, 5 + lmidx * 2) * width + 0.5f);
-            r.lm[lmidx * 2 + 1] = int(facesInfo.getElement(i, 0, 5 + lmidx * 2 + 1) * height + 0.5f);
+            r.lm[lmidx * 2] = int(pFaceData[5 + lmidx * 2] * width + 0.5f);
+            r.lm[lmidx * 2 + 1] = int(pFaceData[5 + lmidx * 2 + 1] * height + 0.5f);
         }
 
         faces.push_back(r);
     }
     TIME_END("copy result");
 
+// int ii = 2;
+// cv::Mat m1(dataBlobs[ii].rows, dataBlobs[ii].cols, CV_32FC1);
+// for(int r=0; r < m1.rows; r++)
+// {
+//     float * p = (float*)m1.ptr(r);
+//     for(int c=0; c < m1.cols; c++)
+//         p[c]=(dataBlobs[ii].getElement(r, c, 0));
+// }
+// cv::imshow("x1", m1);
+// cv::Mat m2(dataBlobs[ii].rows, dataBlobs[ii].cols, CV_32FC1);
+// for(int r=0; r < m2.rows; r++)
+// {
+//     float * p = (float*)m2.ptr(r);
+//     for(int c=0; c < m2.cols; c++)
+//         p[c]=(dataBlobs[ii].getElement(r, c, 31));
+// }
+// cv::imshow("x2", m2);
+// cv::waitKey(0);
 
     return faces;
 }
