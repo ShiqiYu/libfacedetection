@@ -107,6 +107,20 @@ inline float dotProduct(const float * p1, const float * p2, int num)
    sum_float_x8 = _mm256_hadd_ps(sum_float_x8, sum_float_x8);
    sum_float_x8 = _mm256_hadd_ps(sum_float_x8, sum_float_x8);
    sum = ((float*)&sum_float_x8)[0] + ((float*)&sum_float_x8)[4];
+#elif defined(_ENABLE_NEON)
+    float32x4_t a_float_x4, b_float_x4;
+    float32x4_t sum_float_x4;
+    sum_float_x4 = vdupq_n_f32(0);
+    for (int i = 0; i < num; i+=4)
+    {
+        a_float_x4 = vld1q_f32(p1 + i);
+        b_float_x4 = vld1q_f32(p2 + i);
+        sum_float_x4 = vaddq_f32(sum_float_x4, vmulq_f32(a_float_x4, b_float_x4));
+    }
+    sum += vgetq_lane_f32(sum_float_x4, 0);
+    sum += vgetq_lane_f32(sum_float_x4, 1);
+    sum += vgetq_lane_f32(sum_float_x4, 2);
+    sum += vgetq_lane_f32(sum_float_x4, 3);
 #else
     for(int i = 0; i < num; i++)
     {
@@ -139,6 +153,16 @@ inline bool vecMulAdd(const float * p1, const float * p2, float * p3, int num)
         c_float_x8 = _mm256_add_ps(c_float_x8, _mm256_mul_ps(a_float_x8, b_float_x8));
         _mm256_store_ps(p3 + i, c_float_x8);
     }
+#elif defined(_ENABLE_NEON)
+    float32x4_t a_float_x4, b_float_x4, c_float_x4;
+    for (int i = 0; i < num; i+=4)
+    {
+        a_float_x4 = vld1q_f32(p1 + i);
+        b_float_x4 = vld1q_f32(p2 + i);
+        c_float_x4 = vld1q_f32(p3 + i);
+        c_float_x4 = vaddq_f32(c_float_x4, vmulq_f32(a_float_x4, b_float_x4));
+        vst1q_f32(p3 + i, c_float_x4);
+    }
 #else
     for(int i = 0; i < num; i++)
         p3[i] += (p1[i] * p2[i]);
@@ -166,6 +190,15 @@ inline bool vecAdd(const float * p1, float * p2, int num)
         b_float_x8 = _mm256_load_ps(p2 + i);
         b_float_x8 = _mm256_add_ps(a_float_x8, b_float_x8);
         _mm256_store_ps(p2 + i, b_float_x8);
+    }
+#elif defined(_ENABLE_NEON)
+    float32x4_t a_float_x4, b_float_x4, c_float_x4;
+    for (int i = 0; i < num; i+=4)
+    {
+        a_float_x4 = vld1q_f32(p1 + i);
+        b_float_x4 = vld1q_f32(p2 + i);
+        c_float_x4 = vaddq_f32(a_float_x4, b_float_x4);
+        vst1q_f32(p2 + i, c_float_x4);
     }
 #else
     for(int i = 0; i < num; i++)
