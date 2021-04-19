@@ -428,6 +428,9 @@ bool convolution4layerUnit(CDataBlob<float> & inputData,
 bool maxpooling2x2S2(CDataBlob<float> &inputData, CDataBlob<float> &outputData);
 
 template<typename T>
+bool extract(CDataBlob<T> &inputData, CDataBlob<T> &loc, CDataBlob<T> &conf, CDataBlob<T> &iou, int num_priors);
+
+template<typename T>
 bool concat4(CDataBlob<T> &inputData1, CDataBlob<T> &inputData2, CDataBlob<T> &inputData3, CDataBlob<T> &inputData4, CDataBlob<T> &outputData);
 
 bool priorbox( int feature_width, int feature_height, 
@@ -448,7 +451,7 @@ bool clamp1vector(CDataBlob<float> &inputOutputData);
 bool detection_output(CDataBlob<float> & priorbox,
                       CDataBlob<float> & loc,
                       CDataBlob<float> & conf,
-                      //CDataBlob<float> & iou,
+                      CDataBlob<float> & iou,
                       float overlap_threshold,
                       float confidence_threshold,
                       int top_k,

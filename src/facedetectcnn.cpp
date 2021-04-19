@@ -456,6 +456,57 @@ bool concat4(CDataBlob<T> &inputData1, CDataBlob<T> &inputData2, CDataBlob<T> &i
 }
 template bool concat4( CDataBlob<float> &inputData1, CDataBlob<float> &inputData2, CDataBlob<float> &inputData3, CDataBlob<float> &inputData4, CDataBlob<float> &outputData);
 
+template<typename T>
+bool extract(CDataBlob<T> &inputData, CDataBlob<T> &loc, CDataBlob<T> &conf, CDataBlob<T> &iou, int num_priors)
+{
+    if (inputData.isEmpty())
+    {
+        cerr << __FUNCTION__ << ": The input data is empty." << endl;
+        return false;
+    }
+
+    int output_r = inputData.rows;
+    int output_c = inputData.cols;
+    int output_ch_iou = num_priors;
+    int output_ch_loc = output_ch_iou * 14;
+    int output_ch_conf = output_ch_iou * 2;
+    // cout << inputData.rows << ", " << inputData.cols << ", " << inputData.channels << ", " << num_priors << endl;
+
+    loc.create(output_r, output_c, output_ch_loc);
+    conf.create(output_r, output_c, output_ch_conf);
+    iou.create(output_r, output_c, output_ch_iou);
+
+    for (int row = 0; row < output_r; row++)
+    {
+        for (int col = 0; col < output_c; col++)
+        {
+            T * p_in = inputData.ptr(row, col);
+            T * p_loc = loc.ptr(row, col);
+            T * p_conf = conf.ptr(row, col);
+            T * p_iou = iou.ptr(row, col);
+
+            for (int n = 0; n < num_priors; n++)
+            {
+                // box coords
+                p_loc[n*14] = p_in[n*17];       p_loc[n*14+1] = p_in[n*17+1];
+                p_loc[n*14+2] = p_in[n*17+2];   p_loc[n*14+3] = p_in[n*17+3];
+                // landmark coords
+                p_loc[n*14+4] = p_in[n*17+4];       p_loc[n*14+5] = p_in[n*17+5];
+                p_loc[n*14+6] = p_in[n*17+6];       p_loc[n*14+7] = p_in[n*17+7];
+                p_loc[n*14+8] = p_in[n*17+8];       p_loc[n*14+9] = p_in[n*17+9];
+                p_loc[n*14+10] = p_in[n*17+10];     p_loc[n*14+11] = p_in[n*17+11];
+                p_loc[n*14+12] = p_in[n*17+12];     p_loc[n*14+13] = p_in[n*17+13];
+                // conf
+                p_conf[n*2] = p_in[n*17+14];       p_conf[n*2+1] = p_in[n*17+15];
+                // iou
+                p_iou[n] = p_in[n*17+16];
+            }
+        }
+    }
+    return true;
+}
+template bool extract(CDataBlob<float> &inputData, CDataBlob<float> &loc, CDataBlob<float> &conf, CDataBlob<float> &iou, int num_priors);
+
 bool priorbox( int feature_width, int feature_height, 
                 int img_width, int img_height, 
                 int step, int num_sizes, 
@@ -630,7 +681,7 @@ bool SortScoreBBoxPairDescend(const pair<float, NormalizedBBox>& pair1,   const 
 bool detection_output(CDataBlob<float> & priorbox,
                       CDataBlob<float> & loc,
                       CDataBlob<float> & conf,
-                      //CDataBlob<float> & iou,
+                      CDataBlob<float> & iou,
                       float overlap_threshold,
                       float confidence_threshold,
                       int top_k,
@@ -654,7 +705,7 @@ bool detection_output(CDataBlob<float> & priorbox,
     float * pPriorBox = priorbox.ptr(0,0);
     float * pLoc = loc.ptr(0,0);
     float * pConf = conf.ptr(0,0);
-    //float * pIoU = iou.ptr(0,0);
+    float * pIoU = iou.ptr(0,0);
 
     vector<pair<float, NormalizedBBox> > score_bbox_vec;
     vector<pair<float, NormalizedBBox> > final_score_bbox_vec;
@@ -664,16 +715,15 @@ bool detection_output(CDataBlob<float> & priorbox,
     {
         float cls_score = pConf[i + 1];
         int face_idx = i / 2;
-        //float iou_score = pIoU[face_idx];
-        // // clamp
-        // if (iou_score < 0.f) {
-        //     iou_score = 0.f;
-        // }
-        // else if (iou_score > 1.f) {
-        //     iou_score = 1.f;
-        //}
-        //float conf = sqrtf(cls_score * iou_score);
-        float conf = cls_score;
+        float iou_score = pIoU[face_idx];
+        // clamp
+        if (iou_score < 0.f) {
+            iou_score = 0.f;
+        }
+        else if (iou_score > 1.f) {
+            iou_score = 1.f;
+        }
+        float conf = sqrtf(cls_score * iou_score);
 
         if(conf > confidence_threshold)
         {
