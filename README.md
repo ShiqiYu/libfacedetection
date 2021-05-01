@@ -82,8 +82,11 @@ The contributors who were not listed at GitHub.com:
 * Shengyin Wu (伍圣寅)
 
 ## Acknowledgment
-The work is partly supported by the Science Foundation of Shenzhen (Grant No. 20170504160426188).
+The work was partly supported by the Science Foundation of Shenzhen (Grant No. 20170504160426188).
 
 
 ## Citation
-Our paper, which introduces a novel loss named Extended IoU (EIoU), is coming out soon. We trained our model using the EIoU loss and obtained a performance boost, see [Performance on WIDER Face (Val)](https://github.com/ShiqiYu/libfacedetection.train#performance-on-wider-face-val) for details. Stay tune for the release of our paper!
+The loss used in [model training](https://github.com/ShiqiYu/libfacedetection.train) is EIoU, a novel extended IoU. More details can be found in:
+```
+Hanyang Peng and Shiqi Yu, A Systematic IoU-Related Method: Beyond Simplified Regression for Better Localization, accepted by IEEE Transactions on Image Processing.
+```
