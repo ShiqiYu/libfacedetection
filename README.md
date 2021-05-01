@@ -46,23 +46,21 @@ You can also compile the source code to a static or dynamic library, and then us
 * Minimal face size ~10x10
 * Intel(R) Core(TM) i7-1065G7 CPU @ 1.3GHz
 
-<!--
-## CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
 
-(To be updated)
+## CNN-based Face Detection on ARM Linux (Raspberry Pi 4 B)
 
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
-|cnn (CPU, 640x480)  |  512.04ms    |  1.95       |  174.89ms    |   5.72      |
-|cnn (CPU, 320x240)  |  123.47ms    |  8.10       |   42.13ms    |  23.74      |
-|cnn (CPU, 160x120)  |   27.42ms    | 36.47       |    9.75ms    | 102.58      |
-|cnn (CPU, 128x96)   |   17.78ms    | 56.24       |    6.12ms    | 163.50      |
+|cnn (CPU, 640x480)  |  492.99ms    |  2.03       |  149.66ms    |   6.68      |
+|cnn (CPU, 320x240)  |  116.43ms    |  8.59       |   34.19ms    |  29.25      |
+|cnn (CPU, 160x120)  |   27.91ms    | 35.83       |    8.43ms    | 118.64      |
+|cnn (CPU, 128x96)   |   17.94ms    | 55.74       |    5.24ms    | 190.82      |
 
-* Face detection only, and no landmark detection included.
+<!-- * Face detection only, and no landmark detection included. -->
 * Minimal face size ~10x10
-* Raspberry Pi 3 B+, Broadcom BCM2837B0, Cortex-A53 (ARMv8) 64-bit SoC @ 1.4GHz
--->
+* Raspberry Pi 4 B, Broadcom BCM2835, Cortex-A72 (ARMv8) 64-bit SoC @ 1.5GHz
+
 
 ## Performance on WIDER Face (To be updated)
 Run on default settings: scales=[1.], confidence_threshold=0.3, floating point:
