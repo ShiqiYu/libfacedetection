@@ -383,22 +383,72 @@ bool maxpooling2x2S2(CDataBlob<float> &inputData, CDataBlob<float> &outputData)
     {
         for (int col = 0; col < outputData.cols; col++)
         {
+            size_t inputMatOffsetsInElement[4];
+            int elementCount = 0;
+
             int rstart = row * 2;
             int cstart = col * 2;
             int rend = MIN(rstart + 2, inputData.rows);
             int cend = MIN(cstart + 2, inputData.cols);
 
+            for (int fr = rstart; fr < rend; fr++)
+            {
+                for (int fc = cstart; fc < cend; fc++)
+                {
+                    inputMatOffsetsInElement[elementCount++] = (size_t(fr) * inputData.cols + fc) * inputData.channelStep / sizeof(float);
+                }
+            }
+
             float * pOut = outputData.ptr(row, col);
+            float * pIn = inputData.data;
 
-            memcpy(pOut, inputData.ptr(rstart, cstart), inputData.channelStep);
-
-            for(int ch = 0; ch < inputData.channels; ch++ )
-                for(int r = rstart; r < rend; r++)
-                    for(int c = cstart; c < cend; c++)
-                    {
-                        float * p = inputData.ptr(r, c);
-                        pOut[ch] = MAX(pOut[ch], p[ch]);
-                    }
+#if defined(_ENABLE_NEON)
+            for (int ch = 0; ch < outputData.channels; ch += 4)
+            {
+                float32x4_t tmp;
+                float32x4_t maxVal = vld1q_f32(pIn + ch + inputMatOffsetsInElement[0]);
+                for (int ec = 1; ec < elementCount; ec++)
+                {
+                    tmp = vld1q_f32(pIn + ch + inputMatOffsetsInElement[ec]);
+                    maxVal = vmaxq_f32(maxVal, tmp);
+                }
+                vst1q_f32(pOut + ch, maxVal);
+            }
+#elif defined(_ENABLE_AVX512)
+            for (int ch = 0; ch < outputData.channels; ch += 16)
+            {
+                __m512 tmp;
+                __m512 maxVal = _mm512_load_ps((__m512 const*)(pIn + ch + inputMatOffsetsInElement[0]));
+                for (int ec = 1; ec < elementCount; ec++)
+                {
+                    tmp = _mm512_load_ps((__m512 const*)(pIn + ch + inputMatOffsetsInElement[ec]));
+                    maxVal = _mm512_max_ps(maxVal, tmp);
+                }
+                _mm512_store_ps((__m512*)(pOut + ch), maxVal);
+            }
+#elif defined(_ENABLE_AVX2)
+            for (int ch = 0; ch < outputData.channels; ch += 8)
+            {
+                __m256 tmp;
+                __m256 maxVal = _mm256_load_ps((float const*)(pIn + ch + inputMatOffsetsInElement[0]));
+                for (int ec = 1; ec < elementCount; ec++)
+                {
+                    tmp = _mm256_load_ps((float const*)(pIn + ch + inputMatOffsetsInElement[ec]));
+                    maxVal = _mm256_max_ps(maxVal, tmp);
+                }
+                _mm256_store_ps(pOut + ch, maxVal);
+            }
+#else
+            for (int ch = 0; ch < outputData.channels; ch++)
+            {
+                float maxVal = pIn[ch + inputMatOffsetsInElement[0]];
+                for (int ec = 1; ec < elementCount; ec++)
+                {
+                    maxVal = MAX(maxVal, pIn[ch + inputMatOffsetsInElement[ec]]);
+                }
+                pOut[ch] = maxVal;
+            }
+#endif
         }
     }
     return true;
