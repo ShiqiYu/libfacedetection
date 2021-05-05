@@ -66,13 +66,13 @@ DO NOT EDIT the following code if you don't really understand it.
 #define _MAX_UINT8_VALUE 255
 #endif
 
-//#if defined(_ENABLE_AVX512) 
+#if defined(_ENABLE_AVX512) 
 #define _MALLOC_ALIGN 512
-//#elif defined(_ENABLE_AVX2) 
-// #define _MALLOC_ALIGN 256
-// #else
-// #define _MALLOC_ALIGN 128
-// #endif
+#elif defined(_ENABLE_AVX2) 
+#define _MALLOC_ALIGN 256
+#else
+#define _MALLOC_ALIGN 128
+#endif
 
 #if defined(_ENABLE_AVX512)&& defined(_ENABLE_NEON)
 #error Cannot enable the two of AVX512 and NEON at the same time.
