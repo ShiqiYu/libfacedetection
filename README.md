@@ -31,9 +31,9 @@ You can also compile the source code to a static or dynamic library, and then us
 [How to compile](COMPILE.md)
 
 
-## CNN-based Face Detection on Windows (To be updated)
+## CNN-based Face Detection on Intel CPU
 
-
+<!--
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |  X64         |X64          |  X64         |X64          |
@@ -42,6 +42,15 @@ You can also compile the source code to a static or dynamic library, and then us
 |cnn (CPU, 320x240)  |  14.18ms     |  70.51      |  3.38ms      |  296.21     |
 |cnn (CPU, 160x120)  |   3.25ms     | 308.15      |  0.82ms      | 1226.56     |
 |cnn (CPU, 128x96)   |   2.11ms     | 474.38      |  0.52ms      | 1929.60     |
+-->
+| Method             |Time          | FPS         |Time          | FPS         |
+|--------------------|--------------|-------------|--------------|-------------|
+|                    |  X64         |X64          |  X64         |X64          |
+|                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
+|cnn (CPU, 640x480)  |  58.06ms.    |  17.22      |  12.93ms     |   77.34     |
+|cnn (CPU, 320x240)  |  13.77ms     |  72.60      |   3.19ms     |  313.14     |
+|cnn (CPU, 160x120)  |   3.26ms     | 306.81      |   0.77ms     | 1293.99     |
+|cnn (CPU, 128x96)   |   1.41ms     | 711.69      |   0.49ms     | 2027.74     |
 
 * Minimal face size ~10x10
 * Intel(R) Core(TM) i7-1065G7 CPU @ 1.3GHz
@@ -62,10 +71,10 @@ You can also compile the source code to a static or dynamic library, and then us
 * Raspberry Pi 4 B, Broadcom BCM2835, Cortex-A72 (ARMv8) 64-bit SoC @ 1.5GHz
 
 
-## Performance on WIDER Face (To be updated)
+## Performance on WIDER Face 
 Run on default settings: scales=[1.], confidence_threshold=0.3, floating point:
 ```
-AP_easy=0.852, AP_medium=0.823, AP_hard=0.646
+AP_easy=0.834, AP_medium=0.824, AP_hard=0.708
 ```
 
 ## Author
