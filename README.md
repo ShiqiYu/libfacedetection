@@ -94,6 +94,12 @@ The work was partly supported by the Science Foundation of Shenzhen (Grant No. 2
 
 ## Citation
 The loss used in [model training](https://github.com/ShiqiYu/libfacedetection.train) is EIoU, a novel extended IoU. More details can be found in:
-```
-Hanyang Peng and Shiqi Yu, A Systematic IoU-Related Method: Beyond Simplified Regression for Better Localization, accepted by IEEE Transactions on Image Processing.
-```
+
+	@article{eiou,
+	 title={A Systematic IoU-Related Method: Beyond Simplified Regression for Better Localization},
+	 author={Hanyang Peng and Shiqi Yu},
+	 journal={IEEE Transactions on Image Processing},
+	 year={2021}
+	 }
+
+The paper can be downloaded at https://ieeexplore.ieee.org/document/9429909
