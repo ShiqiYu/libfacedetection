@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 from priorbox import PriorBox
-from utils import nms, draw
+from utils import draw
 
 backends = (cv2.dnn.DNN_BACKEND_DEFAULT,
             cv2.dnn.DNN_BACKEND_HALIDE,
@@ -75,24 +75,37 @@ loc, conf, iou = net.forward(output_names)
 
 # Decode bboxes and landmarks
 pb = PriorBox(input_shape=(w, h), output_shape=(w, h))
-print(loc.shape, conf.shape)
 dets = pb.decode(loc, conf, iou, args.conf_thresh)
 
 
 # NMS
 if dets.shape[0] > 0:
-     dets = nms(dets, args.nms_thresh)
-     faces = dets[:args.keep_top_k, :]
-     print('Detection results: {} faces found'.format(faces.shape[0]))
-     for f in faces:
-          print('[{:.1f}, {:.1f}] [{:.1f}, {:.1f}] {:.2f}'.format(*f[:4], f[-1]))
+     # NMS from OpenCV
+     keep_idx = cv2.dnn.NMSBoxes(
+          bboxes=dets[:, 0:4].tolist(),
+          scores=dets[:, -1].tolist(),
+          score_threshold=args.conf_thresh,
+          nms_threshold=args.nms_thresh,
+          eta=1,
+          top_k=args.keep_top_k) # returns [box_num, class_num]
+     keep_idx = np.squeeze(keep_idx) # [box_num, class_num] -> [box_num]
+     dets = dets[keep_idx]
+     print('Detection results: {} faces found'.format(dets.shape[0]))
+     for d in dets:
+          print('[{x1:.1f}, {y1:.1f}] [{x2:.1f}, {y2:.1f}] {score:.2f}'.format(
+               x1=d[0], y1=d[1], x2=d[2], y2=d[3], score=d[-1]))
 else:
      print('No faces found.')
      exit()
 
 
 # Draw boudning boxes and landmarks on the original image
-img_res = draw(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), faces[:, :4], np.reshape(faces[:, 4:14], (-1, 5, 2)), faces[:, -1])
+img_res = draw(
+     img=cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
+     bboxes=dets[:, :4],
+     landmarks=np.reshape(dets[:, 4:14], (-1, 5, 2)),
+     scores=dets[:, -1]
+)
 if args.vis:
      cv2.imshow('Detection Results on {}'.format(args.image), img_res)
      cv2.resizeWindow(args.image, w, h)

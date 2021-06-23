@@ -91,9 +91,8 @@ class PriorBox(object):
             priors[:, 0:2]+loc[:, 0:2]*self.variance[0]*priors[:, 2:4],
             priors[:, 2:4]*np.exp(loc[:, 2:4]*self.variance)
         ))
-        # (x_c, y_c, w, h) -> (x1, y1, x2, y2)
+        # (x_c, y_c, w, h) -> (x1, y1, w, h)
         bboxes[:, 0:2] -= bboxes[:, 2:4] / 2
-        bboxes[:, 2:4] += bboxes[:, 0:2]
         # scale recover
         bbox_scale = np.array([self.out_w, self.out_h]*2)
         bboxes = bboxes * bbox_scale
