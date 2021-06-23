@@ -5,21 +5,8 @@
 
 #include "opencv2/opencv.hpp"
 
-// center: [x, y], width: w, height: h
-typedef struct BndBox_xywh {
-    cv::Point2f center;
-    float w;
-    float h;
-} BndBox_xywh;
-
-// top_left: [x1, y1], bottom_right: [x2, y2]
-typedef struct BndBox_xyxy {
-    cv::Point2f top_left;
-    cv::Point2f bottom_right;
-    float area() {
-        return (bottom_right.x - top_left.x + 1) * (bottom_right.y - top_left.y + 1);
-    }
-} BndBox_xyxy;
+// center/topleft: [x, y], width: w, height: h
+typedef cv::Rect2f Box;
 
 typedef struct Landmarks_5 {
     // right eye
@@ -35,7 +22,7 @@ typedef struct Landmarks_5 {
 } Landmarks_5;
 
 typedef struct Face {
-    BndBox_xyxy bbox;
+    Box bbox_tlwh;
     Landmarks_5 landmarks;
     float score;
 } Face;

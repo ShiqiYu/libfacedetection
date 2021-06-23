@@ -46,23 +46,34 @@ int main(int argc, char* argv[]) {
     std::vector<Face> dets = pb.decode(output_blobs[0], output_blobs[1], output_blobs[2], conf_thresh);
 
     // NMS
+    std::vector<Face> nms_dets;
     if (dets.size() > 1) {
-        nms(dets, nms_thresh);
-        if (dets.size() > keep_top_k) { dets.erase(dets.begin()+keep_top_k, dets.end()); }
+        std::vector<cv::Rect> face_boxes;
+        std::vector<float> face_scores;
+        for (auto d: dets) {
+            face_boxes.push_back(d.bbox_tlwh);
+            face_scores.push_back(d.score);
+        }
+        std::vector<int> keep_idx;
+        cv::dnn::NMSBoxes(face_boxes, face_scores, conf_thresh, nms_thresh, keep_idx, 1.f, keep_top_k);
+        for (size_t i = 0; i < keep_idx.size(); i++) {
+            size_t idx = keep_idx[i];
+            nms_dets.push_back(dets[idx]);
+        }
     }
     else if (dets.size() < 1) {
         std::cout << "No faces found." << std::endl;
         return 1;
     }
-    std::cout << "Detection results: " << dets.size() << " faces found." << std::endl;
-    for (auto i = 0; i < dets.size(); ++i) {
-        BndBox_xyxy bbox = dets[i].bbox;
-        float score = dets[i].score;
-        std::cout << bbox.top_left << " " << bbox.bottom_right << " " << score << std::endl;
+    std::cout << "Detection results: " << nms_dets.size() << " faces found." << std::endl;
+    for (auto i = 0; i < nms_dets.size(); ++i) {
+        Box bbox = nms_dets[i].bbox_tlwh;
+        float score = nms_dets[i].score;
+        std::cout << "[" << bbox.x << ", " << bbox.y << "] [" << bbox.x + bbox.width << ", " << bbox.y + bbox.height << "] " << score << std::endl;
     }
 
     // Draw and display
-    draw(img, dets);
+    draw(img, nms_dets);
     if (vis) {
         cv::String title = cv::String("Detection Results on") + cv::String(argv[1]);
         cv::imshow(title, img);

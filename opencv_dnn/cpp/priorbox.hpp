@@ -24,9 +24,9 @@ private:
     int out_h;
 
     std::vector<cv::Size> feature_map_sizes;
-    std::vector<BndBox_xywh> priors;
+    std::vector<Box> priors;
 private:
-    std::vector<BndBox_xywh> generate_priors();
+    std::vector<Box> generate_priors();
 public:
     PriorBox(const cv::Size& input_shape,
              const cv::Size& output_shape);

@@ -35,8 +35,8 @@ PriorBox::PriorBox(const cv::Size& input_shape,
 
 PriorBox::~PriorBox() {}
 
-std::vector<BndBox_xywh> PriorBox::generate_priors() {
-    std::vector<BndBox_xywh> anchors;
+std::vector<Box> PriorBox::generate_priors() {
+    std::vector<Box> anchors;
     for (auto i = 0; i < feature_map_sizes.size(); ++i) {
         cv::Size feature_map_size = feature_map_sizes[i];
         std::vector<float> min_size = min_sizes[i];
@@ -50,11 +50,7 @@ std::vector<BndBox_xywh> PriorBox::generate_priors() {
                     float cx = (_w + 0.5) * steps[i] / in_w;
                     float cy = (_h + 0.5) * steps[i] / in_h;
 
-                    // if (i == 3) {
-                    //     std::cout << _h << " " << _w << std::endl;
-                    // }
-
-                    BndBox_xywh anchor = { {cx, cy}, s_kx, s_ky };
+                    Box anchor = { cx, cy, s_kx, s_ky };
                     anchors.push_back(anchor);
                 }
             }
@@ -91,27 +87,25 @@ std::vector<Face> PriorBox::decode(const cv::Mat& loc,
         Face face;
         face.score = score;
         // get bounding box
-        float cx = priors[i].center.x + loc_v[i*14+0] * variance[0] * priors[i].w;
-        float cy = priors[i].center.y + loc_v[i*14+1] * variance[0] * priors[i].h;
-        float w  = priors[i].w * exp(loc_v[i*14+2] * variance[0]);
-        float h  = priors[i].h * exp(loc_v[i*14+3] * variance[1]);
-        float x1 = (cx - w / 2) * out_w;
-        float y1 = (cy - h / 2) * out_h;
-        float x2 = (cx + w / 2) * out_w;
-        float y2 = (cy + h / 2) * out_h;
-        face.bbox = { {x1, y1}, {x2, y2} };
+        float cx = (priors[i].x + loc_v[i*14+0] * variance[0] * priors[i].width) * out_w;
+        float cy = (priors[i].y + loc_v[i*14+1] * variance[0] * priors[i].height) * out_h;
+        float w  = priors[i].width * exp(loc_v[i*14+2] * variance[0]) * out_w;
+        float h  = priors[i].height * exp(loc_v[i*14+3] * variance[1]) * out_h;
+        float x1 = cx - w / 2;
+        float y1 = cy - h / 2;
+        face.bbox_tlwh = { x1, y1, w, h };
 
         // get landmarks, loc->[right_eye, left_eye, mouth_left, nose, mouth_right]
-        float x_re = (priors[i].center.x + loc_v[i*14+ 4] * variance[0] * priors[i].w) * out_w;
-        float y_re = (priors[i].center.y + loc_v[i*14+ 5] * variance[0] * priors[i].h) * out_h;
-        float x_le = (priors[i].center.x + loc_v[i*14+ 6] * variance[0] * priors[i].w) * out_w;
-        float y_le = (priors[i].center.y + loc_v[i*14+ 7] * variance[0] * priors[i].h) * out_h;
-        float x_ml = (priors[i].center.x + loc_v[i*14+ 8] * variance[0] * priors[i].w) * out_w;
-        float y_ml = (priors[i].center.y + loc_v[i*14+ 9] * variance[0] * priors[i].h) * out_h;
-        float x_n  = (priors[i].center.x + loc_v[i*14+10] * variance[0] * priors[i].w) * out_w;
-        float y_n  = (priors[i].center.y + loc_v[i*14+11] * variance[0] * priors[i].h) * out_h;
-        float x_mr = (priors[i].center.x + loc_v[i*14+12] * variance[0] * priors[i].w) * out_w;
-        float y_mr = (priors[i].center.y + loc_v[i*14+13] * variance[0] * priors[i].h) * out_h;
+        float x_re = (priors[i].x + loc_v[i*14+ 4] * variance[0] * priors[i].width) * out_w;
+        float y_re = (priors[i].y + loc_v[i*14+ 5] * variance[0] * priors[i].height) * out_h;
+        float x_le = (priors[i].x + loc_v[i*14+ 6] * variance[0] * priors[i].width) * out_w;
+        float y_le = (priors[i].y + loc_v[i*14+ 7] * variance[0] * priors[i].height) * out_h;
+        float x_ml = (priors[i].x + loc_v[i*14+ 8] * variance[0] * priors[i].width) * out_w;
+        float y_ml = (priors[i].y + loc_v[i*14+ 9] * variance[0] * priors[i].height) * out_h;
+        float x_n  = (priors[i].x + loc_v[i*14+10] * variance[0] * priors[i].width) * out_w;
+        float y_n  = (priors[i].y + loc_v[i*14+11] * variance[0] * priors[i].height) * out_h;
+        float x_mr = (priors[i].x + loc_v[i*14+12] * variance[0] * priors[i].width) * out_w;
+        float y_mr = (priors[i].y + loc_v[i*14+13] * variance[0] * priors[i].height) * out_h;
         face.landmarks = {
             {x_re, y_re}, // right eye
             {x_le, y_le}, // left eye
