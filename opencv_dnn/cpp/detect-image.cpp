@@ -8,8 +8,8 @@
 #include "opencv2/opencv.hpp"
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cout << "Usage: " << argv[0] << " <image_file_name> <net_file_name>\n";
+    if (argc != 3 && argc !=4) {
+        std::cout << "Usage: " << argv[0] << " <image_file_name> <net_file_name> [<visualization_flag> default false] \n";
         return -1;
     }
 
@@ -33,6 +33,9 @@ int main(int argc, char* argv[]) {
     int keep_top_k = 750;
     // Result
     bool vis = false;
+    if (argc==4 && std::string(argv[3]) == "true") {
+        vis = true;
+    }
     std::string save_fpath = "./result.jpg";
 
     // Forward
