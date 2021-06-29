@@ -7,11 +7,11 @@ void draw(cv::Mat& img,
     const cv::Scalar bbox_color = {  0, 255,   0};
     const cv::Scalar text_color = {255, 255, 255};
     const std::vector<cv::Scalar> landmarks_color = {
-        {255,   0,   0}, // left eye
-        {  0,   0, 255}, // right eye
-        {  0, 255, 255}, // mouth left
-        {255, 255,   0}, // nose
-        {  0, 255,   0}  // mouth right
+        {255,   0,   0}, // right eye
+        {  0,   0, 255}, // left eye
+        {  0, 255,   0}, // nose
+        {255,   0, 255}, // mouth right
+        {  0, 255, 255}  // mouth left
     };
 
     for (auto i = 0; i < faces.size(); ++i) {
@@ -33,10 +33,10 @@ void draw(cv::Mat& img,
                     text_color);
         // draw landmarks
         const int radius = 2;
-        cv::circle(img, cv::Point(faces[i].landmarks.left_eye),    radius, landmarks_color[0], thickness);
-        cv::circle(img, cv::Point(faces[i].landmarks.right_eye),   radius, landmarks_color[1], thickness);
-        cv::circle(img, cv::Point(faces[i].landmarks.mouth_left),  radius, landmarks_color[2], thickness);
-        cv::circle(img, cv::Point(faces[i].landmarks.nose_tip),    radius, landmarks_color[3], thickness);
-        cv::circle(img, cv::Point(faces[i].landmarks.mouth_right), radius, landmarks_color[4], thickness);
+        cv::circle(img, cv::Point(faces[i].landmarks.right_eye),   radius, landmarks_color[0], thickness);
+        cv::circle(img, cv::Point(faces[i].landmarks.left_eye),    radius, landmarks_color[1], thickness);
+        cv::circle(img, cv::Point(faces[i].landmarks.nose_tip),    radius, landmarks_color[2], thickness);
+        cv::circle(img, cv::Point(faces[i].landmarks.mouth_right), radius, landmarks_color[3], thickness);
+        cv::circle(img, cv::Point(faces[i].landmarks.mouth_left),  radius, landmarks_color[4], thickness);
     }
 }

@@ -101,7 +101,7 @@ else:
 
 # Draw boudning boxes and landmarks on the original image
 img_res = draw(
-     img=cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
+     img=img,
      bboxes=dets[:, :4],
      landmarks=np.reshape(dets[:, 4:14], (-1, 5, 2)),
      scores=dets[:, -1]

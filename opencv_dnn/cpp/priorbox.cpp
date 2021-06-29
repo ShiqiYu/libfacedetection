@@ -96,22 +96,22 @@ std::vector<Face> PriorBox::decode(const cv::Mat& loc,
         face.bbox_tlwh = { x1, y1, w, h };
 
         // get landmarks, loc->[right_eye, left_eye, mouth_left, nose, mouth_right]
-        float x_re = (priors[i].x + loc_v[i*14+ 4] * variance[0] * priors[i].width) * out_w;
+        float x_re = (priors[i].x + loc_v[i*14+ 4] * variance[0] * priors[i].width) *  out_w;
         float y_re = (priors[i].y + loc_v[i*14+ 5] * variance[0] * priors[i].height) * out_h;
-        float x_le = (priors[i].x + loc_v[i*14+ 6] * variance[0] * priors[i].width) * out_w;
+        float x_le = (priors[i].x + loc_v[i*14+ 6] * variance[0] * priors[i].width) *  out_w;
         float y_le = (priors[i].y + loc_v[i*14+ 7] * variance[0] * priors[i].height) * out_h;
-        float x_ml = (priors[i].x + loc_v[i*14+ 8] * variance[0] * priors[i].width) * out_w;
-        float y_ml = (priors[i].y + loc_v[i*14+ 9] * variance[0] * priors[i].height) * out_h;
-        float x_n  = (priors[i].x + loc_v[i*14+10] * variance[0] * priors[i].width) * out_w;
-        float y_n  = (priors[i].y + loc_v[i*14+11] * variance[0] * priors[i].height) * out_h;
-        float x_mr = (priors[i].x + loc_v[i*14+12] * variance[0] * priors[i].width) * out_w;
-        float y_mr = (priors[i].y + loc_v[i*14+13] * variance[0] * priors[i].height) * out_h;
+        float x_n =  (priors[i].x + loc_v[i*14+ 8] * variance[0] * priors[i].width) *  out_w;
+        float y_n =  (priors[i].y + loc_v[i*14+ 9] * variance[0] * priors[i].height) * out_h;
+        float x_mr = (priors[i].x + loc_v[i*14+10] * variance[0] * priors[i].width) *  out_w;
+        float y_mr = (priors[i].y + loc_v[i*14+11] * variance[0] * priors[i].height) * out_h;
+        float x_ml = (priors[i].x + loc_v[i*14+12] * variance[0] * priors[i].width) *  out_w;
+        float y_ml = (priors[i].y + loc_v[i*14+13] * variance[0] * priors[i].height) * out_h;
         face.landmarks = {
-            {x_re, y_re}, // right eye
-            {x_le, y_le}, // left eye
-            {x_ml, y_ml}, // mouth left
+            {x_re, y_re},  // right eye
+            {x_le, y_le},  // left eye
             {x_n,  y_n },  // nose
-            {x_mr, y_mr}  // mouth right
+            {x_mr, y_mr},  // mouth right
+            {x_ml, y_ml}   // mouth left
         };
 
         dets.push_back(face);

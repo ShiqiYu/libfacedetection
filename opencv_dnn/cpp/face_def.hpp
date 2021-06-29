@@ -13,12 +13,12 @@ typedef struct Landmarks_5 {
     cv::Point2f right_eye;
     // left eye
     cv::Point2f left_eye;
-    // mouth left
-    cv::Point2f mouth_left;
-    // nose
+    // nose tip
     cv::Point2f nose_tip;
     // mouth right
     cv::Point2f mouth_right;
+    // mouth left
+    cv::Point2f mouth_left;
 } Landmarks_5;
 
 typedef struct Face {
