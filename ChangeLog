@@ -1,3 +1,10 @@
+2021-06-09
+---------------------
+* Now the model is depth-wise based.
+* The number of parameters is sharply dropped to only 85K. File size of the PyTorch model is 399KB, while ONNX is 337KB.
+* The runtime speed is slightly faster on X86 CPU, and 20% faster on ARM CPU.
+* int8-quantization is dropped, but float operations are carried out by AVX2/AVX512/NEON accordingly.
+
 2020-02-27
 ---------------------
 * Update the model to v3. The computational cost similar with the previous one.

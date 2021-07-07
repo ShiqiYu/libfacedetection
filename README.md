@@ -31,9 +31,9 @@ You can also compile the source code to a static or dynamic library, and then us
 [How to compile](COMPILE.md)
 
 
-## CNN-based Face Detection on Windows
+## CNN-based Face Detection on Intel CPU
 
-
+<!--
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |  X64         |X64          |  X64         |X64          |
@@ -42,32 +42,39 @@ You can also compile the source code to a static or dynamic library, and then us
 |cnn (CPU, 320x240)  |  14.18ms     |  70.51      |  3.38ms      |  296.21     |
 |cnn (CPU, 160x120)  |   3.25ms     | 308.15      |  0.82ms      | 1226.56     |
 |cnn (CPU, 128x96)   |   2.11ms     | 474.38      |  0.52ms      | 1929.60     |
+-->
+| Method             |Time          | FPS         |Time          | FPS         |
+|--------------------|--------------|-------------|--------------|-------------|
+|                    |  X64         |X64          |  X64         |X64          |
+|                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
+|cnn (CPU, 640x480)  |  58.06ms.    |  17.22      |  12.93ms     |   77.34     |
+|cnn (CPU, 320x240)  |  13.77ms     |  72.60      |   3.19ms     |  313.14     |
+|cnn (CPU, 160x120)  |   3.26ms     | 306.81      |   0.77ms     | 1293.99     |
+|cnn (CPU, 128x96)   |   1.41ms     | 711.69      |   0.49ms     | 2027.74     |
 
 * Minimal face size ~10x10
 * Intel(R) Core(TM) i7-1065G7 CPU @ 1.3GHz
 
-<!--
-## CNN-based Face Detection on ARM Linux (Raspberry Pi 3 B+)
 
-(To be updated)
+## CNN-based Face Detection on ARM Linux (Raspberry Pi 4 B)
 
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
-|cnn (CPU, 640x480)  |  512.04ms    |  1.95       |  174.89ms    |   5.72      |
-|cnn (CPU, 320x240)  |  123.47ms    |  8.10       |   42.13ms    |  23.74      |
-|cnn (CPU, 160x120)  |   27.42ms    | 36.47       |    9.75ms    | 102.58      |
-|cnn (CPU, 128x96)   |   17.78ms    | 56.24       |    6.12ms    | 163.50      |
+|cnn (CPU, 640x480)  |  492.99ms    |  2.03       |  149.66ms    |   6.68      |
+|cnn (CPU, 320x240)  |  116.43ms    |  8.59       |   34.19ms    |  29.25      |
+|cnn (CPU, 160x120)  |   27.91ms    | 35.83       |    8.43ms    | 118.64      |
+|cnn (CPU, 128x96)   |   17.94ms    | 55.74       |    5.24ms    | 190.82      |
 
-* Face detection only, and no landmark detection included.
+<!-- * Face detection only, and no landmark detection included. -->
 * Minimal face size ~10x10
-* Raspberry Pi 3 B+, Broadcom BCM2837B0, Cortex-A53 (ARMv8) 64-bit SoC @ 1.4GHz
--->
+* Raspberry Pi 4 B, Broadcom BCM2835, Cortex-A72 (ARMv8) 64-bit SoC @ 1.5GHz
 
-## Performance on WIDER Face
+
+## Performance on WIDER Face 
 Run on default settings: scales=[1.], confidence_threshold=0.3, floating point:
 ```
-AP_easy=0.852, AP_medium=0.823, AP_hard=0.646
+AP_easy=0.834, AP_medium=0.824, AP_hard=0.708
 ```
 
 ## Author
@@ -82,8 +89,17 @@ The contributors who were not listed at GitHub.com:
 * Shengyin Wu (伍圣寅)
 
 ## Acknowledgment
-The work is partly supported by the Science Foundation of Shenzhen (Grant No. 20170504160426188).
+The work was partly supported by the Science Foundation of Shenzhen (Grant No. 20170504160426188).
 
 
 ## Citation
-Our paper, which introduces a novel loss named Extended IoU (EIoU), is coming out soon. We trained our model using the EIoU loss and obtained a performance boost, see [Performance on WIDER Face (Val)](https://github.com/ShiqiYu/libfacedetection.train#performance-on-wider-face-val) for details. Stay tune for the release of our paper!
+The loss used in [model training](https://github.com/ShiqiYu/libfacedetection.train) is EIoU, a novel extended IoU. More details can be found in:
+
+	@article{eiou,
+	 title={A Systematic IoU-Related Method: Beyond Simplified Regression for Better Localization},
+	 author={Hanyang Peng and Shiqi Yu},
+	 journal={IEEE Transactions on Image Processing},
+	 year={2021}
+	 }
+
+The paper can be downloaded at https://ieeexplore.ieee.org/document/9429909

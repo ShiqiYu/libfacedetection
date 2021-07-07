@@ -7,7 +7,7 @@ copy or use the software.
                   License Agreement For libfacedetection
                      (3-clause BSD License)
 
-Copyright (c) 2018-2020, Shiqi Yu, all rights reserved.
+Copyright (c) 2018-2021, Shiqi Yu, all rights reserved.
 shiqi.yu@gmail.com
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -119,44 +119,39 @@ typedef struct FaceRect_
 }FaceRect;
 
 typedef struct ConvInfoStruct_ {
-    int pad;
-    int stride;
-    int kernel_size;
     int channels;
-    int num;
-    float scale;
-    signed char* pWeights;
-    signed int* pBias;
+    int num_filters;
+    bool is_depthwise;
+    bool is_pointwise;
+    bool with_relu;
+    float* pWeights;
+    float* pBiases;
 }ConvInfoStruct;
 
 
-template <class T>
+template <typename T>
 class CDataBlob
 {
 public:
     T * data;
-	int width;
-	int height;
-	int channels;
-    int channelStep;
-    float scale;
-    //when the datablob is a filter, the bias is 0 by default
-    //if it is the filted data, the bias is 1 by default
-    int bias; 
+	int rows;
+	int cols;
+	int channels; //in element
+    int channelStep; //in byte
 public:
 	CDataBlob() {
         data = 0;
-		width = 0;
-		height = 0;
+		rows = 0;
+		cols = 0;
         channels = 0;
         channelStep = 0;
-        scale = 1.0f;
-        bias = 0;
 	}
-	CDataBlob(int w, int h, int c)
+	CDataBlob(int r, int c, int ch)
 	{
         data = 0;
-        create(w, h, c);
+        create(r, c, ch);
+        //#warning "confirm later"
+        //setZero();
 	}
 	~CDataBlob()
 	{
@@ -167,17 +162,27 @@ public:
     {
         if (data)
             myFree(&data);
-        width = height = channels = channelStep = 0;
-        scale = 1.0f;
+        rows = cols = channels = channelStep = 0;
     }
-	bool create(int w, int h, int c)
+
+    void setZero()
+    {
+        if(data)
+            memset(data, 0, channelStep * rows * cols);
+    }
+
+    inline bool isEmpty()
+    {
+        return (rows <= 0 || cols <= 0 || channels == 0 || data == NULL);
+    }
+
+	bool create(int r, int c, int ch)
 	{
         setNULL();
 
-		width = w;
-		height = h;
-        channels = c;
-        bias = 0;
+		rows = r;
+		cols = c;
+        channels = ch;
 
         //alloc space for int8 array
         int remBytes = (sizeof(T)* channels) % (_MALLOC_ALIGN / 8);
@@ -185,13 +190,13 @@ public:
             this->channelStep = channels * sizeof(T);
         else
             this->channelStep = (channels * sizeof(T)) + (_MALLOC_ALIGN / 8) - remBytes;
-        data = (T*)myAlloc(size_t(width) * height * this->channelStep);
+        data = (T*)myAlloc(size_t(rows) * cols * this->channelStep);
 
         if (data == NULL)
         {
             cerr << "Failed to alloc memeory for uint8 data blob: "
-                << width << "*"
-                << height << "*"
+                << rows << "*"
+                << cols << "*"
                 << channels << endl;
             return false;
         }
@@ -204,54 +209,26 @@ public:
 //#if defined(_OPENMP)
 //#pragma omp parallel for
 //#endif
-        for (int r = 0; r < this->height; r++)
-        {
-            for (int c = 0; c < this->width; c++)
-            {
-                int pixel_end = this->channelStep / sizeof(T);
-                T * pI = (this->data + (size_t(r) * this->width + c) * this->channelStep /sizeof(T));
-                for (int ch = this->channels; ch < pixel_end; ch++)
-                    pI[ch] = 0;
-            }
-        }
+        // for (int r = 0; r < this->rows; r++)
+        // {
+        //     for (int c = 0; c < this->cols; c++)
+        //     {
+        //         int pixel_end = this->channelStep / sizeof(T);
+        //         T * pI = this->ptr(r, c);
+        //         for (int ch = this->channels; ch < pixel_end; ch++)
+        //             pI[ch] = 0;
+        //     }
+        // }
         
         return true;
 	}
 
-    bool setInt8FilterData(signed char * pData, int bias, int dataWidth, int dataHeight, int dataChannels)
+    inline T * ptr(int r, int c)
     {
-        if (pData == NULL)
-        {
-            cerr << "The input image data is null." << endl;
-            return false;
-        }
+        if( r < 0 || r >= this->rows || c < 0 || c >= this->cols )
+            return NULL;
 
-        if (typeid(signed char) != typeid(T))
-        {
-            cerr << "Data must be signed char, the same with the source data." << endl;
-            return false;
-        }
-
-        if (dataWidth != this->width ||
-            dataHeight != this->height ||
-            dataChannels != this->channels)
-        {
-            cerr << "The dimension of the data can not match that of the Blob." << endl;
-            return false;
-        }
-
-        for(int row = 0; row < height; row++)
-            for (int col = 0; col < width; col++)
-            {
-                T * p = (this->data + (size_t(width) * row + col) * channelStep /sizeof(T));
-                for (int ch = 0; ch < channels; ch++)
-                {
-                    p[ch] = pData[ch * height * width + row * width + col];
-                }
-            }
-        
-        this->bias = bias;
-        return true;
+        return (this->data + (size_t(r) * this->cols + c) * this->channelStep /sizeof(T));
     }
 
     bool setDataFrom3x3S2P1to1x1S1P0FromImage(const unsigned char * imgData, int imgWidth, int imgHeight, int imgChannels, int imgWidthStep)
@@ -261,9 +238,9 @@ public:
             cerr << "The input image data is null." << endl;
             return false;
         }
-        if (typeid(unsigned char) != typeid(T))
+        if (typeid(float) != typeid(T))
         {
-            cerr << "Data must be unsigned char, the same with the source data." << endl;
+            cerr << "DataBlob must be float in the current version." << endl;
             return false;
         }
         if (imgChannels != 3)
@@ -271,20 +248,20 @@ public:
             cerr << "The input image must be a 3-channel RGB image." << endl;
             return false;
         }
-
-        create((imgWidth+1)/2, (imgHeight+1)/2, 27);
+        //only 27 elements used for each pixel
+        create((imgHeight+1)/2, (imgWidth+1)/2, 32); 
         //since the pixel assignment cannot fill all the elements in the blob. 
         //some elements in the blob should be initialized to 0
-        memset(data, 0, size_t(width) * height * channelStep);
+        setZero();
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-        for (int r = 0; r < this->height; r++)
+        for (int r = 0; r < this->rows; r++)
         {
-            for (int c = 0; c < this->width; c++)
+            for (int c = 0; c < this->cols; c++)
             {
-                T * pData = (unsigned char*)this->data + (size_t(r) * this->width + c) * this->channelStep;
+                T * pData = this->ptr(r, c);
                 for (int fy = -1; fy <= 1; fy++)
                 {
                     int srcy = r * 2 + fy;
@@ -301,133 +278,184 @@ public:
 
                         const unsigned char * pImgData = imgData + size_t(imgWidthStep) * srcy + imgChannels * srcx;
 
-                        int output_channel_offset = ((fy + 1) * 3 + fx + 1) * 3; //3x3 filters, 3-channel image
-#if defined(_ENABLE_NEON)
-                        pData[output_channel_offset] = (pImgData[0] / 2);
-                        pData[output_channel_offset + 1] = (pImgData[1] / 2);
-                        pData[output_channel_offset + 2] = (pImgData[2] / 2);
-#else
+                        //int output_channel_offset = ((fy + 1) * 3 + fx + 1) * 3; //3x3 filters, 3-channel image
+                        int output_channel_offset = ((fy + 1) * 3 + fx + 1) ; //3x3 filters, 3-channel image
                         pData[output_channel_offset] = (pImgData[0]);
-                        pData[output_channel_offset+1] = (pImgData[1]);
-                        pData[output_channel_offset+2] = (pImgData[2]);
-#endif
-
+                        pData[output_channel_offset+9] = (pImgData[1]);
+                        pData[output_channel_offset+18] = (pImgData[2]);
                     }
-
                 }
             }
         }
-#if defined(_ENABLE_NEON)
-        this->bias = 1; // 1/2 = 0
-        this->scale = 0.5f;
-#else
-        this->bias = 1; 
-        this->scale = 1.0f;
-#endif
         return true;
     }
-    T getElement(int x, int y, int channel)
+
+    inline T getElement(int r, int c, int ch)
     {
         if (this->data)
         {
-            if (x >= 0 && x < this->width &&
-                y >= 0 && y < this->height &&
-                channel >= 0 && channel < this->channels)
+            if (r >= 0 && r < this->rows &&
+                c >= 0 && c < this->cols &&
+                ch >= 0 && ch < this->channels)
             {
-                T * p = this->data + (size_t(y) * this->width + x) * this->channelStep/sizeof(T);
-                return (p[channel]);
+                T * p = this->ptr(r, c);
+                return (p[ch]);
             }
         }
         
         return (T)(0);
     }
 
-    friend ostream &operator<<(ostream &output, const CDataBlob &dataBlob)
+    friend ostream &operator<<(ostream &output, CDataBlob &dataBlob)
     {
-        output << "DataBlob Size (Width, Height, Channel, scale) = ("
-            << dataBlob.width
-            << ", " << dataBlob.height
-            << ", " << dataBlob.channels
-            << ", " << dataBlob.scale
-            << ", " << dataBlob.bias
+        output << "DataBlob Size (channels, rows, cols) = ("
+            << dataBlob.channels
+            << ", " << dataBlob.rows
+            << ", " << dataBlob.cols
             << ")" << endl;
-        for (int ch = 0; ch < dataBlob.channels; ch++)
-        {
-            output << "Channel " << ch << ": " << endl;
-
-            for (int row = 0; row < dataBlob.height; row++)
+        if( dataBlob.rows * dataBlob.cols * dataBlob.channels <= 16)
+        { //print the elements only when the total number is less than 64
+            for (int ch = 0; ch < dataBlob.channels; ch++)
             {
-                output << "(";
-                for (int col = 0; col < dataBlob.width; col++)
+                output << "Channel " << ch << ": " << endl;
+
+                for (int r = 0; r < dataBlob.rows; r++)
                 {
-                    T * p = (dataBlob.data + (dataBlob.width * row + col) * dataBlob.channelStep /sizeof(T) );
+                    output << "(";
+                    for (int c = 0; c < dataBlob.cols; c++)
+                    {
+                        T * p = dataBlob.ptr(r, c);
 
-                    if(sizeof(T)<4)
-                        output << (int)(p[ch]);
-                    else
-                        output << p[ch];
+                        if(sizeof(T)<4)
+                            output << (int)(p[ch]);
+                        else
+                            output << p[ch];
 
-                    if (col != dataBlob.width - 1)
-                        output << ", ";
+                        if (c != dataBlob.cols - 1)
+                            output << ", ";
+                    }
+                    output << ")" << endl;
                 }
-                output << ")" << endl;
             }
         }
-
+        else
+            output << "(" << dataBlob.getElement(0,0,0) << ", ..., " 
+                    << dataBlob.getElement(dataBlob.rows-1, dataBlob.cols-1, dataBlob.channels-1)
+                    << endl;
         return output;
     }
 };
 
-class Filters {
-public:
-	vector<CDataBlob<signed char> *> filters;
-	int pad;
-	int stride;
-    float scale; //element * scale = original value
+template <typename T>
+class Filters{
+  public:
+    int channels;
+    int num_filters;
+    bool is_depthwise;
+    bool is_pointwise;
+    bool with_relu;
+    CDataBlob<T> weights;
+    CDataBlob<T> biases;
+
     Filters()
     {
-        pad = 0;
-        stride = 0;
-        scale = 0;
+        channels = 0;
+        num_filters = 0;
+        is_depthwise = false;
+        is_pointwise = false;
+        with_relu = true;
     }
-    ~Filters()
+
+    
+    //bool init(ConvInfoStruct * pInfo)
+    Filters & operator=(ConvInfoStruct & convinfo)
     {
-	for (int i = 0; i < filters.size(); i++)
-	{
-	    delete filters[i];
-	    filters[i] = 0;
-	}
+        if (typeid(float) != typeid(T))
+        {
+            cerr << "The data type must be float in this version." << endl;
+            return *this;
+        }
+        if (typeid(float*) != typeid(convinfo.pWeights) ||
+            typeid(float*) != typeid(convinfo.pBiases))
+        {
+            cerr << "The data type of the filter parameters must be float in this version." << endl;
+            return *this;
+        }
+
+        this->channels = convinfo.channels;
+        this->num_filters =  convinfo.num_filters;
+        this->is_depthwise = convinfo.is_depthwise;
+        this->is_pointwise = convinfo.is_pointwise;
+        this->with_relu = convinfo.with_relu;
+
+        if(!this->is_depthwise && this->is_pointwise) //1x1 point wise
+        {
+            this->weights.create(1, num_filters, channels);
+        }
+        else if(this->is_depthwise && !this->is_pointwise) //3x3 depth wise
+        {
+            this->weights.create(1, 9, channels);
+        }
+        else 
+        {
+            cerr << "Unsupported filter type. Only 1x1 point-wise and 3x3 depth-wise are supported." << endl;
+            return *this;
+        }
+
+        this->biases.create(1, 1, num_filters);
+
+        //the format of convinfo.pWeights/biases must meet the format in this->weigths/biases
+        for(int fidx = 0; fidx < this->weights.cols; fidx++)
+            memcpy(this->weights.ptr(0,fidx), 
+                    convinfo.pWeights + channels * fidx , 
+                    channels * sizeof(T));
+        memcpy(this->biases.ptr(0,0), convinfo.pBiases, sizeof(T) * this->num_filters);
+
+        return *this;
     }
 };
 
-bool convertInt2Float(CDataBlob<int> * inputData, CDataBlob<float> * outputData);
 
-bool convolution(CDataBlob<unsigned char> *inputData, const Filters* filters, CDataBlob<int> *outputData);
+bool convolution(CDataBlob<float> & inputData, Filters<float> & filters, CDataBlob<float> & outputData, bool do_relu = true);
+bool convolutionDP(CDataBlob<float> & inputData, 
+                Filters<float> & filtersP, Filters<float> & filtersD, 
+                CDataBlob<float> & outputData, bool do_relu = true);
+bool convolution4layerUnit(CDataBlob<float> & inputData, 
+                Filters<float> & filtersP1, Filters<float> & filtersD1, 
+                Filters<float> & filtersP2, Filters<float> & filtersD2, 
+                CDataBlob<float> & outputData, bool do_relu = true);
 
-bool convolution_relu(CDataBlob<unsigned char> *inputData, const Filters* filters, CDataBlob<unsigned char> *outputData);
-
-bool maxpooling2x2S2(const CDataBlob<unsigned char> *inputData, CDataBlob<unsigned char> *outputData);
-
-bool priorbox(const CDataBlob<unsigned char> * featureData, int img_width, int img_height, int step, int num_sizes, float * pWinSizes, CDataBlob<float> * outputData);
+bool maxpooling2x2S2(CDataBlob<float> &inputData, CDataBlob<float> &outputData);
 
 template<typename T>
-bool concat4(const CDataBlob<T> *inputData1, const CDataBlob<T> *inputData2, const CDataBlob<T> *inputData3, const CDataBlob<T> *inputData4, CDataBlob<T> *outputData);
+bool extract(CDataBlob<T> &inputData, CDataBlob<T> &loc, CDataBlob<T> &conf, CDataBlob<T> &iou, int num_priors);
+
+template<typename T>
+bool concat4(CDataBlob<T> &inputData1, CDataBlob<T> &inputData2, CDataBlob<T> &inputData3, CDataBlob<T> &inputData4, CDataBlob<T> &outputData);
+
+bool priorbox( int feature_width, int feature_height, 
+                int img_width, int img_height, 
+                int step, int num_sizes, 
+                float * pWinSizes, CDataBlob<float> & outputData);
+
+bool softmax1vector2class(CDataBlob<float> &inputOutputData);
 
 /* the input data for softmax must be a vector, the data stored in a multi-channel blob with size 1x1 */
 template<typename T>
-bool blob2vector(const CDataBlob<T> * inputData, CDataBlob<T> * outputData);
+bool blob2vector(CDataBlob<T> &inputData, CDataBlob<T> & outputData);
 
-bool softmax1vector2class(CDataBlob<float> *inputOutputData);
-bool clamp1vector(CDataBlob<float> *inputOutputData);
+bool softmax1vector2class(CDataBlob<float> &inputOutputData);
 
-bool detection_output(const CDataBlob<float> * priorbox,
-                      const CDataBlob<float> * loc,
-                      const CDataBlob<float> * conf,
-                      const CDataBlob<float> * iou,
+bool clamp1vector(CDataBlob<float> &inputOutputData);
+
+bool detection_output(CDataBlob<float> & priorbox,
+                      CDataBlob<float> & loc,
+                      CDataBlob<float> & conf,
+                      CDataBlob<float> & iou,
                       float overlap_threshold,
                       float confidence_threshold,
                       int top_k,
                       int keep_top_k,
-                      CDataBlob<float> * outputData);
+                      CDataBlob<float> & outputData);
 
 vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int with, int height, int step);

@@ -195,6 +195,8 @@ if (GSTREAMER)
 
 endif()
 
+message("CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message("LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
 message("AVX512 = ${ENABLE_AVX512}")
 message("AVX2 = ${ENABLE_AVX2}")
 message("NEON = ${ENABLE_NEON}")
