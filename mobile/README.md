@@ -122,7 +122,15 @@ Here is the steps for developers:
    
 1.clone this porject and make sure cmake,ndk and lldb(if u need debug c++ code) is downloaded.    
 2.download opencv sdk for android from [OpenCV-release](https://opencv.org/releases.html) and unzip `OpenCV-android-sdk` to the root dir of this project.  
-3.run it!
+3. modify  `facedetectcnn.h`
+
+```c++
+//#define _ENABLE_AVX2 //Please enable it if X64 CPU
+#define _ENABLE_NEON //Please enable it if ARM CPU
+//#include "facedetection_export.h"
+#define FACEDETECTION_EXPORT
+```
+4.run it!
 
 ![](https://raw.githubusercontent.com/dpmaycry/libfacedetection/master/mobile/Android/screenshot1.jpg)
 

@@ -24,14 +24,16 @@ if (BUILD_SHARED_LIBS)
 endif()
 
 SET(fdt_base_dir   ${PROJECT_SOURCE_DIR})
-SET(fdt_src_dir    ${fdt_base_dir})
-SET(fdt_inc_dir    ${fdt_base_dir})
+SET(fdt_src_dir    ${fdt_base_dir}/../../../../../../../src/)
+SET(fdt_inc_dir    ${fdt_base_dir}/../../../../../../../src/)
 
 SET(fdt_lib_name   facedetection)
 SET(fdt_lib_static ${fdt_lib_name})
 SET(fdt_lib_shared ${fdt_lib_name}_shared)
 
 FILE(GLOB_RECURSE fdt_source_files ${fdt_src_dir}/*.cpp)
+FILE(GLOB_RECURSE jni_source_files ${fdt_base_dir}/facedetectcnn-jni.cpp)
+
 LIST(SORT         fdt_source_files)
 
 SET(INSTALLHEADER_FILES ${fdt_inc_dir}/facedetectcnn.h)
@@ -77,10 +79,10 @@ INCLUDE_DIRECTORIES(${fdt_inc_dir})
 
 
 # Create a static library (.a)
-ADD_LIBRARY(${fdt_lib_static} STATIC ${fdt_source_files})
+ADD_LIBRARY(${fdt_lib_static} STATIC ${fdt_source_files} ${jni_source_files})
 
 # Create a shared library (.so)
-ADD_LIBRARY(${fdt_lib_shared} SHARED ${fdt_source_files})
+ADD_LIBRARY(${fdt_lib_shared} SHARED ${fdt_source_files} ${jni_source_files})
 SET_TARGET_PROPERTIES(${fdt_lib_shared} PROPERTIES OUTPUT_NAME "${fdt_lib_name}")
 SET_TARGET_PROPERTIES(${fdt_lib_shared} PROPERTIES PREFIX "lib")
 
