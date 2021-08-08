@@ -35,7 +35,7 @@ If you want to run the examples. you must be isntalled opencv library and set Op
 mkdir build
 cd build
 cmake .. -DDEMO=ON -DOpenCV_DIR=
-cmak --build . 
+cmake --build . 
 ```
 
 - Third-party examples
