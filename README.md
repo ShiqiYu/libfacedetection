@@ -74,7 +74,7 @@ You can also compile the source code to a static or dynamic library, and then us
 ## Performance on WIDER Face 
 Run on default settings: scales=[1.], confidence_threshold=0.3, floating point:
 ```
-AP_easy=0.834, AP_medium=0.824, AP_hard=0.708
+AP_easy=0.856, AP_medium=0.842, AP_hard=0.727
 ```
 
 ## Author
