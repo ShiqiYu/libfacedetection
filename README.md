@@ -96,17 +96,20 @@ The work was partly supported by the Science Foundation of Shenzhen (Grant No. 2
 The loss used in [model training](https://github.com/ShiqiYu/libfacedetection.train) is EIoU, a novel extended IoU. More details can be found in:
 
 	@article{facedetect-yu,
-	 title={Detect Faces Efficiently: A Survey and Evaluations},
 	 author={Yuantao Feng and Shiqi Yu and Hanyang Peng and Yan-ran Li and Jianguo Zhang}
+	 title={Detect Faces Efficiently: A Survey and Evaluations},
 	 journal={IEEE Transactions on Biometrics, Behavior, and Identity Science},
 	 year={to appear}
 	 }
 
 	@article{eiou,
-	 title={A Systematic IoU-Related Method: Beyond Simplified Regression for Better Localization},
-	 author={Hanyang Peng and Shiqi Yu},
-	 journal={IEEE Transactions on Image Processing},
-	 year={2021}
+	 author={Peng, Hanyang and Yu, Shiqi},
+  	 journal={IEEE Transactions on Image Processing}, 
+  	 title={A Systematic IoU-Related Method: Beyond Simplified Regression for Better Localization}, 
+  	 year={2021},
+  	 volume={30},
+  	 pages={5032-5044},
+	 doi={10.1109/TIP.2021.3077144}
 	 }
 	 https://ieeexplore.ieee.org/document/9429909
 
