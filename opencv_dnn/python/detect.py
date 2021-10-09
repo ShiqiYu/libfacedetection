@@ -88,7 +88,7 @@ if dets.shape[0] > 0:
           nms_threshold=args.nms_thresh,
           eta=1,
           top_k=args.keep_top_k) # returns [box_num, class_num]
-     keep_idx = np.squeeze(keep_idx) # [box_num, class_num] -> [box_num]
+     keep_idx = np.squeeze(keep_idx, axis=1) # [box_num, class_num] -> [box_num]
      dets = dets[keep_idx]
      print('Detection results: {} faces found'.format(dets.shape[0]))
      for d in dets:
