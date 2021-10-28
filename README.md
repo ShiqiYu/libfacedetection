@@ -99,8 +99,9 @@ The loss used in [model training](https://github.com/ShiqiYu/libfacedetection.tr
 	 author={Yuantao Feng and Shiqi Yu and Hanyang Peng and Yan-ran Li and Jianguo Zhang}
 	 title={Detect Faces Efficiently: A Survey and Evaluations},
 	 journal={IEEE Transactions on Biometrics, Behavior, and Identity Science},
-	 year={to appear}
+	 year={2021}
 	 }
+	 https://ieeexplore.ieee.org/document/9580485
 
 	@article{eiou,
 	 author={Peng, Hanyang and Yu, Shiqi},
