@@ -4,7 +4,7 @@ This is an open source library for CNN-based face detection in images. The CNN m
 
 SIMD instructions are used to speed up the detection. You can enable AVX2 if you use Intel CPU or NEON for ARM.
 
-The model files are provided in `src/facedetectcnn-data.cpp` (C++ arrays) & [ONNX](https://github.com/opencv/opencv_zoo/tree/master/models/face_detection_yunet). For the ONNX model, you can try with our scripts in `opencv_dnn/`. View the network architecture: [here](https://netron.app/?url=https://raw.githubusercontent.com/ShiqiYu/libfacedetection.train/master/tasks/task1/onnx/yunet.onnx).
+The model files are provided in `src/facedetectcnn-data.cpp` (C++ arrays) & [the model (ONNX) from OpenCV Zoo](https://github.com/opencv/opencv_zoo/tree/master/models/face_detection_yunet). You can try our scripts (C++ & Python) in `opencv_dnn/` with the ONNX model. View the network architecture [here](https://netron.app/?url=https://raw.githubusercontent.com/ShiqiYu/libfacedetection.train/master/tasks/task1/onnx/yunet.onnx).
 
 examples/detect-image.cpp and examples/detect-camera.cpp show how to use the library.
 
