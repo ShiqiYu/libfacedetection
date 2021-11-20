@@ -91,9 +91,9 @@ The contributors who were not listed at GitHub.com:
 ## Acknowledgment
 The work was partly supported by the Science Foundation of Shenzhen (Grant No. 20170504160426188).
 
-
 ## Citation
-The loss used in [model training](https://github.com/ShiqiYu/libfacedetection.train) is EIoU, a novel extended IoU. More details can be found in:
+
+We published a paper on face detection to evaluate different methods. This project has also been evaluated in the paper.
 
 	@article{facedetect-yu,
 	 author={Yuantao Feng and Shiqi Yu and Hanyang Peng and Yan-ran Li and Jianguo Zhang}
@@ -101,7 +101,10 @@ The loss used in [model training](https://github.com/ShiqiYu/libfacedetection.tr
 	 journal={IEEE Transactions on Biometrics, Behavior, and Identity Science},
 	 year={2021}
 	 }
-	 https://ieeexplore.ieee.org/document/9580485
+	 
+The paper can be open accessed at https://ieeexplore.ieee.org/document/9580485
+
+The loss used in training is EIoU, a novel extended IoU. More details can be found in:
 
 	@article{eiou,
 	 author={Peng, Hanyang and Yu, Shiqi},
@@ -112,6 +115,5 @@ The loss used in [model training](https://github.com/ShiqiYu/libfacedetection.tr
   	 pages={5032-5044},
 	 doi={10.1109/TIP.2021.3077144}
 	 }
-	 https://ieeexplore.ieee.org/document/9429909
-
+The paper can be open accessed at https://ieeexplore.ieee.org/document/9429909.
 
