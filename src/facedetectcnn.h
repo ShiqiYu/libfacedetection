@@ -427,6 +427,8 @@ bool convolution4layerUnit(CDataBlob<float> & inputData,
 
 bool maxpooling2x2S2(CDataBlob<float> &inputData, CDataBlob<float> &outputData);
 
+bool upsamplex2withadd(CDataBlob<float> &inputData, CDataBlob<float> &inputoutputData);
+
 template<typename T>
 bool extract(CDataBlob<T> &inputData, CDataBlob<T> &loc, CDataBlob<T> &conf, CDataBlob<T> &iou, int num_priors);
 

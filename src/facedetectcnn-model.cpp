@@ -67,7 +67,7 @@ void init_parameters()
 
 vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int height, int step)
 {
-    CDataBlob<float> dataBlobs[18];
+    CDataBlob<float> dataBlobs[21];
     CDataBlob<float> conv3priorbox, conv4priorbox, conv5priorbox, conv6priorbox;
     CDataBlob<float> conv3priorbox_flat, conv4priorbox_flat, conv5priorbox_flat, conv6priorbox_flat, mbox_priorbox;
 
@@ -153,25 +153,45 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
     convolution4layerUnit(dataBlobs[12], g_pFilters[23], g_pFilters[24], g_pFilters[25], g_pFilters[26], dataBlobs[13]);
     TIME_END("conv6");
 
-    /***************branch3*********************/
+    /***************branch6*********************/
     TIME_START;
-    convolution4layerUnit(dataBlobs[7], g_pFilters[27], g_pFilters[28], g_pFilters[29], g_pFilters[30], dataBlobs[14], false);
-    TIME_END("branch3");
+    convolutionDP(dataBlobs[13], g_pFilters[39], g_pFilters[40], dataBlobs[14]);
+    convolutionDP(dataBlobs[14], g_pFilters[41], g_pFilters[42], dataBlobs[15], false);
+    // convolution4layerUnit(dataBlobs[7], g_pFilters[27], g_pFilters[28], g_pFilters[29], g_pFilters[30], dataBlobs[14], false);
+    TIME_END("branch6");
 
-    /***************branch4*********************/
+    /*****************add6*********************/    
     TIME_START;
-    convolution4layerUnit(dataBlobs[9], g_pFilters[31], g_pFilters[32], g_pFilters[33], g_pFilters[34], dataBlobs[15], false);
-    TIME_END("branch4");
+    upsamplex2withadd(dataBlobs[14], dataBlobs[11]);
+    TIME_END("add6");
 
     /***************branch5*********************/
     TIME_START;
-    convolution4layerUnit(dataBlobs[11], g_pFilters[35], g_pFilters[36], g_pFilters[37], g_pFilters[38], dataBlobs[16], false);
+    convolutionDP(dataBlobs[11], g_pFilters[35], g_pFilters[36], dataBlobs[16]);
+    convolutionDP(dataBlobs[16], g_pFilters[37], g_pFilters[38], dataBlobs[17], false);
     TIME_END("branch5");
 
-    /***************branch6*********************/
+    /*****************add5*********************/
     TIME_START;
-    convolution4layerUnit(dataBlobs[13], g_pFilters[39], g_pFilters[40], g_pFilters[41], g_pFilters[42], dataBlobs[17], false);
-    TIME_END("branch6");
+    upsamplex2withadd(dataBlobs[16], dataBlobs[9]);
+    TIME_END("add5");
+
+    /***************branch4*********************/
+    TIME_START;
+    convolutionDP(dataBlobs[9], g_pFilters[31], g_pFilters[32], dataBlobs[18]);
+    convolutionDP(dataBlobs[18], g_pFilters[33], g_pFilters[34], dataBlobs[19], false);
+    TIME_END("branch4");
+
+    /*****************add4*********************/
+    TIME_START;
+    upsamplex2withadd(dataBlobs[18], dataBlobs[7]);
+    TIME_END("add4");
+
+    /***************branch3*********************/
+    TIME_START;
+    convolution4layerUnit(dataBlobs[7], g_pFilters[27], g_pFilters[28], g_pFilters[29], g_pFilters[30], dataBlobs[20], false);
+    TIME_END("branch3");
+
     
     /***************PRIORBOX*********************/
     TIME_START;
@@ -197,25 +217,25 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
     /***************PRIORBOX*********************/
     TIME_START;
     blob2vector(conv3priorbox, conv3priorbox_flat);
-    extract(dataBlobs[14], conv3_loc, conv3_conf, conv3_iou, 3);
+    extract(dataBlobs[20], conv3_loc, conv3_conf, conv3_iou, 3);
     blob2vector(conv3_loc, conv3_loc_flat);
     blob2vector(conv3_conf, conv3_conf_flat);
     blob2vector(conv3_iou, conv3_iou_flat);
 
     blob2vector(conv4priorbox, conv4priorbox_flat);
-    extract(dataBlobs[15], conv4_loc, conv4_conf, conv4_iou, 2);
+    extract(dataBlobs[19], conv4_loc, conv4_conf, conv4_iou, 2);
     blob2vector(conv4_loc, conv4_loc_flat);
     blob2vector(conv4_conf, conv4_conf_flat);
     blob2vector(conv4_iou, conv4_iou_flat);
 
     blob2vector(conv5priorbox, conv5priorbox_flat);
-    extract(dataBlobs[16], conv5_loc, conv5_conf, conv5_iou, 2);
+    extract(dataBlobs[17], conv5_loc, conv5_conf, conv5_iou, 2);
     blob2vector(conv5_loc, conv5_loc_flat);
     blob2vector(conv5_conf, conv5_conf_flat);
     blob2vector(conv5_iou, conv5_iou_flat);
 
     blob2vector(conv6priorbox, conv6priorbox_flat);
-    extract(dataBlobs[17], conv6_loc, conv6_conf, conv6_iou, 3);
+    extract(dataBlobs[15], conv6_loc, conv6_conf, conv6_iou, 3);
     blob2vector(conv6_loc, conv6_loc_flat);
     blob2vector(conv6_conf, conv6_conf_flat);
     blob2vector(conv6_iou, conv6_iou_flat);

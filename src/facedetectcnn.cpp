@@ -888,3 +888,62 @@ bool detection_output(CDataBlob<float> & priorbox,
     return true;
 }
 
+// TODO optimize in AVX512/NEON/AVX2
+bool upsamplex2withadd(CDataBlob<float> &inputData, CDataBlob<float> &inputoutputData){
+    if (inputData.isEmpty() || inputoutputData.isEmpty())
+    {
+        cerr << __FUNCTION__ << ": The input data is empty." << endl;
+        return false;
+    }
+    if (inputData.channels != inputoutputData.channels)
+    {
+        cerr << __FUNCTION__ << ": The channels of input should be equal while element-wise addition (" << inputData.channels << " != " << inputoutputData.channels<< ")." << endl;
+        return false;
+    }
+
+    int r_offset = inputData.rows * 2 == inputoutputData.rows ? 0: 1;
+    int c_offset = inputData.cols * 2 == inputoutputData.cols ? 0: 1;
+
+    for (int row = 0; row < inputData.rows; row++)
+    {
+        for (int col = 0; col < inputData.cols; col++)
+        {
+
+            size_t inputOutputMatOffsetsInElement[9];
+            int elementCount = 0;
+
+            int rstart = row * 2 + r_offset;
+            int cstart = col * 2 + c_offset;
+            int rend = rstart + 2;
+            int cend = cstart + 2;
+            if(!row && r_offset ){
+                rstart = 0;
+            }
+            if(!col && c_offset){
+                cstart = 0;
+            }
+
+            for (int fr = rstart; fr < rend; ++fr)
+            {
+                for (int fc = cstart; fc < cend; ++fc)
+                {
+                    inputOutputMatOffsetsInElement[elementCount++] = (size_t(fr) * inputoutputData.cols + fc) * inputoutputData.channelStep / sizeof(float);
+                }
+            }
+
+            float * pIn = inputData.ptr(row, col);
+            float * pInOut = inputoutputData.data;
+
+            for (int ch = 0; ch < inputData.channels; ++ch)
+            {
+                float val = pIn[ch];
+                for (int ec = 0; ec < elementCount; ++ec)
+                {
+                    pInOut[ch + inputOutputMatOffsetsInElement[ec]] += val;
+                }
+            }
+        }
+    }
+    return true;
+}
+
