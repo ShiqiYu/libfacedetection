@@ -32,20 +32,28 @@ using namespace cv;
     }
     pResults = facedetect_cnn(pBuffer, (unsigned char *)(img.ptr(0)), img.cols, img.rows, (int)img.step);
     printf("%d faces detected.\n", (pResults ? *pResults : 0));
-    Mat result_cnn = img.clone();;
+    Mat result_cnn = img.clone();
+    cvtColor(img, result_cnn, cv::COLOR_BGR2RGB);
     //print the detection results
     for(int i = 0; i < (pResults ? *pResults : 0); i++)
     {
         short * p = ((short*)(pResults+1))+142*i;
-        int x = p[0];
-        int y = p[1];
-        int w = p[2];
-        int h = p[3];
-        int neighbors = p[4];
-        int angle = p[5];
+        int confidence = p[0];
+        int x = p[1];
+        int y = p[2];
+        int w = p[3];
+        int h = p[4];
         
-        printf("face_rect=[%d, %d, %d, %d], neighbors=%d, angle=%d\n", x,y,w,h,neighbors, angle);
+        printf("face%drect=[%d, %d, %d, %d], confidence=%d\n",i,x,y,w,h,confidence);
         rectangle(result_cnn, cv::Rect(x, y, w, h), Scalar(0, 255, 0), 2);
+        string str = to_string(confidence);
+        putText(result_cnn, str, cv::Point(x-2,y-2), cv::FONT_HERSHEY_SIMPLEX, 1.0,Scalar(0, 255, 0));
+        for (int j = 5; j < 14; j += 2) {
+            int p_x = p[j];
+            int p_y = p[j+1];
+            printf("landmark%d=[%d, %d]\n",(j-5)/2,p_x,p_y);
+            circle(result_cnn, cv::Point(p_x,p_y), 2,Scalar(255, 0, 0),-1,cv::LINE_AA);
+        }
     }
     
     free(pBuffer);

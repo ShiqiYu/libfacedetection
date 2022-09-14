@@ -1,0 +1,5 @@
+include ':app'
+
+def opencv_sdk='./OpenCV-android-sdk/sdk'
+include ':opencv4'
+project(':opencv4').projectDir = new File(opencv_sdk)

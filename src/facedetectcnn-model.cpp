@@ -150,7 +150,7 @@ vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int h
     fb2 = elementAdd(upsampleX2(fb3), fb2);
     TIME_END("add5");
 
-    /***************branch4*********************/
+    /*****************add6*********************/    
     TIME_START;
     fb2 = convolutionDP(fb2, g_pFilters[25], g_pFilters[26]);
     pred_cls[1] = convolutionDP(fb2, g_pFilters[31], g_pFilters[32], false);

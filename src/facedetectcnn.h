@@ -242,13 +242,6 @@ public:
         return true;
 	}
 
-    // inline const T * ptr(int r, int c)
-    // {
-    //     if( r < 0 || r >= this->rows || c < 0 || c >= this->cols )
-    //         return nullptr;
-
-    //     return (this->data + (size_t(r) * this->cols + c) * this->channelStep /sizeof(T));
-    // }
     inline T * ptr(int r, int c)
     {
         if( r < 0 || r >= this->rows || c < 0 || c >= this->cols )
@@ -262,65 +255,6 @@ public:
             return nullptr;
 
         return (this->data + (size_t(r) * this->cols + c) * this->channelStep /sizeof(T));
-    }
-
-    bool setDataFrom3x3S2P1to1x1S1P0FromImage(const unsigned char * imgData, int imgWidth, int imgHeight, int imgChannels, int imgWidthStep)
-    {
-        if (imgData == nullptr)
-        {
-            cerr << "The input image data is null." << endl;
-            return false;
-        }
-        if (typeid(float) != typeid(T))
-        {
-            cerr << "DataBlob must be float in the current version." << endl;
-            return false;
-        }
-        if (imgChannels != 3)
-        {
-            cerr << "The input image must be a 3-channel RGB image." << endl;
-            return false;
-        }
-        //only 27 elements used for each pixel
-        create((imgHeight+1)/2, (imgWidth+1)/2, 32); 
-        //since the pixel assignment cannot fill all the elements in the blob. 
-        //some elements in the blob should be initialized to 0
-        setZero();
-
-// #if defined(_OPENMP)
-// #pragma omp parallel for
-// #endif
-        for (int r = 0; r < this->rows; r++)
-        {
-            for (int c = 0; c < this->cols; c++)
-            {
-                T * pData = this->ptr(r, c);
-                for (int fy = -1; fy <= 1; fy++)
-                {
-                    int srcy = r * 2 + fy;
-                    
-                    if (srcy < 0 || srcy >= imgHeight) //out of the range of the image
-                        continue;
-
-                    for (int fx = -1; fx <= 1; fx++)
-                    {
-                        int srcx = c * 2 + fx;
-
-                        if (srcx < 0 || srcx >= imgWidth) //out of the range of the image
-                            continue;
-
-                        const unsigned char * pImgData = imgData + size_t(imgWidthStep) * srcy + imgChannels * srcx;
-
-                        //int output_channel_offset = ((fy + 1) * 3 + fx + 1) * 3; //3x3 filters, 3-channel image
-                        int output_channel_offset = ((fy + 1) * 3 + fx + 1) ; //3x3 filters, 3-channel image
-                        pData[output_channel_offset] = (pImgData[0]);
-                        pData[output_channel_offset+9] = (pImgData[1]);
-                        pData[output_channel_offset+18] = (pImgData[2]);
-                    }
-                }
-            }   
-        }
-        return true;
     }
 
     inline T getElement(int r, int c, int ch) const
@@ -472,50 +406,6 @@ class Filters{
     }
 
 };
-
-bool convolution(CDataBlob<float> & inputData, Filters<float> & filters, CDataBlob<float> & outputData, bool do_relu = true);
-bool convolutionDP(CDataBlob<float> & inputData, 
-                Filters<float> & filtersP, Filters<float> & filtersD, 
-                CDataBlob<float> & outputData, bool do_relu = true);
-bool convolution4layerUnit(CDataBlob<float> & inputData, 
-                Filters<float> & filtersP1, Filters<float> & filtersD1, 
-                Filters<float> & filtersP2, Filters<float> & filtersD2, 
-                CDataBlob<float> & outputData, bool do_relu = true);
-
-bool maxpooling2x2S2(CDataBlob<float> &inputData, CDataBlob<float> &outputData);
-
-bool upsamplex2withadd(CDataBlob<float> &inputData, CDataBlob<float> &inputoutputData);
-
-template<typename T>
-bool extract(CDataBlob<T> &inputData, CDataBlob<T> &loc, CDataBlob<T> &conf, CDataBlob<T> &iou, int num_priors);
-
-template<typename T>
-bool concat4(CDataBlob<T> &inputData1, CDataBlob<T> &inputData2, CDataBlob<T> &inputData3, CDataBlob<T> &inputData4, CDataBlob<T> &outputData);
-
-bool priorbox( int feature_width, int feature_height, 
-                int img_width, int img_height, 
-                int step, int num_sizes, 
-                float * pWinSizes, CDataBlob<float> & outputData);
-
-bool softmax1vector2class(CDataBlob<float> &inputOutputData);
-
-/* the input data for softmax must be a vector, the data stored in a multi-channel blob with size 1x1 */
-template<typename T>
-bool blob2vector(CDataBlob<T> &inputData, CDataBlob<T> & outputData);
-
-bool softmax1vector2class(CDataBlob<float> &inputOutputData);
-
-bool clamp1vector(CDataBlob<float> &inputOutputData);
-
-bool detection_output(CDataBlob<float> & priorbox,
-                      CDataBlob<float> & loc,
-                      CDataBlob<float> & conf,
-                      CDataBlob<float> & iou,
-                      float overlap_threshold,
-                      float confidence_threshold,
-                      int top_k,
-                      int keep_top_k,
-                      CDataBlob<float> & outputData);
 
 vector<FaceRect> objectdetect_cnn(const unsigned char* rgbImageData, int with, int height, int step);
 
