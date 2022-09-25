@@ -37,11 +37,15 @@ the use of this software, even if advised of the possibility of such damage.
 */
 
 #include "facedetectcnn.h"
+#include <emmintrin.h>
+#include <stdexcept>
 #include <string.h>
 #include <cmath>
+#include <string>
 #include <vector>
 #include <float.h> //for FLT_EPSION
 #include <algorithm>//for stable_sort, sort
+#include <xmmintrin.h>
 
 typedef struct NormalizedBBox_
 {
@@ -78,6 +82,52 @@ void myFree_(void* ptr)
 			return;
 		free(*((char**)ptr - 1));
 	}
+}
+
+
+CDataBlob<float> setDataFrom3x3S2P1to1x1S1P0FromImage(const unsigned char* inputData, int imgWidth, int imgHeight, int imgChannels, int imgWidthStep, int padDivisor) {
+    if (imgChannels != 3) {
+        cerr << __FUNCTION__ << ": The input image must be a 3-channel RGB image." << endl;
+        exit(1);
+    }
+    if (padDivisor != 32) {
+        cerr << __FUNCTION__ << ": This version need pad of 32" << endl;
+        exit(1);
+    }
+    int rows = ((imgHeight - 1) / padDivisor + 1) * padDivisor / 2;
+    int cols = ((imgWidth - 1) / padDivisor + 1 ) * padDivisor / 2;
+    int channels = 32;
+    CDataBlob<float> outBlob(rows, cols, channels);
+
+#if defined(_OPENMP)
+#pragma omp parallel for
+#endif
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            float* pData = outBlob.ptr(r, c);
+            for (int fy = -1; fy <= 1; fy++) {
+                int srcy = r * 2 + fy;
+                
+                if (srcy < 0 || srcy >= imgHeight) //out of the range of the image
+                    continue;
+
+                for (int fx = -1; fx <= 1; fx++) {
+                    int srcx = c * 2 + fx;
+
+                    if (srcx < 0 || srcx >= imgWidth) //out of the range of the image
+                        continue;
+
+                    const unsigned char * pImgData = inputData + size_t(imgWidthStep) * srcy + imgChannels * srcx;
+
+                    int output_channel_offset = ((fy + 1) * 3 + fx + 1) ; //3x3 filters, 3-channel image
+                    pData[output_channel_offset * imgChannels] = pImgData[0];
+                    pData[output_channel_offset * imgChannels + 1] = pImgData[1];
+                    pData[output_channel_offset * imgChannels + 2] = pImgData[2];
+                }
+            }                    
+        }
+    } 
+    return outBlob;
 }
 
 //p1 and p2 must be 512-bit aligned (16 float numbers)
@@ -209,7 +259,45 @@ inline bool vecAdd(const float * p1, float * p2, int num)
     return true;
 }
 
-bool convolution_1x1pointwise( CDataBlob<float> & inputData,  Filters<float> & filters, CDataBlob<float> & outputData)
+inline bool vecAdd(const float * p1, const float * p2, float* p3, int num)
+{
+#if defined(_ENABLE_AVX512)
+    __m512 a_float_x16, b_float_x16;
+    for (int i = 0; i < num; i += 16)
+    {
+        a_float_x16 = _mm512_load_ps(p1 + i);
+        b_float_x16 = _mm512_load_ps(p2 + i);
+        b_float_x16 = _mm512_add_ps(a_float_x16, b_float_x16);
+        _mm512_store_ps(p3 + i, b_float_x16);
+    }
+#elif defined(_ENABLE_AVX2)
+    __m256 a_float_x8, b_float_x8;
+    for (int i = 0; i < num; i += 8)
+    {
+        a_float_x8 = _mm256_load_ps(p1 + i);
+        b_float_x8 = _mm256_load_ps(p2 + i);
+        b_float_x8 = _mm256_add_ps(a_float_x8, b_float_x8);
+        _mm256_store_ps(p3 + i, b_float_x8);
+    }
+#elif defined(_ENABLE_NEON)
+    float32x4_t a_float_x4, b_float_x4, c_float_x4;
+    for (int i = 0; i < num; i+=4)
+    {
+        a_float_x4 = vld1q_f32(p1 + i);
+        b_float_x4 = vld1q_f32(p2 + i);
+        c_float_x4 = vaddq_f32(a_float_x4, b_float_x4);
+        vst1q_f32(p3 + i, c_float_x4);
+    }
+#else
+    for(int i = 0; i < num; i++)
+    {
+        p3[i] = p1[i] + p2[i];
+    }
+#endif
+    return true;
+}
+
+bool convolution_1x1pointwise(const CDataBlob<float> & inputData, const Filters<float> & filters, CDataBlob<float> & outputData)
 {
 // #if defined(_OPENMP)
 // #pragma omp parallel for
@@ -221,6 +309,8 @@ bool convolution_1x1pointwise( CDataBlob<float> & inputData,  Filters<float> & f
             float * pOut = outputData.ptr(row, col);
             const float * pIn = inputData.ptr(row, col);
 
+            _mm_prefetch(pIn, _MM_HINT_T0);
+            
             for (int ch = 0; ch < outputData.channels; ch++)
             {
                 const float * pF = filters.weights.ptr(0, ch);
@@ -232,7 +322,7 @@ bool convolution_1x1pointwise( CDataBlob<float> & inputData,  Filters<float> & f
     return true;
 }
 
-bool convolution_3x3depthwise(CDataBlob<float> & inputData,  Filters<float> & filters, CDataBlob<float> & outputData)
+bool convolution_3x3depthwise(const CDataBlob<float> & inputData, const Filters<float> & filters, CDataBlob<float> & outputData)
 {
     //set all elements in outputData to zeros
     outputData.setZero();
@@ -248,12 +338,13 @@ bool convolution_3x3depthwise(CDataBlob<float> & inputData,  Filters<float> & fi
 
         for (int col = 0; col < outputData.cols; col++)
         { 
+            float * pOut = outputData.ptr(row, col);
+            // _mm_prefetch(pOut, );
             int srcx_start = col - 1;
             int srcx_end = srcx_start + 3;
             srcx_start = MAX(0, srcx_start);
             srcx_end = MIN(srcx_end, inputData.cols);
 
-            float * pOut = outputData.ptr(row, col);
 
             for ( int r = srcy_start; r < srcy_end; r++)
                 for( int c = srcx_start; c < srcx_end; c++)
@@ -306,21 +397,120 @@ bool relu(CDataBlob<float> & inputoutputData)
     return true;
 }
 
-bool convolution(CDataBlob<float> & inputData, Filters<float> & filters, CDataBlob<float> & outputData, bool do_relu)
+void IntersectBBox(const NormalizedBBox& bbox1, const NormalizedBBox& bbox2,
+                   NormalizedBBox* intersect_bbox) 
+{
+    if (bbox2.xmin > bbox1.xmax || bbox2.xmax < bbox1.xmin ||
+        bbox2.ymin > bbox1.ymax || bbox2.ymax < bbox1.ymin) 
+    {
+        // Return [0, 0, 0, 0] if there is no intersection.
+        intersect_bbox->xmin = 0;
+        intersect_bbox->ymin = 0;
+        intersect_bbox->xmax = 0;
+        intersect_bbox->ymax = 0;
+    }
+    else
+    {
+        intersect_bbox->xmin = (std::max(bbox1.xmin, bbox2.xmin));
+        intersect_bbox->ymin = (std::max(bbox1.ymin, bbox2.ymin));
+        intersect_bbox->xmax = (std::min(bbox1.xmax, bbox2.xmax));
+        intersect_bbox->ymax = (std::min(bbox1.ymax, bbox2.ymax));
+    }
+}
+
+float JaccardOverlap(const NormalizedBBox& bbox1, const NormalizedBBox& bbox2)
+{
+    NormalizedBBox intersect_bbox;
+    IntersectBBox(bbox1, bbox2, &intersect_bbox);
+    float intersect_width, intersect_height;
+    intersect_width = intersect_bbox.xmax - intersect_bbox.xmin;
+    intersect_height = intersect_bbox.ymax - intersect_bbox.ymin;
+
+    if (intersect_width > 0 && intersect_height > 0) 
+    {
+        float intersect_size = intersect_width * intersect_height;
+        float bsize1 = (bbox1.xmax - bbox1.xmin)*(bbox1.ymax - bbox1.ymin);
+        float bsize2 = (bbox2.xmax - bbox2.xmin)*(bbox2.ymax - bbox2.ymin);
+        return intersect_size / ( bsize1 + bsize2 - intersect_size);
+    }
+    else 
+    {
+        return 0.f;
+    }
+}
+
+bool SortScoreBBoxPairDescend(const pair<float, NormalizedBBox>& pair1,   const pair<float, NormalizedBBox>& pair2) 
+{
+    return pair1.first > pair2.first;
+}
+
+
+CDataBlob<float> upsampleX2(const CDataBlob<float>& inputData) {
+    if (inputData.isEmpty()) {
+        cerr << __FUNCTION__ << ": The input data is empty." << endl;
+        exit(1);
+    }
+
+    CDataBlob<float> outData(inputData.rows * 2, inputData.cols * 2, inputData.channels);
+
+    for (int r = 0; r < inputData.rows; r++) {
+        for (int c = 0; c < inputData.cols; c++) {
+            const float * pIn = inputData.ptr(r, c);
+            int outr = r * 2;
+            int outc = c * 2;
+            for (int ch = 0; ch < inputData.channels; ++ch) {
+                outData.ptr(outr, outc)[ch] = pIn[ch];
+                outData.ptr(outr, outc + 1)[ch] = pIn[ch];
+                outData.ptr(outr + 1, outc)[ch] = pIn[ch];
+                outData.ptr(outr + 1, outc + 1)[ch] = pIn[ch];
+            }
+        }
+    }
+    return outData;
+}
+
+CDataBlob<float> elementAdd(const CDataBlob<float>& inputData1, const CDataBlob<float>& inputData2) {
+    if (inputData1.rows != inputData2.rows || inputData1.cols != inputData2.cols || inputData1.channels != inputData2.channels) {
+        cerr << __FUNCTION__ << ": The two input datas must be in the same shape." << endl;
+        exit(1);
+    }
+    CDataBlob<float> outData(inputData1.rows, inputData1.cols, inputData1.channels);
+    for (int r = 0; r < inputData1.rows; r++) {
+        for (int c = 0; c < inputData1.cols; c++) {
+            const float * pIn1 = inputData1.ptr(r, c);
+            const float * pIn2 = inputData2.ptr(r, c);
+            float* pOut = outData.ptr(r, c);
+            vecAdd(pIn1, pIn2, pOut, inputData1.channels);
+        }
+    }
+    return outData;
+}
+
+void transFilter(Filters<float> & filters) {
+    for(int ch = 0; ch < filters.num_filters; ++ch) {
+        float * pF = filters.weights.ptr(0, ch);
+        float tmpF[27] = {0.0f};
+        for(int i = 0; i < 27; ++i) {
+            tmpF[(i % 9) * 3 + i / 9] = pF[i];
+        }
+        memcpy(pF, tmpF, 32 * sizeof(float));
+    }
+}
+
+
+CDataBlob<float> convolution(const CDataBlob<float>& inputData, const Filters<float>& filters, bool do_relu)
 {
     if( inputData.isEmpty() || filters.weights.isEmpty() || filters.biases.isEmpty())
     {
         cerr << __FUNCTION__ << ": The input data or filter data is empty" << endl;
-        return false;
+        exit(1);
     }
     if( inputData.channels != filters.channels)
     {
-        cerr << __FUNCTION__ << ": The input data dimension cannot meet filters." << endl;
-        return false;
+        cerr << __FUNCTION__ << ": The input data dimension cannot meet filters: " << inputData.channels << " vs " << filters.channels << endl;
+        exit(1);
     }
-
-    outputData.create(inputData.rows, inputData.cols, filters.num_filters);
-
+    CDataBlob<float> outputData(inputData.rows, inputData.cols, filters.num_filters);
     if(filters.is_pointwise && !filters.is_depthwise)
         convolution_1x1pointwise(inputData, filters, outputData);
     else if(!filters.is_pointwise && filters.is_depthwise)
@@ -328,44 +518,40 @@ bool convolution(CDataBlob<float> & inputData, Filters<float> & filters, CDataBl
     else
     {
         cerr << __FUNCTION__ << ": Unsupported filter type." << endl;
-        return false;
+        exit(1);
     }
 
     if(do_relu)
-        return relu(outputData);
+        relu(outputData);
 
-    return true;
+    return outputData;
 }
 
-bool convolutionDP(CDataBlob<float> & inputData, 
-                Filters<float> & filtersP, Filters<float> & filtersD, 
-                CDataBlob<float> & outputData, bool do_relu)
+CDataBlob<float> convolutionDP(const CDataBlob<float>& inputData, 
+                const Filters<float>& filtersP, const Filters<float>& filtersD, bool do_relu)
 {
-    CDataBlob<float> tmp;
-    bool r1 = convolution(inputData, filtersP, tmp, false);
-    bool r2 = convolution(tmp, filtersD, outputData, do_relu);
-    return r1 && r2;
+    CDataBlob<float> tmp = convolution(inputData, filtersP, false);
+    CDataBlob<float> out = convolution(tmp, filtersD, do_relu);
+    return out;
 }
 
-bool convolution4layerUnit(CDataBlob<float> & inputData, 
-                Filters<float> & filtersP1, Filters<float> & filtersD1, 
-                Filters<float> & filtersP2, Filters<float> & filtersD2, 
-                CDataBlob<float> & outputData, bool do_relu)
+CDataBlob<float> convolution4layerUnit(const CDataBlob<float>& inputData, 
+                const Filters<float>& filtersP1, const Filters<float>& filtersD1, 
+                const Filters<float>& filtersP2, const Filters<float>& filtersD2, bool do_relu)
 {
-    CDataBlob<float> tmp;
-    bool r1 = convolutionDP(inputData, filtersP1, filtersD1, tmp, true);
-    bool r2 = convolutionDP(tmp, filtersP2, filtersD2, outputData, do_relu);
-    return r1 && r2;
+    CDataBlob<float> tmp = convolutionDP(inputData, filtersP1, filtersD1, true);
+    CDataBlob<float> out = convolutionDP(tmp, filtersP2, filtersD2, do_relu);
+    return out;
 }
 
 
 //only 2X2 S2 is supported
-bool maxpooling2x2S2(CDataBlob<float> &inputData, CDataBlob<float> &outputData)
+CDataBlob<float> maxpooling2x2S2(const CDataBlob<float>&inputData)
 {
     if (inputData.isEmpty())
     {
         cerr << __FUNCTION__ << ": The input data is empty." << endl;
-        return false;
+        exit(1);
     }
     int outputR = static_cast<int>(ceil((inputData.rows - 3.0f) / 2)) + 1;
     int outputC = static_cast<int>(ceil((inputData.cols - 3.0f) / 2)) + 1;
@@ -374,10 +560,11 @@ bool maxpooling2x2S2(CDataBlob<float> &inputData, CDataBlob<float> &outputData)
     if (outputR < 1 || outputC < 1)
     {
         cerr << __FUNCTION__ << ": The size of the output is not correct. (" << outputR << ", " << outputC << ")." << endl;
-        return false;
+        exit(1);        
     }
 
-    outputData.create(outputR, outputC, outputCH);
+    CDataBlob<float> outputData(outputR, outputC, outputCH);
+    outputData.setZero();
 
     for (int row = 0; row < outputData.rows; row++)
     {
@@ -451,218 +638,129 @@ bool maxpooling2x2S2(CDataBlob<float> &inputData, CDataBlob<float> &outputData)
 #endif
         }
     }
-    return true;
+    return outputData;
 }
 
+CDataBlob<float> meshgrid(int feature_width, int feature_height, int stride, float offset) {
+    CDataBlob<float> out(feature_height, feature_width, 2);
+    for(int r = 0; r < feature_height; ++r) {
+        float rx = (float)(r * stride) + offset;
+        for(int c = 0; c < feature_width; ++c) {
+            float* p = out.ptr(r, c);
+            p[0] = (float)(c * stride) + offset;
+            p[1] = rx;
+        }
+    }
+    return out;
+}
+
+void bbox_decode(CDataBlob<float>& bbox_pred, const CDataBlob<float>& priors, int stride) {
+    if(bbox_pred.cols != priors.cols || bbox_pred.rows != priors.rows) {
+        std::cerr << __FUNCTION__ << ": Mismatch between feature map and anchor size. (" \
+        << to_string(bbox_pred.rows) << ", " << to_string(bbox_pred.cols) << ") vs (" \
+        << to_string(priors.rows) << ", " << to_string(priors.cols) << ")." << std::endl;
+    }
+    if(bbox_pred.channels != 4) {
+        cerr << __FUNCTION__ << ": The bbox dim must be 4."  << endl;
+    }
+    float fstride = (float)stride;
+    for(int r = 0; r < bbox_pred.rows; ++r) {
+        for(int c = 0; c < bbox_pred.cols; ++c) {
+            float* pb = bbox_pred.ptr(r, c);
+            const float* pp = priors.ptr(r, c);
+            float cx = pb[0] * fstride + pp[0];
+            float cy = pb[1] * fstride + pp[1];
+            float w = std::exp(pb[2]) * fstride;
+            float h = std::exp(pb[3]) * fstride;
+            pb[0] = cx - w / 2.f;
+            pb[1] = cy - h / 2.f;
+            pb[2] = cx + w / 2.f;
+            pb[3] = cy + h / 2.f;
+        }
+    }
+}
+
+void kps_decode(CDataBlob<float>& kps_pred, const CDataBlob<float>& priors, int stride) {
+    if(kps_pred.cols != priors.cols || kps_pred.rows != priors.rows) {
+        cerr << __FUNCTION__ << ": Mismatch between feature map and anchor size." << endl;
+        exit(1);
+    }
+    if(kps_pred.channels & 1) {
+        cerr << __FUNCTION__ << ": The kps dim must be even." << endl;
+        exit(1);
+    }
+    float fstride = (float)stride;
+    int num_points = kps_pred.channels >> 1;
+
+    for(int r = 0; r < kps_pred.rows; ++r) {
+        for(int c = 0; c < kps_pred.cols; ++c) {
+            float* pb = kps_pred.ptr(r, c);
+            const float* pp = priors.ptr(r, c);
+            for(int n = 0; n < num_points; ++n) {
+                pb[2 * n] = pb[2 * n] * fstride + pp[0];
+                pb[2 * n + 1] = pb[2 * n + 1] * fstride + pp[1];           
+            }
+        }
+    }
+}
 
 template<typename T>
-bool concat4(CDataBlob<T> &inputData1, CDataBlob<T> &inputData2, CDataBlob<T> &inputData3, CDataBlob<T> &inputData4, CDataBlob<T> &outputData)
+CDataBlob<T> concat3(const CDataBlob<T>& inputData1, const CDataBlob<T>& inputData2, const CDataBlob<T>& inputData3)
 {
-    if ((inputData1.isEmpty()) || (inputData2.isEmpty()) || (inputData3.isEmpty()) || (inputData4.isEmpty()))
+    if ((inputData1.isEmpty()) || (inputData2.isEmpty()) || (inputData3.isEmpty()))
     {
         cerr << __FUNCTION__ << ": The input data is empty." << endl;
-        return false;
+        exit(1);
     }
 
     if ((inputData1.cols != inputData2.cols) ||
         (inputData1.rows != inputData2.rows) ||
         (inputData1.cols != inputData3.cols) ||
-        (inputData1.rows != inputData3.rows) ||
-        (inputData1.cols != inputData4.cols) ||
-        (inputData1.rows != inputData4.rows))
+        (inputData1.rows != inputData3.rows))
     {
         cerr << __FUNCTION__ << ": The three inputs must have the same size." << endl;
-        return false;
+        exit(1);
     }
     int outputR = inputData1.rows;
     int outputC = inputData1.cols;
-    int outputCH = inputData1.channels + inputData2.channels + inputData3.channels + inputData4.channels;
+    int outputCH = inputData1.channels + inputData2.channels + inputData3.channels;
 
     if (outputR < 1 || outputC < 1 || outputCH < 1)
     {
         cerr << __FUNCTION__ << ": The size of the output is not correct. (" << outputR << ", " << outputC << ", " << outputCH << ")." << endl;
-        return false;
+        exit(1);
     }
 
-    outputData.create(outputR, outputC, outputCH);
+    CDataBlob<T> outputData(outputR, outputC, outputCH);
 
     for (int row = 0; row < outputData.rows; row++)
     {
         for (int col = 0; col < outputData.cols; col++)
         {
             T * pOut = outputData.ptr(row, col);
-            T * pIn1 = inputData1.ptr(row, col);
-            T * pIn2 = inputData2.ptr(row, col);
-            T * pIn3 = inputData3.ptr(row, col);
-            T * pIn4 = inputData4.ptr(row, col);
+            const T * pIn1 = inputData1.ptr(row, col);
+            const T * pIn2 = inputData2.ptr(row, col);
+            const T * pIn3 = inputData3.ptr(row, col);
 
             memcpy(pOut, pIn1, sizeof(T)* inputData1.channels);
             memcpy(pOut + inputData1.channels, pIn2, sizeof(T)* inputData2.channels);
             memcpy(pOut + inputData1.channels + inputData2.channels, pIn3, sizeof(T)* inputData3.channels);
-            memcpy(pOut + inputData1.channels + inputData2.channels + inputData3.channels, pIn4, sizeof(T)* inputData4.channels);
         }
     }
-    return true;
+    return outputData;
 }
-template bool concat4( CDataBlob<float> &inputData1, CDataBlob<float> &inputData2, CDataBlob<float> &inputData3, CDataBlob<float> &inputData4, CDataBlob<float> &outputData);
+template CDataBlob<float> concat3(const CDataBlob<float>& inputData1, const CDataBlob<float>& inputData2, const CDataBlob<float>& inputData3);
 
 template<typename T>
-bool extract(CDataBlob<T> &inputData, CDataBlob<T> &loc, CDataBlob<T> &conf, CDataBlob<T> &iou, int num_priors)
+CDataBlob<T> blob2vector(const CDataBlob<T> &inputData)
 {
     if (inputData.isEmpty())
     {
         cerr << __FUNCTION__ << ": The input data is empty." << endl;
-        return false;
+        exit(1);
     }
 
-    int output_r = inputData.rows;
-    int output_c = inputData.cols;
-    int output_ch_iou = num_priors;
-    int output_ch_loc = output_ch_iou * 14;
-    int output_ch_conf = output_ch_iou * 2;
-    // cout << inputData.rows << ", " << inputData.cols << ", " << inputData.channels << ", " << num_priors << endl;
-
-    loc.create(output_r, output_c, output_ch_loc);
-    conf.create(output_r, output_c, output_ch_conf);
-    iou.create(output_r, output_c, output_ch_iou);
-
-    for (int row = 0; row < output_r; row++)
-    {
-        for (int col = 0; col < output_c; col++)
-        {
-            T * p_in = inputData.ptr(row, col);
-            T * p_loc = loc.ptr(row, col);
-            T * p_conf = conf.ptr(row, col);
-            T * p_iou = iou.ptr(row, col);
-
-            for (int n = 0; n < num_priors; n++)
-            {
-                // box coords
-                p_loc[n*14] = p_in[n*17];       p_loc[n*14+1] = p_in[n*17+1];
-                p_loc[n*14+2] = p_in[n*17+2];   p_loc[n*14+3] = p_in[n*17+3];
-                // landmark coords
-                p_loc[n*14+4] = p_in[n*17+4];       p_loc[n*14+5] = p_in[n*17+5];
-                p_loc[n*14+6] = p_in[n*17+6];       p_loc[n*14+7] = p_in[n*17+7];
-                p_loc[n*14+8] = p_in[n*17+8];       p_loc[n*14+9] = p_in[n*17+9];
-                p_loc[n*14+10] = p_in[n*17+10];     p_loc[n*14+11] = p_in[n*17+11];
-                p_loc[n*14+12] = p_in[n*17+12];     p_loc[n*14+13] = p_in[n*17+13];
-                // conf
-                p_conf[n*2] = p_in[n*17+14];       p_conf[n*2+1] = p_in[n*17+15];
-                // iou
-                p_iou[n] = p_in[n*17+16];
-            }
-        }
-    }
-    return true;
-}
-template bool extract(CDataBlob<float> &inputData, CDataBlob<float> &loc, CDataBlob<float> &conf, CDataBlob<float> &iou, int num_priors);
-
-bool priorbox( int feature_width, int feature_height, 
-                int img_width, int img_height, 
-                int step, int num_sizes, 
-                float * pWinSizes, CDataBlob<float> & outputData)
-{
-    outputData.create(feature_height, feature_width, num_sizes * 4);
-
-	for (int r = 0; r < outputData.rows; r++) 
-	{
-		for (int c = 0; c < outputData.cols; c++) 
-		{
-            float * pOut = outputData.ptr(r, c);
-            int idx = 0;
-            //priorbox
-			for (int s = 0; s < num_sizes; s++) 
-			{
-				float min_size_ = pWinSizes[s];
-                
-                float center_x = (c + 0.5f) * step;
-                float center_y = (r + 0.5f) * step;
-                // xmin
-                pOut[idx++] = (center_x - min_size_ / 2.f) / img_width;
-                // ymin
-                pOut[idx++] = (center_y - min_size_ / 2.f) / img_height;
-                // xmax
-                pOut[idx++] = (center_x + min_size_ / 2.f) / img_width;
-                // ymax
-                pOut[idx++] = (center_y + min_size_ / 2.f) / img_height;
-			}
-		}
-	}
-    return true;
-}
-
-bool softmax1vector2class(CDataBlob<float> &inputOutputData)
-{
-    if (inputOutputData.isEmpty() )
-    {
-        cerr << __FUNCTION__ << ": The input data is empty." << endl;
-        return false;
-    }
-
-    if(inputOutputData.cols != 1 || inputOutputData.rows != 1)
-    {
-        cerr << __FUNCTION__ << ": The input data must be Cx1x1." << endl;
-        return false;
-    }
-
-    int num = inputOutputData.channels;
-    float * pData = inputOutputData.data;
-
-//#if defined(_OPENMP)
-//#pragma omp parallel for
-//#endif
-    for(int i = 0; i < num; i+= 2)
-    {
-        float v1 = pData[i];
-        float v2 = pData[i + 1];
-        float vm = MAX(v1, v2);
-        v1 -= vm;
-        v2 -= vm;
-        v1 = expf(v1);
-        v2 = expf(v2);
-        vm = v1 + v2;
-        pData[i] = v1/vm;
-        pData[i+1] = v2/vm;
-    }
-    return true;
-}
-bool clamp1vector(CDataBlob<float> &inputOutputData)
-{
-    if (inputOutputData.isEmpty() )
-    {
-        cerr << __FUNCTION__ << ": The input data is empty." << endl;
-        return false;
-    }
-
-    if(inputOutputData.cols != 1 || inputOutputData.rows != 1)
-    {
-        cerr << __FUNCTION__ << ": The input data must be Cx1x1." << endl;
-        return false;
-    }
-
-    int num = inputOutputData.channels;
-    float * pData = inputOutputData.data;
-
-    for (int i = 0; i < num; i++)
-    {
-        float& v = pData[i];
-        if (v < 0) { v = 0.f; }
-        else if (v > 1) { v = 1.f; }
-        else { continue; }
-    }
-    return true;
-}
-
-template<typename T>
-bool blob2vector(CDataBlob<T> &inputData, CDataBlob<T> & outputData)
-{
-    if (inputData.isEmpty())
-    {
-        cerr << __FUNCTION__ << ": The input data is empty." << endl;
-        return false;
-    }
-
-    outputData.create(1, 1, inputData.cols * inputData.rows * inputData.channels);
+    CDataBlob<T> outputData(1, 1, inputData.cols * inputData.rows * inputData.channels);
 
     int bytesOfAChannel = inputData.channels * sizeof(T);
     T * pOut = outputData.ptr(0,0);
@@ -670,159 +768,78 @@ bool blob2vector(CDataBlob<T> &inputData, CDataBlob<T> & outputData)
     {
         for (int col = 0; col < inputData.cols; col++)
         {
-            T * pIn = inputData.ptr(row, col);
+            const T * pIn = inputData.ptr(row, col);
             memcpy(pOut, pIn, bytesOfAChannel);
             pOut += inputData.channels;
         }
     }
 
-    return true;
+    return outputData;
 }
-template bool blob2vector(CDataBlob<float> &inputData, CDataBlob<float> &outputData);
+template CDataBlob<float> blob2vector(const CDataBlob<float>& inputData);
 
-void IntersectBBox(const NormalizedBBox& bbox1, const NormalizedBBox& bbox2,
-                   NormalizedBBox* intersect_bbox) 
-{
-    if (bbox2.xmin > bbox1.xmax || bbox2.xmax < bbox1.xmin ||
-        bbox2.ymin > bbox1.ymax || bbox2.ymax < bbox1.ymin) 
-    {
-        // Return [0, 0, 0, 0] if there is no intersection.
-        intersect_bbox->xmin = 0;
-        intersect_bbox->ymin = 0;
-        intersect_bbox->xmax = 0;
-        intersect_bbox->ymax = 0;
-    }
-    else
-    {
-        intersect_bbox->xmin = (std::max(bbox1.xmin, bbox2.xmin));
-        intersect_bbox->ymin = (std::max(bbox1.ymin, bbox2.ymin));
-        intersect_bbox->xmax = (std::min(bbox1.xmax, bbox2.xmax));
-        intersect_bbox->ymax = (std::min(bbox1.ymax, bbox2.ymax));
+void sigmoid(CDataBlob<float>& inputData) {
+    for(int r = 0; r < inputData.rows; ++r) {
+        for(int c = 0; c < inputData.cols; ++c) {
+            float* pIn = inputData.ptr(r, c);
+            for(int ch = 0; ch < inputData.channels; ++ch) {
+                float v = pIn[ch];
+                v = std::min(v, 88.3762626647949f);
+                v = std::max(v, -88.3762626647949f);
+                pIn[ch] = static_cast<float>(1.f / (1.f + exp(-v)));
+            }
+        }
     }
 }
 
-float JaccardOverlap(const NormalizedBBox& bbox1, const NormalizedBBox& bbox2)
-{
-    NormalizedBBox intersect_bbox;
-    IntersectBBox(bbox1, bbox2, &intersect_bbox);
-    float intersect_width, intersect_height;
-    intersect_width = intersect_bbox.xmax - intersect_bbox.xmin;
-    intersect_height = intersect_bbox.ymax - intersect_bbox.ymin;
-
-    if (intersect_width > 0 && intersect_height > 0) 
-    {
-        float intersect_size = intersect_width * intersect_height;
-        float bsize1 = (bbox1.xmax - bbox1.xmin)*(bbox1.ymax - bbox1.ymin);
-        float bsize2 = (bbox2.xmax - bbox2.xmin)*(bbox2.ymax - bbox2.ymin);
-        return intersect_size / ( bsize1 + bsize2 - intersect_size);
-    }
-    else 
-    {
-        return 0.f;
-    }
-}
-
-bool SortScoreBBoxPairDescend(const pair<float, NormalizedBBox>& pair1,   const pair<float, NormalizedBBox>& pair2) 
-{
-    return pair1.first > pair2.first;
-}
-
-
-bool detection_output(CDataBlob<float> & priorbox,
-                      CDataBlob<float> & loc,
-                      CDataBlob<float> & conf,
-                      CDataBlob<float> & iou,
+std::vector<FaceRect> detection_output(const CDataBlob<float>& cls,
+                      const CDataBlob<float>& reg,
+                      const CDataBlob<float>& kps,
+                      const CDataBlob<float>& obj,
                       float overlap_threshold,
                       float confidence_threshold,
                       int top_k,
-                      int keep_top_k,
-                      CDataBlob<float> & outputData)
+                      int keep_top_k)
 {
-    if (priorbox.isEmpty() || loc.isEmpty() || conf.isEmpty() )//|| iou.isEmpty())
+    if (reg.isEmpty() || cls.isEmpty() || kps.isEmpty() || obj.isEmpty())//|| iou.isEmpty())
     {
         cerr << __FUNCTION__ << ": The input data is null." << endl;
-        return 0;
+        exit(1);
+    }
+    if(reg.cols != 1 || reg.rows!= 1 || cls.cols != 1 || cls.rows!= 1 || kps.cols != 1 || kps.rows!= 1 || obj.cols != 1 || obj.rows!= 1) {
+        cerr << __FUNCTION__ << ": Only support vector format." << endl;
+        exit(1);
     }
 
-    if (priorbox.channels != conf.channels * 2 || loc.channels != conf.channels*7 )//|| conf.channels != iou.channels*2)
-    {
-        cerr << __FUNCTION__ << ": The sizes of the inputs are not match." << endl;
-        cerr << "priorbox channels=" << priorbox.channels << ", loc channels=" << loc.channels << ", conf channels=" << conf.channels  << endl;
-        return 0;
+    if((int)(kps.channels / obj.channels) != 10) {
+        cerr << __FUNCTION__ << ": Only support 5 keypoints. (" << kps.channels << ")" << endl;
+        exit(1);
     }
 
-    float prior_variance[4] = {0.1f, 0.1f, 0.2f, 0.2f};
-    float * pPriorBox = priorbox.ptr(0,0);
-    float * pLoc = loc.ptr(0,0);
-    float * pConf = conf.ptr(0,0);
-    float * pIoU = iou.ptr(0,0);
+    const float* pCls = cls.ptr(0,0);
+    const float* pReg = reg.ptr(0,0);
+    const float* pObj = obj.ptr(0,0);
+    const float* pKps = kps.ptr(0, 0);
 
     vector<pair<float, NormalizedBBox> > score_bbox_vec;
     vector<pair<float, NormalizedBBox> > final_score_bbox_vec;
 
     //get the candidates those are > confidence_threshold
-    for(int i = 0; i < conf.channels; i+=2)
+    for(int i = 0; i < cls.channels; ++i)
     {
-        float cls_score = pConf[i + 1];
-        int face_idx = i / 2;
-        float iou_score = pIoU[face_idx];
-        // clamp
-        if (iou_score < 0.f) {
-            iou_score = 0.f;
-        }
-        else if (iou_score > 1.f) {
-            iou_score = 1.f;
-        }
-        float conf = sqrtf(cls_score * iou_score);
+        float conf = std::sqrt(pCls[i] * pObj[i]);
+        // float conf = pCls[i] * pObj[i];
 
-        if(conf > confidence_threshold)
+        if(conf >= confidence_threshold)
         {
-            float fBox_x1 = pPriorBox[face_idx * 4];
-            float fBox_y1 = pPriorBox[face_idx * 4 + 1];
-            float fBox_x2 = pPriorBox[face_idx * 4 + 2];
-            float fBox_y2 = pPriorBox[face_idx * 4 + 3];
-
-            float locx1 = pLoc[face_idx * 14];
-            float locy1 = pLoc[face_idx * 14 + 1];
-            float locx2 = pLoc[face_idx * 14 + 2];
-            float locy2 = pLoc[face_idx * 14 + 3];
-
-            float prior_width = fBox_x2 - fBox_x1;
-            float prior_height = fBox_y2 - fBox_y1;
-            float prior_center_x = (fBox_x1 + fBox_x2)/2;
-            float prior_center_y = (fBox_y1 + fBox_y2)/2;
-
-            float box_centerx = prior_variance[0] * locx1 * prior_width + prior_center_x;
-            float box_centery = prior_variance[1] * locy1 * prior_height + prior_center_y;
-            float box_width = expf(prior_variance[2] * locx2) * prior_width;
-            float box_height = expf(prior_variance[3] * locy2) * prior_height;
-
-            fBox_x1 = box_centerx - box_width / 2.f;
-            fBox_y1 = box_centery - box_height /2.f;
-            fBox_x2 = box_centerx + box_width / 2.f;
-            fBox_y2 = box_centery + box_height /2.f;
-
-            fBox_x1 = MAX(0, fBox_x1);
-            fBox_y1 = MAX(0, fBox_y1);
-            fBox_x2 = MIN(1.f, fBox_x2);
-            fBox_y2 = MIN(1.f, fBox_y2);
-
             NormalizedBBox bb;
-            bb.xmin = fBox_x1;
-            bb.ymin = fBox_y1;
-            bb.xmax = fBox_x2;
-            bb.ymax = fBox_y2;
-            //store the five landmarks
-            for (int i = 0; i < 5; i++)
-            {
-                float lmx = pLoc[face_idx * 14 + 4 + i * 2];
-                float lmy = pLoc[face_idx * 14 + 4 + i * 2 + 1];
-                lmx = prior_variance[0] * lmx * prior_width + prior_center_x;
-                lmy = prior_variance[1] * lmy * prior_height + prior_center_y;
-                bb.lm[i * 2] = lmx;
-                bb.lm[i * 2 + 1] = lmy;
-            }
+            bb.xmin = pReg[4 * i];
+            bb.ymin = pReg[4 * i + 1];
+            bb.xmax = pReg[4 * i + 2];
+            bb.ymax = pReg[4 * i + 3];
 
+            //store the five landmarks
+            memcpy(bb.lm, pKps + 10 * i, 10 * sizeof(float));
             score_bbox_vec.push_back(std::make_pair(conf, bb));
         }
     }
@@ -864,86 +881,24 @@ bool detection_output(CDataBlob<float> & priorbox,
 
     //copy the results to the output blob
     int num_faces = (int)final_score_bbox_vec.size();
-    if (num_faces == 0)
-        outputData.setNULL();
-    else
-    {
-        outputData.create(1, num_faces, 15);
-        for (int fi = 0; fi < num_faces; fi++)
-        {
-            pair<float, NormalizedBBox> pp = final_score_bbox_vec[fi];
-            float * pOut = outputData.ptr(0, fi);
-            pOut[0] = pp.first;
-            pOut[1] = pp.second.xmin;
-            pOut[2] = pp.second.ymin;
-            pOut[3] = pp.second.xmax;
-            pOut[4] = pp.second.ymax;
-            //copy landmark data
-            for (int lm = 0; lm < 10; lm++)
-                pOut[5 + lm] = pp.second.lm[lm];
 
+    std::vector<FaceRect> facesInfo;
+    for (int fi = 0; fi < num_faces; fi++)
+    {
+        pair<float, NormalizedBBox> pp = final_score_bbox_vec[fi];
+
+        FaceRect r;
+        r.score = pp.first;
+        r.x = pp.second.xmin;
+        r.y = pp.second.ymin;
+        r.w = pp.second.xmax - pp.second.xmin;
+        r.h = pp.second.ymax - pp.second.ymin;
+        //copy landmark data
+        for(int i = 0; i < 10; ++i) {
+            r.lm[i] = pp.second.lm[i];
         }
+        facesInfo.emplace_back(r);
     }
 
-    return true;
+    return facesInfo;
 }
-
-// TODO optimize in AVX512/NEON/AVX2
-bool upsamplex2withadd(CDataBlob<float> &inputData, CDataBlob<float> &inputoutputData){
-    if (inputData.isEmpty() || inputoutputData.isEmpty())
-    {
-        cerr << __FUNCTION__ << ": The input data is empty." << endl;
-        return false;
-    }
-    if (inputData.channels != inputoutputData.channels)
-    {
-        cerr << __FUNCTION__ << ": The channels of input should be equal while element-wise addition (" << inputData.channels << " != " << inputoutputData.channels<< ")." << endl;
-        return false;
-    }
-
-    int r_offset = inputData.rows * 2 == inputoutputData.rows ? 0: 1;
-    int c_offset = inputData.cols * 2 == inputoutputData.cols ? 0: 1;
-
-    for (int row = 0; row < inputData.rows; row++)
-    {
-        for (int col = 0; col < inputData.cols; col++)
-        {
-
-            size_t inputOutputMatOffsetsInElement[9];
-            int elementCount = 0;
-
-            int rstart = row * 2 + r_offset;
-            int cstart = col * 2 + c_offset;
-            int rend = rstart + 2;
-            int cend = cstart + 2;
-            if(!row && r_offset ){
-                rstart = 0;
-            }
-            if(!col && c_offset){
-                cstart = 0;
-            }
-
-            for (int fr = rstart; fr < rend; ++fr)
-            {
-                for (int fc = cstart; fc < cend; ++fc)
-                {
-                    inputOutputMatOffsetsInElement[elementCount++] = (size_t(fr) * inputoutputData.cols + fc) * inputoutputData.channelStep / sizeof(float);
-                }
-            }
-
-            float * pIn = inputData.ptr(row, col);
-            float * pInOut = inputoutputData.data;
-
-            for (int ch = 0; ch < inputData.channels; ++ch)
-            {
-                float val = pIn[ch];
-                for (int ec = 0; ec < elementCount; ++ec)
-                {
-                    pInOut[ch + inputOutputMatOffsetsInElement[ec]] += val;
-                }
-            }
-        }
-    }
-    return true;
-}
-
