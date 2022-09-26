@@ -43,6 +43,7 @@ the use of this software, even if advised of the possibility of such damage.
 //define the buffer size. Do not change the size!
 #define DETECT_BUFFER_SIZE 0x20000
 using namespace cv;
+using namespace std;
 
 int main(int argc, char* argv[])
 {

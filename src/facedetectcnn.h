@@ -39,7 +39,6 @@ the use of this software, even if advised of the possibility of such damage.
 #pragma once
 
 #include "facedetection_export.h"
-#include <algorithm>
 
 //#define _ENABLE_AVX512 //Please enable it if X64 CPU
 //#define _ENABLE_AVX2 //Please enable it if X64 CPU
@@ -94,8 +93,6 @@ DO NOT EDIT the following code if you don't really understand it.
 #include <vector>
 #include <iostream>
 #include <typeinfo>
-
-using namespace std;
 
 void* myAlloc(size_t size);
 void myFree_(void* ptr);
@@ -213,10 +210,10 @@ public:
 
         if (data == nullptr)
         {
-            cerr << "Failed to alloc memeory for uint8 data blob: "
+            std::cerr << "Failed to alloc memeory for uint8 data blob: "
                 << rows << "*"
                 << cols << "*"
-                << channels << endl;
+                << channels << std::endl;
             return false;
         }
         
@@ -273,18 +270,18 @@ public:
         return (T)(0);
     }
 
-    friend ostream &operator<<(ostream &output, CDataBlob &dataBlob)
+    friend std::ostream &operator<<(std::ostream &output, CDataBlob &dataBlob)
     {
         output << "DataBlob Size (channels, rows, cols) = ("
             << dataBlob.channels
             << ", " << dataBlob.rows
             << ", " << dataBlob.cols
-            << ")" << endl;
+            << ")" << std::endl;
         if( dataBlob.rows * dataBlob.cols * dataBlob.channels <= 16)
         { //print the elements only when the total number is less than 64
             for (int ch = 0; ch < dataBlob.channels; ch++)
             {
-                output << "Channel " << ch << ": " << endl;
+                output << "Channel " << ch << ": " << std::endl;
 
                 for (int r = 0; r < dataBlob.rows; r++)
                 {
@@ -301,7 +298,7 @@ public:
                         if (c != dataBlob.cols - 1)
                             output << ", ";
                     }
-                    output << ")" << endl;
+                    output << ")" << std::endl;
                 }
             }
         }
@@ -322,7 +319,7 @@ public:
             } 
             output << "..., " 
                     << dataBlob.getElement(dataBlob.rows-1, dataBlob.cols-1, dataBlob.channels-1) << ")"
-                    << endl; 
+                    << std::endl; 
             float max_it = -500.f;
             float min_it = 500.f;
             for(int r = 0; r < dataBlob.rows; ++r) {
@@ -363,13 +360,13 @@ class Filters{
     {
         if (typeid(float) != typeid(T))
         {
-            cerr << "The data type must be float in this version." << endl;
+            std::cerr << "The data type must be float in this version." << std::endl;
             return *this;
         }
         if (typeid(float*) != typeid(convinfo.pWeights) ||
             typeid(float*) != typeid(convinfo.pBiases))
         {
-            cerr << "The data type of the filter parameters must be float in this version." << endl;
+            std::cerr << "The data type of the filter parameters must be float in this version." << std::endl;
             return *this;
         }
 
@@ -389,7 +386,7 @@ class Filters{
         }
         else 
         {
-            cerr << "Unsupported filter type. Only 1x1 point-wise and 3x3 depth-wise are supported." << endl;
+            std::cerr << "Unsupported filter type. Only 1x1 point-wise and 3x3 depth-wise are supported." << std::endl;
             return *this;
         }
 
@@ -407,7 +404,7 @@ class Filters{
 
 };
 
-vector<FaceRect> objectdetect_cnn(const unsigned char* rgbImageData, int with, int height, int step);
+std::vector<FaceRect> objectdetect_cnn(const unsigned char* rgbImageData, int with, int height, int step);
 
 CDataBlob<float> setDataFrom3x3S2P1to1x1S1P0FromImage(const unsigned char* inputData, int imgWidth, int imgHeight, int imgChannels, int imgWidthStep, int padDivisor=32);
 CDataBlob<float> convolution(const CDataBlob<float>& inputData, const Filters<float>& filters, bool do_relu = true);
