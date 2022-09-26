@@ -38,8 +38,6 @@ the use of this software, even if advised of the possibility of such damage.
 
 #include "facedetectcnn.h"
 #include <cmath>
-// #include <string.h>
-// #include <vector>
 #include <float.h> //for FLT_EPSION
 #include <algorithm>//for stable_sort, sort
 
