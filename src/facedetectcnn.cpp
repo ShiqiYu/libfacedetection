@@ -301,10 +301,7 @@ bool convolution_1x1pointwise(const CDataBlob<float> & inputData, const Filters<
         for (int col = 0; col < outputData.cols; col++)
         {
             float * pOut = outputData.ptr(row, col);
-            const float * pIn = inputData.ptr(row, col);
-
-            _mm_prefetch(pIn, _MM_HINT_T0);
-            
+            const float * pIn = inputData.ptr(row, col);            
             for (int ch = 0; ch < outputData.channels; ch++)
             {
                 const float * pF = filters.weights.ptr(0, ch);
@@ -333,7 +330,6 @@ bool convolution_3x3depthwise(const CDataBlob<float> & inputData, const Filters<
         for (int col = 0; col < outputData.cols; col++)
         { 
             float * pOut = outputData.ptr(row, col);
-            // _mm_prefetch(pOut, );
             int srcx_start = col - 1;
             int srcx_end = srcx_start + 3;
             srcx_start = MAX(0, srcx_start);
