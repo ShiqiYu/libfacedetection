@@ -476,18 +476,6 @@ CDataBlob<float> elementAdd(const CDataBlob<float>& inputData1, const CDataBlob<
     return outData;
 }
 
-void transFilter(Filters<float> & filters) {
-    for(int ch = 0; ch < filters.num_filters; ++ch) {
-        float * pF = filters.weights.ptr(0, ch);
-        float tmpF[27] = {0.0f};
-        for(int i = 0; i < 27; ++i) {
-            tmpF[(i % 9) * 3 + i / 9] = pF[i];
-        }
-        memcpy(pF, tmpF, 32 * sizeof(float));
-    }
-}
-
-
 CDataBlob<float> convolution(const CDataBlob<float>& inputData, const Filters<float>& filters, bool do_relu)
 {
     if( inputData.isEmpty() || filters.weights.isEmpty() || filters.biases.isEmpty())

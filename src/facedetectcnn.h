@@ -415,9 +415,6 @@ CDataBlob<float> convolution4layerUnit(const CDataBlob<float>& inputData,
                 const Filters<float>& filtersP2, const Filters<float>& filtersD2, bool do_relu = true);
 CDataBlob<float> maxpooling2x2S2(const CDataBlob<float>& inputData);
 
-// transform filter to meet function setDataFrom3x3S2P1to1x1S1P0FromImage
-void transFilter(Filters<float>& filters);
-
 CDataBlob<float> elementAdd(const CDataBlob<float>& inputData1, const CDataBlob<float>& inputData2);
 CDataBlob<float> upsampleX2(const CDataBlob<float>& inputData);
 

@@ -65,8 +65,6 @@ void init_parameters()
 {
     for(int i = 0; i < NUM_CONV_LAYER; i++)
         g_pFilters[i] = param_pConvInfo[i];
-    transFilter(g_pFilters[0]);
-    
 }
 
 std::vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int height, int step)
