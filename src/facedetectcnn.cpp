@@ -37,15 +37,9 @@ the use of this software, even if advised of the possibility of such damage.
 */
 
 #include "facedetectcnn.h"
-#include <emmintrin.h>
-#include <stdexcept>
-#include <string.h>
 #include <cmath>
-#include <string>
-#include <vector>
 #include <float.h> //for FLT_EPSION
 #include <algorithm>//for stable_sort, sort
-#include <xmmintrin.h>
 
 typedef struct NormalizedBBox_
 {
@@ -87,11 +81,11 @@ void myFree_(void* ptr)
 
 CDataBlob<float> setDataFrom3x3S2P1to1x1S1P0FromImage(const unsigned char* inputData, int imgWidth, int imgHeight, int imgChannels, int imgWidthStep, int padDivisor) {
     if (imgChannels != 3) {
-        cerr << __FUNCTION__ << ": The input image must be a 3-channel RGB image." << endl;
+        std::cerr << __FUNCTION__ << ": The input image must be a 3-channel RGB image." << std::endl;
         exit(1);
     }
     if (padDivisor != 32) {
-        cerr << __FUNCTION__ << ": This version need pad of 32" << endl;
+        std::cerr << __FUNCTION__ << ": This version need pad of 32" << std::endl;
         exit(1);
     }
     int rows = ((imgHeight - 1) / padDivisor + 1) * padDivisor / 2;
@@ -307,10 +301,7 @@ bool convolution_1x1pointwise(const CDataBlob<float> & inputData, const Filters<
         for (int col = 0; col < outputData.cols; col++)
         {
             float * pOut = outputData.ptr(row, col);
-            const float * pIn = inputData.ptr(row, col);
-
-            _mm_prefetch(pIn, _MM_HINT_T0);
-            
+            const float * pIn = inputData.ptr(row, col);            
             for (int ch = 0; ch < outputData.channels; ch++)
             {
                 const float * pF = filters.weights.ptr(0, ch);
@@ -339,7 +330,6 @@ bool convolution_3x3depthwise(const CDataBlob<float> & inputData, const Filters<
         for (int col = 0; col < outputData.cols; col++)
         { 
             float * pOut = outputData.ptr(row, col);
-            // _mm_prefetch(pOut, );
             int srcx_start = col - 1;
             int srcx_end = srcx_start + 3;
             srcx_start = MAX(0, srcx_start);
@@ -364,7 +354,7 @@ bool relu(CDataBlob<float> & inputoutputData)
 {
     if( inputoutputData.isEmpty() )
     {
-        cerr << __FUNCTION__ << ": The input data is empty." << endl;
+        std::cerr << __FUNCTION__ << ": The input data is empty." << std::endl;
         return false;
     }
     
@@ -439,7 +429,7 @@ float JaccardOverlap(const NormalizedBBox& bbox1, const NormalizedBBox& bbox2)
     }
 }
 
-bool SortScoreBBoxPairDescend(const pair<float, NormalizedBBox>& pair1,   const pair<float, NormalizedBBox>& pair2) 
+bool SortScoreBBoxPairDescend(const std::pair<float, NormalizedBBox>& pair1,   const std::pair<float, NormalizedBBox>& pair2) 
 {
     return pair1.first > pair2.first;
 }
@@ -447,7 +437,7 @@ bool SortScoreBBoxPairDescend(const pair<float, NormalizedBBox>& pair1,   const 
 
 CDataBlob<float> upsampleX2(const CDataBlob<float>& inputData) {
     if (inputData.isEmpty()) {
-        cerr << __FUNCTION__ << ": The input data is empty." << endl;
+        std::cerr << __FUNCTION__ << ": The input data is empty." << std::endl;
         exit(1);
     }
 
@@ -471,7 +461,7 @@ CDataBlob<float> upsampleX2(const CDataBlob<float>& inputData) {
 
 CDataBlob<float> elementAdd(const CDataBlob<float>& inputData1, const CDataBlob<float>& inputData2) {
     if (inputData1.rows != inputData2.rows || inputData1.cols != inputData2.cols || inputData1.channels != inputData2.channels) {
-        cerr << __FUNCTION__ << ": The two input datas must be in the same shape." << endl;
+        std::cerr << __FUNCTION__ << ": The two input datas must be in the same shape." << std::endl;
         exit(1);
     }
     CDataBlob<float> outData(inputData1.rows, inputData1.cols, inputData1.channels);
@@ -486,28 +476,16 @@ CDataBlob<float> elementAdd(const CDataBlob<float>& inputData1, const CDataBlob<
     return outData;
 }
 
-void transFilter(Filters<float> & filters) {
-    for(int ch = 0; ch < filters.num_filters; ++ch) {
-        float * pF = filters.weights.ptr(0, ch);
-        float tmpF[27] = {0.0f};
-        for(int i = 0; i < 27; ++i) {
-            tmpF[(i % 9) * 3 + i / 9] = pF[i];
-        }
-        memcpy(pF, tmpF, 32 * sizeof(float));
-    }
-}
-
-
 CDataBlob<float> convolution(const CDataBlob<float>& inputData, const Filters<float>& filters, bool do_relu)
 {
     if( inputData.isEmpty() || filters.weights.isEmpty() || filters.biases.isEmpty())
     {
-        cerr << __FUNCTION__ << ": The input data or filter data is empty" << endl;
+        std::cerr << __FUNCTION__ << ": The input data or filter data is empty" << std::endl;
         exit(1);
     }
     if( inputData.channels != filters.channels)
     {
-        cerr << __FUNCTION__ << ": The input data dimension cannot meet filters: " << inputData.channels << " vs " << filters.channels << endl;
+        std::cerr << __FUNCTION__ << ": The input data dimension cannot meet filters: " << inputData.channels << " vs " << filters.channels << std::endl;
         exit(1);
     }
     CDataBlob<float> outputData(inputData.rows, inputData.cols, filters.num_filters);
@@ -517,7 +495,7 @@ CDataBlob<float> convolution(const CDataBlob<float>& inputData, const Filters<fl
         convolution_3x3depthwise(inputData, filters, outputData);
     else
     {
-        cerr << __FUNCTION__ << ": Unsupported filter type." << endl;
+        std::cerr << __FUNCTION__ << ": Unsupported filter type." << std::endl;
         exit(1);
     }
 
@@ -550,7 +528,7 @@ CDataBlob<float> maxpooling2x2S2(const CDataBlob<float>&inputData)
 {
     if (inputData.isEmpty())
     {
-        cerr << __FUNCTION__ << ": The input data is empty." << endl;
+        std::cerr << __FUNCTION__ << ": The input data is empty." << std::endl;
         exit(1);
     }
     int outputR = static_cast<int>(ceil((inputData.rows - 3.0f) / 2)) + 1;
@@ -559,7 +537,7 @@ CDataBlob<float> maxpooling2x2S2(const CDataBlob<float>&inputData)
 
     if (outputR < 1 || outputC < 1)
     {
-        cerr << __FUNCTION__ << ": The size of the output is not correct. (" << outputR << ", " << outputC << ")." << endl;
+        std::cerr << __FUNCTION__ << ": The size of the output is not correct. (" << outputR << ", " << outputC << ")." << std::endl;
         exit(1);        
     }
 
@@ -657,11 +635,11 @@ CDataBlob<float> meshgrid(int feature_width, int feature_height, int stride, flo
 void bbox_decode(CDataBlob<float>& bbox_pred, const CDataBlob<float>& priors, int stride) {
     if(bbox_pred.cols != priors.cols || bbox_pred.rows != priors.rows) {
         std::cerr << __FUNCTION__ << ": Mismatch between feature map and anchor size. (" \
-        << to_string(bbox_pred.rows) << ", " << to_string(bbox_pred.cols) << ") vs (" \
-        << to_string(priors.rows) << ", " << to_string(priors.cols) << ")." << std::endl;
+        << std::to_string(bbox_pred.rows) << ", " << std::to_string(bbox_pred.cols) << ") vs (" \
+        << std::to_string(priors.rows) << ", " << std::to_string(priors.cols) << ")." << std::endl;
     }
     if(bbox_pred.channels != 4) {
-        cerr << __FUNCTION__ << ": The bbox dim must be 4."  << endl;
+        std::cerr << __FUNCTION__ << ": The bbox dim must be 4."  << std::endl;
     }
     float fstride = (float)stride;
     for(int r = 0; r < bbox_pred.rows; ++r) {
@@ -682,11 +660,11 @@ void bbox_decode(CDataBlob<float>& bbox_pred, const CDataBlob<float>& priors, in
 
 void kps_decode(CDataBlob<float>& kps_pred, const CDataBlob<float>& priors, int stride) {
     if(kps_pred.cols != priors.cols || kps_pred.rows != priors.rows) {
-        cerr << __FUNCTION__ << ": Mismatch between feature map and anchor size." << endl;
+        std::cerr << __FUNCTION__ << ": Mismatch between feature map and anchor size." << std::endl;
         exit(1);
     }
     if(kps_pred.channels & 1) {
-        cerr << __FUNCTION__ << ": The kps dim must be even." << endl;
+        std::cerr << __FUNCTION__ << ": The kps dim must be even." << std::endl;
         exit(1);
     }
     float fstride = (float)stride;
@@ -709,7 +687,7 @@ CDataBlob<T> concat3(const CDataBlob<T>& inputData1, const CDataBlob<T>& inputDa
 {
     if ((inputData1.isEmpty()) || (inputData2.isEmpty()) || (inputData3.isEmpty()))
     {
-        cerr << __FUNCTION__ << ": The input data is empty." << endl;
+        std::cerr << __FUNCTION__ << ": The input data is empty." << std::endl;
         exit(1);
     }
 
@@ -718,7 +696,7 @@ CDataBlob<T> concat3(const CDataBlob<T>& inputData1, const CDataBlob<T>& inputDa
         (inputData1.cols != inputData3.cols) ||
         (inputData1.rows != inputData3.rows))
     {
-        cerr << __FUNCTION__ << ": The three inputs must have the same size." << endl;
+        std::cerr << __FUNCTION__ << ": The three inputs must have the same size." << std::endl;
         exit(1);
     }
     int outputR = inputData1.rows;
@@ -727,7 +705,7 @@ CDataBlob<T> concat3(const CDataBlob<T>& inputData1, const CDataBlob<T>& inputDa
 
     if (outputR < 1 || outputC < 1 || outputCH < 1)
     {
-        cerr << __FUNCTION__ << ": The size of the output is not correct. (" << outputR << ", " << outputC << ", " << outputCH << ")." << endl;
+        std::cerr << __FUNCTION__ << ": The size of the output is not correct. (" << outputR << ", " << outputC << ", " << outputCH << ")." << std::endl;
         exit(1);
     }
 
@@ -756,7 +734,7 @@ CDataBlob<T> blob2vector(const CDataBlob<T> &inputData)
 {
     if (inputData.isEmpty())
     {
-        cerr << __FUNCTION__ << ": The input data is empty." << endl;
+        std::cerr << __FUNCTION__ << ": The input data is empty." << std::endl;
         exit(1);
     }
 
@@ -803,16 +781,16 @@ std::vector<FaceRect> detection_output(const CDataBlob<float>& cls,
 {
     if (reg.isEmpty() || cls.isEmpty() || kps.isEmpty() || obj.isEmpty())//|| iou.isEmpty())
     {
-        cerr << __FUNCTION__ << ": The input data is null." << endl;
+        std::cerr << __FUNCTION__ << ": The input data is null." << std::endl;
         exit(1);
     }
     if(reg.cols != 1 || reg.rows!= 1 || cls.cols != 1 || cls.rows!= 1 || kps.cols != 1 || kps.rows!= 1 || obj.cols != 1 || obj.rows!= 1) {
-        cerr << __FUNCTION__ << ": Only support vector format." << endl;
+        std::cerr << __FUNCTION__ << ": Only support vector format." << std::endl;
         exit(1);
     }
 
     if((int)(kps.channels / obj.channels) != 10) {
-        cerr << __FUNCTION__ << ": Only support 5 keypoints. (" << kps.channels << ")" << endl;
+        std::cerr << __FUNCTION__ << ": Only support 5 keypoints. (" << kps.channels << ")" << std::endl;
         exit(1);
     }
 
@@ -821,8 +799,8 @@ std::vector<FaceRect> detection_output(const CDataBlob<float>& cls,
     const float* pObj = obj.ptr(0,0);
     const float* pKps = kps.ptr(0, 0);
 
-    vector<pair<float, NormalizedBBox> > score_bbox_vec;
-    vector<pair<float, NormalizedBBox> > final_score_bbox_vec;
+    std::vector<std::pair<float, NormalizedBBox> > score_bbox_vec;
+    std::vector<std::pair<float, NormalizedBBox> > final_score_bbox_vec;
 
     //get the candidates those are > confidence_threshold
     for(int i = 0; i < cls.channels; ++i)
@@ -885,7 +863,7 @@ std::vector<FaceRect> detection_output(const CDataBlob<float>& cls,
     std::vector<FaceRect> facesInfo;
     for (int fi = 0; fi < num_faces; fi++)
     {
-        pair<float, NormalizedBBox> pp = final_score_bbox_vec[fi];
+        std::pair<float, NormalizedBBox> pp = final_score_bbox_vec[fi];
 
         FaceRect r;
         r.score = pp.first;

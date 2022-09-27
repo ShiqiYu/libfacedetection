@@ -4,7 +4,9 @@ This is an open source library for CNN-based face detection in images. The CNN m
 
 SIMD instructions are used to speed up the detection. You can enable AVX2 if you use Intel CPU or NEON for ARM.
 
-The model files are provided in `src/facedetectcnn-data.cpp` (C++ arrays) & [the model (ONNX) from OpenCV Zoo](https://github.com/opencv/opencv_zoo/tree/master/models/face_detection_yunet). You can try our scripts (C++ & Python) in `opencv_dnn/` with the ONNX model. View the network architecture [here](https://netron.app/?url=https://raw.githubusercontent.com/ShiqiYu/libfacedetection.train/master/tasks/task1/onnx/yunet.onnx).
+The model files are provided in `src/facedetectcnn-data.cpp` (C++ arrays) & [the model (ONNX) from OpenCV Zoo](https://github.com/opencv/opencv_zoo/tree/master/models/face_detection_yunet). You can try our scripts (C++ & Python) in `opencv_dnn/` with the ONNX model. View the network architecture [here](https://netron.app/?url=https://raw.githubusercontent.com/ShiqiYu/libfacedetection.train/master/onnx/yunet*.onnx).
+
+Please note that OpenCV DNN does not support the latest version of YuNet with dynamic input shape. Please ensure you have the exact same input shape as the one in the ONNX model to run latest YuNet with OpenCV DNN.
 
 examples/detect-image.cpp and examples/detect-camera.cpp show how to use the library.
 
@@ -33,27 +35,29 @@ You can also compile the source code to a static or dynamic library, and then us
 
 ## CNN-based Face Detection on Intel CPU
 
-<!--
+Using **AVX2** instructions
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |  X64         |X64          |  X64         |X64          |
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
-|cnn (CPU, 640x480)  |  58.03ms     |  17.23      | 13.85ms      |   72.20     |
-|cnn (CPU, 320x240)  |  14.18ms     |  70.51      |  3.38ms      |  296.21     |
-|cnn (CPU, 160x120)  |   3.25ms     | 308.15      |  0.82ms      | 1226.56     |
-|cnn (CPU, 128x96)   |   2.11ms     | 474.38      |  0.52ms      | 1929.60     |
--->
+|cnn (CPU, 640x480)  |  50.02ms     |  19.99      |   6.55ms     |  152.65     |
+|cnn (CPU, 320x240)  |  13.09ms     |  76.39      |   1.82ms     |  550.54     |
+|cnn (CPU, 160x120)  |   3.61ms     | 277.37      |   0.57ms     | 1745.13     |
+|cnn (CPU, 128x96)   |   2.11ms     | 474.60      |   0.33ms     | 2994.23     | 
+
+Using **AVX512** instructions
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |  X64         |X64          |  X64         |X64          |
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
-|cnn (CPU, 640x480)  |  58.06ms.    |  17.22      |  12.93ms     |   77.34     |
-|cnn (CPU, 320x240)  |  13.77ms     |  72.60      |   3.19ms     |  313.14     |
-|cnn (CPU, 160x120)  |   3.26ms     | 306.81      |   0.77ms     | 1293.99     |
-|cnn (CPU, 128x96)   |   1.41ms     | 711.69      |   0.49ms     | 2027.74     |
+|cnn (CPU, 640x480)  |  46.47ms     |  21.52      |   6.39ms     |  156.47     |
+|cnn (CPU, 320x240)  |  12.10ms     |  82.67      |   1.67ms     |  599.31     |
+|cnn (CPU, 160x120)  |   3.37ms     | 296.47      |   0.46ms     | 2155.80     |
+|cnn (CPU, 128x96)   |   1.98ms     | 504.72      |   0.31ms     | 3198.63     | 
 
 * Minimal face size ~10x10
-* Intel(R) Core(TM) i7-1065G7 CPU @ 1.3GHz
+* Intel(R) Core(TM) i7-7820X CPU @ 3.60GHz
+* Multi-thread in 16 threads and 16 processors.
 
 
 ## CNN-based Face Detection on ARM Linux (Raspberry Pi 4 B)
@@ -61,15 +65,14 @@ You can also compile the source code to a static or dynamic library, and then us
 | Method             |Time          | FPS         |Time          | FPS         |
 |--------------------|--------------|-------------|--------------|-------------|
 |                    |Single-thread |Single-thread|Multi-thread  |Multi-thread |
-|cnn (CPU, 640x480)  |  492.99ms    |  2.03       |  149.66ms    |   6.68      |
-|cnn (CPU, 320x240)  |  116.43ms    |  8.59       |   34.19ms    |  29.25      |
-|cnn (CPU, 160x120)  |   27.91ms    | 35.83       |    8.43ms    | 118.64      |
-|cnn (CPU, 128x96)   |   17.94ms    | 55.74       |    5.24ms    | 190.82      |
+|cnn (CPU, 640x480)  |  404.63ms    |  2.47       |  125.47ms    |   7.97      |
+|cnn (CPU, 320x240)  |  105.73ms    |  9.46       |   32.98ms    |  30.32      |
+|cnn (CPU, 160x120)  |   26.05ms    | 38.38       |    7.91ms    | 126.49      |
+|cnn (CPU, 128x96)   |   15.06ms    | 66.38       |    4.50ms    | 222.28      |
 
-<!-- * Face detection only, and no landmark detection included. -->
 * Minimal face size ~10x10
 * Raspberry Pi 4 B, Broadcom BCM2835, Cortex-A72 (ARMv8) 64-bit SoC @ 1.5GHz
-
+* Multi-thread in 4 threads and 4 processors.
 
 ## Performance on WIDER Face 
 Run on default settings: scales=[1.], confidence_threshold=0.02, floating point:

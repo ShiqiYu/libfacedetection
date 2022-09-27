@@ -65,11 +65,9 @@ void init_parameters()
 {
     for(int i = 0; i < NUM_CONV_LAYER; i++)
         g_pFilters[i] = param_pConvInfo[i];
-    transFilter(g_pFilters[0]);
-    
 }
 
-vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int height, int step)
+std::vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, int height, int step)
 {
 
     TIME_START;
@@ -221,7 +219,7 @@ int* facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing f
     result_buffer[2] = 0;
     result_buffer[3] = 0;
 
-    vector<FaceRect> faces = objectdetect_cnn(rgb_image_data, width, height, step);
+    std::vector<FaceRect> faces = objectdetect_cnn(rgb_image_data, width, height, step);
 
     int num_faces =(int)faces.size();
     num_faces = MIN(num_faces, 256);
