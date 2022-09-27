@@ -6,7 +6,7 @@ SIMD instructions are used to speed up the detection. You can enable AVX2 if you
 
 The model files are provided in `src/facedetectcnn-data.cpp` (C++ arrays) & [the model (ONNX) from OpenCV Zoo](https://github.com/opencv/opencv_zoo/tree/master/models/face_detection_yunet). You can try our scripts (C++ & Python) in `opencv_dnn/` with the ONNX model. View the network architecture [here](https://netron.app/?url=https://raw.githubusercontent.com/ShiqiYu/libfacedetection.train/master/onnx/yunet*.onnx).
 
-Notice, Opencv **does not yet support** the latest version of libfacedetection.
+Please note that OpenCV DNN does not support the latest version of YuNet with dynamic input shape. Please ensure you have the exact same input shape as the one in the ONNX model to run latest YuNet with OpenCV DNN.
 
 examples/detect-image.cpp and examples/detect-camera.cpp show how to use the library.
 
