@@ -254,7 +254,7 @@ public:
         return (this->data + (size_t(r) * this->cols + c) * this->channelStep /sizeof(T));
     }
 
-    inline T getElement(int r, int c, int ch) const
+    inline const T getElement(int r, int c, int ch) const
     {
         if (this->data)
         {
@@ -262,7 +262,7 @@ public:
                 c >= 0 && c < this->cols &&
                 ch >= 0 && ch < this->channels)
             {
-                T * p = this->ptr(r, c);
+                const T * p = this->ptr(r, c);
                 return (p[ch]);
             }
         }
