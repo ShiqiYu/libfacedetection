@@ -2,6 +2,8 @@
 
 Example to deploy libfacedetection with the OpenCV's FaceDetectorYN in both Python and C++.
 
+Notice, Opencv **does not yet support** the latest version of libfacedetection.
+
 ***Important Notes***:
 - Install OpenCV >= 4.5.4 to have the API `FaceDetectorYN`.
 - Download the ONNX model from [OpenCV Zoo](https://github.com/opencv/opencv_zoo/tree/master/models/face_detection_yunet).
