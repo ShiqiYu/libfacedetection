@@ -9,6 +9,7 @@ option(ENABLE_AVX512 "use avx512" OFF)
 option(ENABLE_AVX2 "use avx2" ON)
 option(DEMO "build the demo" OFF)
 option(USE_OPENMP "Use OpenMP" ON)
+option(BUILD_PYTHON_LIB "Build Python library" OFF)
 
 if (BUILD_SHARED_LIBS)
 	add_definitions(-DBUILD_SHARED_LIBS)
@@ -193,6 +194,21 @@ if (GSTREAMER)
         ${fdt_lib_shared}
     )
 
+endif()
+
+if (BUILD_PYTHON_LIB)
+    set(PYTHON_MODULE_EXTENSION ".so")
+    add_definitions("-fPIC")
+
+    include(FetchContent)
+    FetchContent_Declare(pybind11 GIT_REPOSITORY https://github.com/pybind/pybind11)
+    FetchContent_MakeAvailable(pybind11)
+
+    pybind11_add_module(pylibfacedetection python/src/main.cpp python/src/facedetector.cpp)
+
+    target_link_libraries(pylibfacedetection PRIVATE facedetection)
+
+    write_file(__init__.py "from .pylibfacedetection import FaceDetector\n__version__ = '0.0.1'")
 endif()
 
 message("CXX_FLAGS: ${CMAKE_CXX_FLAGS}")

@@ -192,3 +192,6 @@ android/gradlew
 
 **/__pycache__
 .vscode
+
+cmake-build-*
+.idea
