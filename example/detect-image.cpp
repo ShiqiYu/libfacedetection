@@ -41,7 +41,8 @@ the use of this software, even if advised of the possibility of such damage.
 #include "facedetectcnn.h"
 
 //define the buffer size. Do not change the size!
-#define DETECT_BUFFER_SIZE 0x20000
+//0x9000 = 1024 * (16 * 2 + 4), detect 1024 face at most
+#define DETECT_BUFFER_SIZE 0x9000
 using namespace cv;
 using namespace std;
 
@@ -91,7 +92,7 @@ int main(int argc, char* argv[])
 	//print the detection results
 	for(int i = 0; i < (pResults ? *pResults : 0); i++)
 	{
-        short * p = ((short*)(pResults+1))+142*i;
+        short * p = ((short*)(pResults + 1)) + 16*i;
 		int confidence = p[0];
 		int x = p[1];
 		int y = p[2];

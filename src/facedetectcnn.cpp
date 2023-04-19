@@ -794,9 +794,9 @@ std::vector<FaceRect> detection_output(const CDataBlob<float>& cls,
         exit(1);
     }
 
-    const float* pCls = cls.ptr(0,0);
-    const float* pReg = reg.ptr(0,0);
-    const float* pObj = obj.ptr(0,0);
+    const float* pCls = cls.ptr(0, 0);
+    const float* pReg = reg.ptr(0, 0);
+    const float* pObj = obj.ptr(0, 0);
     const float* pKps = kps.ptr(0, 0);
 
     std::vector<std::pair<float, NormalizedBBox> > score_bbox_vec;

@@ -38,9 +38,6 @@ the use of this software, even if advised of the possibility of such damage.
 
 
 #include "facedetectcnn.h"
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
 
 
 #if 0
@@ -198,13 +195,13 @@ std::vector<FaceRect> objectdetect_cnn(unsigned char * rgbImageData, int width, 
     TIME_END("decode")
 
     TIME_START;
-    std::vector<FaceRect> facesInfo = detection_output(cls, reg, kps, obj, 0.3f, 0.5f, 1000, 100);
+    std::vector<FaceRect> facesInfo = detection_output(cls, reg, kps, obj, 0.45f, 0.2f, 1000, 512);
     TIME_END("detection output")
     return facesInfo;
 }
 
-int* facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing face detection results, !!its size must be 0x20000 Bytes!!
-    unsigned char * rgb_image_data, int width, int height, int step) //input image, it must be RGB (three-channel) image!
+int* facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing face detection results, !!its size must be 0x9000 Bytes!!
+    unsigned char * rgb_image_data, int width, int height, int step) //input image, it must be BGR (three-channel) image!
 {
 
     if (!result_buffer)
@@ -213,7 +210,6 @@ int* facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing f
         return NULL;
     }
     //clear memory
-    //memset(result_buffer, 0, 0x20000);
     result_buffer[0] = 0;
     result_buffer[1] = 0;
     result_buffer[2] = 0;
@@ -222,7 +218,7 @@ int* facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing f
     std::vector<FaceRect> faces = objectdetect_cnn(rgb_image_data, width, height, step);
 
     int num_faces =(int)faces.size();
-    num_faces = MIN(num_faces, 256);
+    num_faces = MIN(num_faces, 1024); //1024 = 0x9000 / (16 * 2 + 4)
 
     int * pCount = (int *)result_buffer;
     pCount[0] = num_faces;
@@ -230,7 +226,7 @@ int* facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing f
     for (int i = 0; i < num_faces; i++)
     {
         //copy data
-        short * p = ((short*)(result_buffer + 4)) + 142 * size_t(i);
+        short * p = ((short*)(result_buffer + 4)) + 16 * size_t(i);
         p[0] = (short)(faces[i].score * 100);
         p[1] = (short)faces[i].x;
         p[2] = (short)faces[i].y;
