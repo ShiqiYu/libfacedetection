@@ -293,9 +293,9 @@ inline bool vecAdd(const float * p1, const float * p2, float* p3, int num)
 
 bool convolution_1x1pointwise(const CDataBlob<float> & inputData, const Filters<float> & filters, CDataBlob<float> & outputData)
 {
-// #if defined(_OPENMP)
-// #pragma omp parallel for
-// #endif
+#if defined(_OPENMP)
+#pragma omp parallel for
+#endif
     for (int row = 0; row < outputData.rows; row++)
     {
         for (int col = 0; col < outputData.cols; col++)
@@ -317,9 +317,9 @@ bool convolution_3x3depthwise(const CDataBlob<float> & inputData, const Filters<
 {
     //set all elements in outputData to zeros
     outputData.setZero();
-// #if defined(_OPENMP)
-// #pragma omp parallel for
-// #endif
+#if defined(_OPENMP)
+#pragma omp parallel for
+#endif
     for (int row = 0; row < outputData.rows; row++) 
     {  
         int srcy_start = row - 1;
