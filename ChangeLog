@@ -1,3 +1,10 @@
+2022-09-14
+---------------------
+* Update the model to v3. The new model is anchor-free instead of anchor-based.
+* The number of parameters is sharply dropped to only 55K.
+* The runtime speed has been improved to varying degrees on all platforms.
+* The performance on WIDER Face is improving from 0.856/0.842/0.727 to 0.887/0.871/0.768.
+
 2021-06-09
 ---------------------
 * Now the model is depth-wise based.

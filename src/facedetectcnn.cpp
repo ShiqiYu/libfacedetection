@@ -635,8 +635,8 @@ CDataBlob<float> meshgrid(int feature_width, int feature_height, int stride, flo
 void bbox_decode(CDataBlob<float>& bbox_pred, const CDataBlob<float>& priors, int stride) {
     if(bbox_pred.cols != priors.cols || bbox_pred.rows != priors.rows) {
         std::cerr << __FUNCTION__ << ": Mismatch between feature map and anchor size. (" \
-        << std::to_string(bbox_pred.rows) << ", " << std::to_string(bbox_pred.cols) << ") vs (" \
-        << std::to_string(priors.rows) << ", " << std::to_string(priors.cols) << ")." << std::endl;
+        << (bbox_pred.rows) << ", " << (bbox_pred.cols) << ") vs (" \
+        << (priors.rows) << ", " << (priors.cols) << ")." << std::endl;
     }
     if(bbox_pred.channels != 4) {
         std::cerr << __FUNCTION__ << ": The bbox dim must be 4."  << std::endl;
