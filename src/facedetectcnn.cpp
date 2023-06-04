@@ -867,13 +867,13 @@ std::vector<FaceRect> detection_output(const CDataBlob<float>& cls,
 
         FaceRect r;
         r.score = pp.first;
-        r.x = pp.second.xmin;
-        r.y = pp.second.ymin;
-        r.w = pp.second.xmax - pp.second.xmin;
-        r.h = pp.second.ymax - pp.second.ymin;
+        r.x = int(pp.second.xmin);
+        r.y = int(pp.second.ymin);
+        r.w = int(pp.second.xmax - pp.second.xmin);
+        r.h = int(pp.second.ymax - pp.second.ymin);
         //copy landmark data
         for(int i = 0; i < 10; ++i) {
-            r.lm[i] = pp.second.lm[i];
+            r.lm[i] = int(pp.second.lm[i]);
         }
         facesInfo.emplace_back(r);
     }
