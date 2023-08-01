@@ -96,7 +96,7 @@ The work was partly supported by the Science Foundation of Shenzhen (Grant No. 2
 
 ## Citation
 
-The master thesis of Mr. Wei Wu. All details of the algorithm are in the thesis. 
+The master thesis of Mr. Wei Wu. All details of the algorithm are in the thesis. The thesis can be downloaded at [吴伟硕士毕业论文](wu-thesis-facedetect.pdf)
 ```
 @thesis{wu2023thesisyunet,
     author      = {吴伟},
@@ -106,9 +106,8 @@ The master thesis of Mr. Wei Wu. All details of the algorithm are in the thesis.
     year        = {2023},
 }
 ```
-The thesis can be downloaded at [吴伟硕士毕业论文](wu-thesis-facedetect.pdf)
 
-We published a paper for the main idea of this repository:
+The paper for the main idea of this repository https://link.springer.com/article/10.1007/s11633-023-1423-y.
 
 ```
 @article{wu2023miryunet,
@@ -121,10 +120,8 @@ We published a paper for the main idea of this repository:
 	publisher = {Springer}
 }
 ```
-The paper can be open-accessed at https://link.springer.com/article/10.1007/s11633-023-1423-y.
 
-
-We published a paper on face detection to evaluate different methods. This project has also been evaluated in the paper.
+The survey paper on face detection to evaluate different methods. It can be open-accessed at https://ieeexplore.ieee.org/document/9580485
 ```
 @article{feng2022face,
 	author  = {Feng, Yuantao and Yu, Shiqi and Peng, Hanyang and Li, Yan-Ran and Zhang, Jianguo},
@@ -137,9 +134,8 @@ We published a paper on face detection to evaluate different methods. This proje
 	doi     = {10.1109/TBIOM.2021.3120412}
 }
 ```
-The paper can be open-accessed at https://ieeexplore.ieee.org/document/9580485
 
-The loss used in training is EIoU, a novel extended IoU. More details can be found in:
+The loss used in training is EIoU, a novel extended IoU. The paper can be open-accessed at https://ieeexplore.ieee.org/document/9429909.
 ```
 @article{peng2021eiou,
 	author  = {Peng, Hanyang and Yu, Shiqi},
@@ -151,5 +147,3 @@ The loss used in training is EIoU, a novel extended IoU. More details can be fou
 	doi     = {10.1109/TIP.2021.3077144}
 }
 ```
-The paper can be open-accessed at https://ieeexplore.ieee.org/document/9429909.
-
