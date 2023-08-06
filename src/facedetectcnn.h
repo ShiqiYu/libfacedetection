@@ -89,7 +89,7 @@ DO NOT EDIT the following code if you don't really understand it.
 #include <omp.h>
 #endif
 
-#include <string.h>
+#include <string>
 #include <vector>
 #include <iostream>
 #include <typeinfo>
