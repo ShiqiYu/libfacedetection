@@ -164,6 +164,12 @@ if (DEMO)
     
     add_executable(benchmark ${fdt_base_dir}/example/benchmark.cpp)
     target_link_libraries(benchmark ${fdt_lib_name} ${OpenCV_LIBS})
+
+    #Use stb_image instead of OpenCV
+    add_executable(detect-image-stb-demo ${fdt_base_dir}/example/detect-image-stb.cpp)
+    target_include_directories(detect-image-stb-demo PRIVATE ${fdt_base_dir}/stb_include)
+    target_link_libraries(detect-image-stb-demo ${fdt_lib_name})
+
 endif()
 
 if (GSTREAMER)
