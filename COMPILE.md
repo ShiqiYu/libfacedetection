@@ -61,7 +61,7 @@ The source code are written in standard C/C++, so they should compile on any pla
 
         export ANDROID_NDK=/home/android-ndk
 
-2. Complie
+2. Compile
    - The host is Linux / Ubuntu
      - Build
 
@@ -248,7 +248,7 @@ int main()
        OR
 
        - Create a new project with C++ Console App template. Go to Project->Properties and select Release in Configuration, x64 in Platform, then do the following: add the path of your `libfacedetection\build\install\include\facedetection` (as well as your OpenCV include path) to VC++ Directories -> Include Directories and the path of your `libfacedetection\build\install\lib` (as well as your OpenCV lib path)to VC++ Directories -> Library Directories, and add `facedetection.lib` and other necessary dependencies to Linker -> Input -> Additional Dependencies.
-       - Add one file in the example folder to the project's Source foler. To build another example, you can right-click the current Solution in the Solution Explorer, Add->New Project and follow the above step (or use property manager to copy-paste Property Sheet). 
+       - Add one file in the example folder to the project's Source folder. To build another example, you can right-click the current Solution in the Solution Explorer, Add->New Project and follow the above step (or use property manager to copy-paste Property Sheet). 
        
     2. Build the solution and run the powershell terminal in Visual Studio:
         ```
