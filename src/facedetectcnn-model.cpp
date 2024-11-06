@@ -226,7 +226,7 @@ int* facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing f
     for (int i = 0; i < num_faces; i++)
     {
         //copy data
-        short * p = ((short*)(result_buffer + 4)) + 16 * size_t(i);
+        short * p = ((short*)(result_buffer + 4)) + 142 * size_t(i);
         p[0] = (short)(faces[i].score * 100);
         p[1] = (short)faces[i].x;
         p[2] = (short)faces[i].y;
