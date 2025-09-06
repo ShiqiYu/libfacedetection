@@ -192,3 +192,4 @@ android/gradlew
 
 **/__pycache__
 .vscode
+.idea

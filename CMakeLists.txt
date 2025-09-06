@@ -1,8 +1,6 @@
 # CMakeLists for libfacedetectcnn
-
+cmake_minimum_required(VERSION 3.10)
 project(libfacedetection)
-
-cmake_minimum_required(VERSION 2.8.12)
 
 option(ENABLE_NEON "whether use neon, if use arm please set it on" OFF)
 option(ENABLE_AVX512 "use avx512" OFF)
