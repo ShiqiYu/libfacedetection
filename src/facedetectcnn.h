@@ -44,8 +44,11 @@ the use of this software, even if advised of the possibility of such damage.
 //#define _ENABLE_AVX2 //Please enable it if X64 CPU
 //#define _ENABLE_NEON //Please enable it if ARM CPU
 
+#define FACEDETECTION_RESULT_BUFFER_SIZE 0x9000
+#define FACEDETECTION_RESULT_MAX_FACES 1024
+#define FACEDETECTION_RESULT_STRIDE_SHORTS 16
 
-FACEDETECTION_EXPORT int * facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing face detection results, !!its size must be 0x20000 Bytes!!
+FACEDETECTION_EXPORT int * facedetect_cnn(unsigned char * result_buffer, //buffer memory for storing face detection results, !!its size must be FACEDETECTION_RESULT_BUFFER_SIZE Bytes!!
                     unsigned char * rgb_image_data, int width, int height, int step); //input image, it must be BGR (three channels) insteed of RGB image!
 
 /*

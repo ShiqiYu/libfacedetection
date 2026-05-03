@@ -159,10 +159,10 @@ make
 ## Usage
 Here is an example of how to use the face detection model in C++:
 ```C++
-#include "facedetect.h"
+#include "facedetectcnn.h"
 #include <opencv2/opencv.hpp>
 
-#define DETECT_BUFFER_SIZE 0x20000
+#define DETECT_BUFFER_SIZE FACEDETECTION_RESULT_BUFFER_SIZE
 
 int main()
 {
@@ -173,7 +173,7 @@ int main()
     /**
      The function that loads the face detection model.
      
-     @param result_buffer Buffer memory for storing face detection results, whose size must be 0x20000 * bytes.
+     @param result_buffer Buffer memory for storing face detection results, whose size must be FACEDETECTION_RESULT_BUFFER_SIZE bytes.
      @param rgb_image_data Input image, which must be BGR (three channels) instead of RGB image.
      @param width The width of the input image.
      @param height The height.
