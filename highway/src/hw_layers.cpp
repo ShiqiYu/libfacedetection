@@ -99,6 +99,11 @@ void ConvolutionHwTo(const HwBlob& input,
         Depthwise3x3Intrinsics(input.View(), filter.WeightsView(),
                                filter.Biases(), output_view);
 #else
+        if (do_relu) {
+            Depthwise3x3HwRelu(input.View(), filter.WeightsView(),
+                               filter.Biases(), output_view);
+            return;
+        }
         Depthwise3x3Hw(input.View(), filter.WeightsView(), filter.Biases(),
                        output_view);
 #endif

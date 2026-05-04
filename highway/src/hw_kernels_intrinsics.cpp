@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstring>
 
-#if defined(__AVX2__) || defined(_M_X64)
+#if defined(FDT_HW_ENABLE_X86_AVX2)
 #include <immintrin.h>
 #define FDT_HW_HAS_AVX2 1
 #else

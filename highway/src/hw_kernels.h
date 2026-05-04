@@ -132,6 +132,10 @@ void Depthwise3x3Hw(const ConstBlobView& input,
                     const ConstBlobView& weights,
                     const float* biases,
                     BlobView& output);
+void Depthwise3x3HwRelu(const ConstBlobView& input,
+                        const ConstBlobView& weights,
+                        const float* biases,
+                        BlobView& output);
 void MaxPool2x2S2Hw(const ConstBlobView& input, BlobView& output);
 
 }  // namespace hw

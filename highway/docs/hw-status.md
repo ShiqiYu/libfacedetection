@@ -1120,3 +1120,334 @@ Next slice:
 1. A/B the 64-channel depthwise specialization with a focused benchmark before making it permanent.
 2. Explore a 16-output/32-input `conv_head`-specific pointwise path.
 3. Consider fusing confidence filtering with decode/output packing once convolution improvements plateau.
+
+## 2026-05-04 cross-platform backend separation slice
+
+Goal:
+
+- Preserve the current x86 AVX2 single-thread performance ceiling path.
+- Start separating the portable Highway baseline from x86-specific intrinsics.
+- Prepare the `hw` project for future ARM/NEON and threading experiments.
+
+Documented:
+
+- Added `highway/docs/hw-cross-platform-execution-plan.md`.
+- The plan separates:
+  - pure Highway backend
+  - x86 hybrid AVX2 backend
+  - future Highway runtime dispatch
+  - external parallelism vs. internal parallelism
+
+Implemented:
+
+- `highway/CMakeLists.txt`
+  - detects whether the current target processor is x86/x64.
+  - derives `FDT_HW_ENABLE_X86_AVX2` from `FDT_HW_ENABLE_INTRINSICS_COMPARE`
+    and the detected x86 target.
+  - applies `/arch:AVX2`, `-mavx2`, and `-mfma` only when
+    `FDT_HW_ENABLE_X86_AVX2` is enabled.
+  - defines `FDT_HW_ENABLE_HYBRID_CEILING` only when the requested hybrid path
+    can actually use x86 AVX2.
+  - prints `FDT_HW_EFFECTIVE_BACKEND` during configure.
+- `highway/src/hw_kernels_intrinsics.cpp`
+  - now enables AVX2 intrinsics through the build-controlled
+    `FDT_HW_ENABLE_X86_AVX2` macro instead of treating every x64 build as AVX2.
+
+Configured existing x86 ceiling build:
+
+```text
+FDT_HW_X86_TARGET = ON
+FDT_HW_EFFECTIVE_BACKEND = x86-hybrid-avx2
+FDT_HW_ENABLE_INTRINSICS_COMPARE = ON
+FDT_HW_ENABLE_X86_AVX2 = ON
+FDT_HW_ENABLE_HYBRID_CEILING = ON
+```
+
+Validated existing x86 ceiling tests:
+
+```text
+test cases:    16 |    16 passed
+assertions: 79965 | 79965 passed
+```
+
+Configured pure Highway build:
+
+```powershell
+cmake -S highway -B build-hw-pure -DFDT_HW_HIGHWAY_ROOT=E:/projects/thirdParty/lib/highway-1.3.0 -DFDT_HW_ENABLE_HYBRID_CEILING=OFF -DFDT_HW_ENABLE_INTRINSICS_COMPARE=OFF
+```
+
+Pure Highway configure result:
+
+```text
+FDT_HW_X86_TARGET = ON
+FDT_HW_EFFECTIVE_BACKEND = pure-highway
+FDT_HW_ENABLE_INTRINSICS_COMPARE = OFF
+FDT_HW_ENABLE_X86_AVX2 = OFF
+FDT_HW_ENABLE_HYBRID_CEILING = OFF
+```
+
+Validated pure Highway tests:
+
+```text
+test cases:    16 |    16 passed
+assertions: 79965 | 79965 passed
+```
+
+OpenCV confirmation:
+
+- The working OpenCV package for image benchmarks is:
+
+```text
+E:/projects/thirdParty/lib/opencv-4.5.1/vs2022-x64-release-static/staticlib
+```
+
+- The previous failed pure benchmark used the stale cached non-static
+  `OpenCV_DIR=E:/projects/thirdParty/lib/opencv-4.5.1/vs2022-x64-release/lib`.
+- `highway/CMakeLists.txt` now searches static OpenCV variants before dynamic
+  variants.
+- A clean configure using only `FDT_HW_OPENCV_ROOT` now reports:
+
+```text
+FDT_HW_OPENCV_VARIANT = vs2022-x64-release-static
+```
+
+Pure Highway image benchmark with static OpenCV:
+
+```powershell
+cmake -S highway -B build-hw-pure-static -DFDT_HW_HIGHWAY_ROOT=E:/projects/thirdParty/lib/highway-1.3.0 -DOpenCV_DIR=E:/projects/thirdParty/lib/opencv-4.5.1/vs2022-x64-release-static/staticlib -DFDT_HW_ENABLE_HYBRID_CEILING=OFF -DFDT_HW_ENABLE_INTRINSICS_COMPARE=OFF
+cmake --build build-hw-pure-static --config Release --target fdt_hw_image_benchmark
+.\build-hw-pure-static\Release\fdt_hw_image_benchmark.exe images\cnnresult.png
+```
+
+Result:
+
+```text
+image=images\cnnresult.png size=1280x960 step=3840
+original faces=39
+hw faces=39
+result short mismatches=0
+
+original facedetect_cnn  avg=273.0649 ms
+hw facedetect_hw_cnn     avg= 90.3654 ms
+```
+
+Pure Highway stage breakdown:
+
+```text
+image transform          avg= 1.9724 ms
+backbone                 avg=73.9600 ms
+fpn + raw heads          avg=14.3793 ms
+network workspace        avg=86.7055 ms
+decode + concat          avg= 1.6608 ms
+nms                      avg= 0.0782 ms
+```
+
+Read:
+
+- The pure Highway backend is correct on the real image and is about 3.0x
+  faster than the original implementation in this benchmark configuration.
+- The x86 hybrid ceiling remains much faster than pure Highway because
+  depthwise and maxpool use AVX2/FMA intrinsics in the hybrid path.
+
+## 2026-05-04 Highway depthwise specialization slice
+
+Goal:
+
+- Close the gap between pure Highway and the x86 hybrid ceiling by optimizing
+  the portable Highway depthwise kernel.
+- Keep the x86 hybrid path unchanged.
+- Preserve a no-AVX2 pure Highway correctness baseline.
+
+Implemented:
+
+- `Depthwise3x3Hw` no longer uses the old
+  `memset -> MulAddHw -> AddInplaceHw` structure.
+- Added a shared Highway implementation that:
+  - initializes accumulators directly from bias
+  - expands the 3x3 interior path into 9 explicit multiply-add steps
+  - keeps boundary pixels on a smaller generic path
+  - supports fused ReLU through `Depthwise3x3HwRelu`
+  - adds a 64-channel two-vector interior path for the common model shape
+  - clears padding lanes only when `channel_step > channels`
+- `ConvolutionHwTo` now calls `Depthwise3x3HwRelu` in pure Highway mode when
+  the filter has ReLU, avoiding a separate full-output ReLU pass.
+
+Validated:
+
+```text
+pure-avx2 tests:
+test cases:    16 |    16 passed
+assertions: 79965 | 79965 passed
+
+pure no-AVX2 tests:
+test cases:    16 |    16 passed
+assertions: 79965 | 79965 passed
+
+x86 hybrid tests:
+test cases:    16 |    16 passed
+assertions: 79965 | 79965 passed
+```
+
+Pure Highway AVX2 real image result after this slice:
+
+```text
+image=images\cnnresult.png size=1280x960 step=3840
+original faces=39
+hw faces=39
+result short mismatches=0
+
+original facedetect_cnn  avg=271.8372 ms
+hw facedetect_hw_cnn     avg= 43.0686 ms
+```
+
+Stage breakdown:
+
+```text
+image transform          avg= 2.1758 ms
+backbone                 avg=33.2759 ms
+fpn + raw heads          avg= 9.3841 ms
+network workspace        avg=41.5387 ms
+decode + concat          avg= 2.2233 ms
+nms                      avg= 0.0881 ms
+```
+
+Hotspot kernel-only profile:
+
+```text
+conv_head pw+relu        avg= 4.5028 ms
+conv0 pointwise          avg= 3.0245 ms
+conv0 depthwise          avg= 2.9718 ms
+conv2 pointwise0         avg= 1.5217 ms
+conv2 depthwise0         avg= 1.1783 ms
+conv2 pointwise1         avg= 2.4489 ms
+conv2 depthwise1         avg= 2.2706 ms
+```
+
+Comparison:
+
+```text
+pure Highway, no AVX2 compile width      avg=90.3654 ms
+pure Highway, AVX2 before depthwise opt  avg=66.2632 ms
+pure Highway, AVX2 after depthwise opt   avg=43.0686 ms
+x86 hybrid ceiling reference             avg=38.8514 ms
+```
+
+Read:
+
+- The dedicated Highway depthwise path removes most of the pure Highway gap.
+- Depthwise hotspot timings are now close to the x86 intrinsics ceiling:
+  - `conv0 depthwise`: about 2.97 ms Highway vs. about 2.86 ms hybrid
+  - `conv2 depthwise0`: about 1.18 ms Highway vs. about 1.09 ms hybrid
+  - `conv2 depthwise1`: about 2.27 ms Highway vs. about 2.24 ms hybrid
+- Remaining pure Highway gap is now mostly outside depthwise. High-value next
+  candidates are Highway maxpool complete-window fast path and FPN/head
+  pointwise specialization.
+
+## 2026-05-04 Highway maxpool and two-pixel pointwise slice
+
+Goal:
+
+- Continue reducing the remaining pure Highway gap after depthwise optimization.
+- Target low-risk kernels that still appear in the backbone profile:
+  - maxpool complete-window path
+  - 16-output packed pointwise on large feature maps
+
+Implemented:
+
+- `MaxPool2x2S2Hw`
+  - adds a complete 2x2 window fast path.
+  - computes `max(max(top-left, top-right), max(bottom-left, bottom-right))`
+    directly.
+  - processes `channel_step` for complete windows so padded lanes remain
+    well-defined.
+  - keeps the old bounded loop only for right/bottom edge windows.
+- `Pointwise1x1PackedHwImpl`
+  - adds a two-pixel path when `out_channels == 2 * lanes`.
+  - loads each packed weight vector once and applies it to two adjacent input
+    pixels.
+  - keeps the generic packed path for all other output-channel shapes.
+
+Validated:
+
+```text
+pure-avx2 tests:
+test cases:    16 |    16 passed
+assertions: 79965 | 79965 passed
+
+x86 hybrid tests:
+test cases:    16 |    16 passed
+assertions: 79965 | 79965 passed
+```
+
+Pure Highway AVX2 real image result after this slice:
+
+```text
+image=images\cnnresult.png size=1280x960 step=3840
+original faces=39
+hw faces=39
+result short mismatches=0
+
+original facedetect_cnn  avg=269.6401 ms
+hw facedetect_hw_cnn     avg= 40.6871 ms
+```
+
+Pure Highway AVX2 stage breakdown:
+
+```text
+image transform          avg= 2.8098 ms
+backbone                 avg=31.1384 ms
+fpn + raw heads          avg= 9.1567 ms
+network workspace        avg=39.4237 ms
+decode + concat          avg= 2.2626 ms
+nms                      avg= 0.0884 ms
+```
+
+Pure Highway AVX2 selected block timings:
+
+```text
+pool0                    avg= 1.4559 ms
+pool3                    avg= 1.3347 ms
+pool4                    avg= 0.4265 ms
+pool5                    avg= 0.0138 ms
+
+conv_head pw+relu        avg= 4.6369 ms
+conv0 pointwise          avg= 2.2697 ms
+conv2 pointwise0         avg= 1.5510 ms
+conv2 pointwise1         avg= 2.3846 ms
+```
+
+Current x86 hybrid ceiling after this slice:
+
+```text
+image=images\cnnresult.png size=1280x960 step=3840
+original faces=39
+hw faces=39
+result short mismatches=0
+
+original facedetect_cnn  avg=265.0142 ms
+hw facedetect_hw_cnn     avg= 38.1391 ms
+```
+
+Hybrid stage breakdown:
+
+```text
+image transform          avg= 2.6734 ms
+backbone                 avg=30.3341 ms
+fpn + raw heads          avg= 8.4051 ms
+network workspace        avg=37.8457 ms
+decode + concat          avg= 2.2226 ms
+nms                      avg= 0.0762 ms
+```
+
+Read:
+
+- Pure Highway AVX2 improved from about 43.07 ms after the depthwise slice to
+  about 40.69 ms after maxpool and two-pixel pointwise.
+- The current fastest x86 hybrid path improved from the earlier 38.85 ms
+  reference to about 38.14 ms in this run.
+- Most remaining time is now in the network workspace:
+  - large-map pointwise/depthwise blocks
+  - FPN/head pointwise
+  - image transform and decode are smaller but no longer negligible.
+- The two-pixel pointwise path is useful but noisier than the depthwise win.
+  Any further pointwise specialization should be A/B measured carefully.

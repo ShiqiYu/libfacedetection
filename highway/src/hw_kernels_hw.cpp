@@ -121,6 +121,69 @@ void Pointwise1x1PackedHwImpl(const ConstBlobView& input,
     const auto zero = hn::Zero(d);
     HWY_ALIGN float tail[64];
 
+    if (filter.out_channels == 2 * lanes &&
+        filter.padded_out_channels == 2 * lanes) {
+        for (int row = 0; row < output.rows; ++row) {
+            int col = 0;
+            for (; col + 1 < output.cols; col += 2) {
+                const float* in0 = Ptr(input, row, col);
+                const float* in1 = Ptr(input, row, col + 1);
+                float* out0 = Ptr(output, row, col);
+                float* out1 = Ptr(output, row, col + 1);
+                auto acc00 = hn::LoadU(d, filter.biases.data());
+                auto acc01 = hn::LoadU(d, filter.biases.data() + lanes);
+                auto acc10 = acc00;
+                auto acc11 = acc01;
+                for (int ic = 0; ic < filter.channels; ++ic) {
+                    const float* weight_base =
+                        filter.weights.data() +
+                        static_cast<size_t>(ic) * filter.padded_out_channels;
+                    const auto weight0 = hn::LoadU(d, weight_base);
+                    const auto weight1 = hn::LoadU(d, weight_base + lanes);
+                    const auto input0 = hn::Set(d, in0[ic]);
+                    const auto input1 = hn::Set(d, in1[ic]);
+                    acc00 = hn::MulAdd(input0, weight0, acc00);
+                    acc01 = hn::MulAdd(input0, weight1, acc01);
+                    acc10 = hn::MulAdd(input1, weight0, acc10);
+                    acc11 = hn::MulAdd(input1, weight1, acc11);
+                }
+                if (do_relu) {
+                    acc00 = hn::Max(acc00, zero);
+                    acc01 = hn::Max(acc01, zero);
+                    acc10 = hn::Max(acc10, zero);
+                    acc11 = hn::Max(acc11, zero);
+                }
+                hn::StoreU(acc00, d, out0);
+                hn::StoreU(acc01, d, out0 + lanes);
+                hn::StoreU(acc10, d, out1);
+                hn::StoreU(acc11, d, out1 + lanes);
+            }
+            for (; col < output.cols; ++col) {
+                const float* in = Ptr(input, row, col);
+                float* out = Ptr(output, row, col);
+                auto acc0 = hn::LoadU(d, filter.biases.data());
+                auto acc1 = hn::LoadU(d, filter.biases.data() + lanes);
+                for (int ic = 0; ic < filter.channels; ++ic) {
+                    const auto input_value = hn::Set(d, in[ic]);
+                    const float* weight_base =
+                        filter.weights.data() +
+                        static_cast<size_t>(ic) * filter.padded_out_channels;
+                    acc0 = hn::MulAdd(input_value, hn::LoadU(d, weight_base),
+                                      acc0);
+                    acc1 = hn::MulAdd(input_value,
+                                      hn::LoadU(d, weight_base + lanes), acc1);
+                }
+                if (do_relu) {
+                    acc0 = hn::Max(acc0, zero);
+                    acc1 = hn::Max(acc1, zero);
+                }
+                hn::StoreU(acc0, d, out);
+                hn::StoreU(acc1, d, out + lanes);
+            }
+        }
+        return;
+    }
+
     for (int row = 0; row < output.rows; ++row) {
         for (int col = 0; col < output.cols; ++col) {
             const float* in = Ptr(input, row, col);
@@ -256,6 +319,192 @@ void Pointwise1x1PackedHwImpl(const ConstBlobView& input,
     }
 }
 
+template <typename D>
+void Depthwise3x3InteriorLoop(D d,
+                              const float* const* in_ptrs,
+                              const float* const* weight_ptrs,
+                              const float* biases,
+                              float* out,
+                              int channels,
+                              bool do_relu) {
+    const int lanes = static_cast<int>(hn::Lanes(d));
+    const auto zero = hn::Zero(d);
+    int ch = 0;
+    if (channels == 64 && lanes * 2 <= 64) {
+        for (; ch + 2 * lanes <= 64; ch += 2 * lanes) {
+            auto acc0 = hn::LoadU(d, biases + ch);
+            auto acc1 = hn::LoadU(d, biases + ch + lanes);
+            acc0 = hn::MulAdd(hn::LoadU(d, in_ptrs[0] + ch),
+                              hn::LoadU(d, weight_ptrs[0] + ch), acc0);
+            acc1 = hn::MulAdd(hn::LoadU(d, in_ptrs[0] + ch + lanes),
+                              hn::LoadU(d, weight_ptrs[0] + ch + lanes), acc1);
+            acc0 = hn::MulAdd(hn::LoadU(d, in_ptrs[1] + ch),
+                              hn::LoadU(d, weight_ptrs[1] + ch), acc0);
+            acc1 = hn::MulAdd(hn::LoadU(d, in_ptrs[1] + ch + lanes),
+                              hn::LoadU(d, weight_ptrs[1] + ch + lanes), acc1);
+            acc0 = hn::MulAdd(hn::LoadU(d, in_ptrs[2] + ch),
+                              hn::LoadU(d, weight_ptrs[2] + ch), acc0);
+            acc1 = hn::MulAdd(hn::LoadU(d, in_ptrs[2] + ch + lanes),
+                              hn::LoadU(d, weight_ptrs[2] + ch + lanes), acc1);
+            acc0 = hn::MulAdd(hn::LoadU(d, in_ptrs[3] + ch),
+                              hn::LoadU(d, weight_ptrs[3] + ch), acc0);
+            acc1 = hn::MulAdd(hn::LoadU(d, in_ptrs[3] + ch + lanes),
+                              hn::LoadU(d, weight_ptrs[3] + ch + lanes), acc1);
+            acc0 = hn::MulAdd(hn::LoadU(d, in_ptrs[4] + ch),
+                              hn::LoadU(d, weight_ptrs[4] + ch), acc0);
+            acc1 = hn::MulAdd(hn::LoadU(d, in_ptrs[4] + ch + lanes),
+                              hn::LoadU(d, weight_ptrs[4] + ch + lanes), acc1);
+            acc0 = hn::MulAdd(hn::LoadU(d, in_ptrs[5] + ch),
+                              hn::LoadU(d, weight_ptrs[5] + ch), acc0);
+            acc1 = hn::MulAdd(hn::LoadU(d, in_ptrs[5] + ch + lanes),
+                              hn::LoadU(d, weight_ptrs[5] + ch + lanes), acc1);
+            acc0 = hn::MulAdd(hn::LoadU(d, in_ptrs[6] + ch),
+                              hn::LoadU(d, weight_ptrs[6] + ch), acc0);
+            acc1 = hn::MulAdd(hn::LoadU(d, in_ptrs[6] + ch + lanes),
+                              hn::LoadU(d, weight_ptrs[6] + ch + lanes), acc1);
+            acc0 = hn::MulAdd(hn::LoadU(d, in_ptrs[7] + ch),
+                              hn::LoadU(d, weight_ptrs[7] + ch), acc0);
+            acc1 = hn::MulAdd(hn::LoadU(d, in_ptrs[7] + ch + lanes),
+                              hn::LoadU(d, weight_ptrs[7] + ch + lanes), acc1);
+            acc0 = hn::MulAdd(hn::LoadU(d, in_ptrs[8] + ch),
+                              hn::LoadU(d, weight_ptrs[8] + ch), acc0);
+            acc1 = hn::MulAdd(hn::LoadU(d, in_ptrs[8] + ch + lanes),
+                              hn::LoadU(d, weight_ptrs[8] + ch + lanes), acc1);
+            if (do_relu) {
+                acc0 = hn::Max(acc0, zero);
+                acc1 = hn::Max(acc1, zero);
+            }
+            hn::StoreU(acc0, d, out + ch);
+            hn::StoreU(acc1, d, out + ch + lanes);
+        }
+        return;
+    }
+
+    for (; ch + lanes <= channels; ch += lanes) {
+        auto acc = hn::LoadU(d, biases + ch);
+        acc = hn::MulAdd(hn::LoadU(d, in_ptrs[0] + ch),
+                         hn::LoadU(d, weight_ptrs[0] + ch), acc);
+        acc = hn::MulAdd(hn::LoadU(d, in_ptrs[1] + ch),
+                         hn::LoadU(d, weight_ptrs[1] + ch), acc);
+        acc = hn::MulAdd(hn::LoadU(d, in_ptrs[2] + ch),
+                         hn::LoadU(d, weight_ptrs[2] + ch), acc);
+        acc = hn::MulAdd(hn::LoadU(d, in_ptrs[3] + ch),
+                         hn::LoadU(d, weight_ptrs[3] + ch), acc);
+        acc = hn::MulAdd(hn::LoadU(d, in_ptrs[4] + ch),
+                         hn::LoadU(d, weight_ptrs[4] + ch), acc);
+        acc = hn::MulAdd(hn::LoadU(d, in_ptrs[5] + ch),
+                         hn::LoadU(d, weight_ptrs[5] + ch), acc);
+        acc = hn::MulAdd(hn::LoadU(d, in_ptrs[6] + ch),
+                         hn::LoadU(d, weight_ptrs[6] + ch), acc);
+        acc = hn::MulAdd(hn::LoadU(d, in_ptrs[7] + ch),
+                         hn::LoadU(d, weight_ptrs[7] + ch), acc);
+        acc = hn::MulAdd(hn::LoadU(d, in_ptrs[8] + ch),
+                         hn::LoadU(d, weight_ptrs[8] + ch), acc);
+        if (do_relu) {
+            acc = hn::Max(acc, zero);
+        }
+        hn::StoreU(acc, d, out + ch);
+    }
+    for (; ch < channels; ++ch) {
+        float acc = biases[ch];
+        for (int i = 0; i < 9; ++i) {
+            acc += in_ptrs[i][ch] * weight_ptrs[i][ch];
+        }
+        out[ch] = do_relu ? std::max(acc, 0.0f) : acc;
+    }
+}
+
+template <typename D>
+void Depthwise3x3BoundaryLoop(D d,
+                              const ConstBlobView& input,
+                              const float* const* weight_ptrs,
+                              const float* biases,
+                              BlobView& output,
+                              int row,
+                              int col,
+                              bool do_relu) {
+    const int lanes = static_cast<int>(hn::Lanes(d));
+    const auto zero = hn::Zero(d);
+    float* out = Ptr(output, row, col);
+    const int srcy_start = std::max(0, row - 1);
+    const int srcy_end = std::min(row + 2, input.rows);
+    const int srcx_start = std::max(0, col - 1);
+    const int srcx_end = std::min(col + 2, input.cols);
+    int ch = 0;
+    for (; ch + lanes <= output.channels; ch += lanes) {
+        auto acc = hn::LoadU(d, biases + ch);
+        for (int r = srcy_start; r < srcy_end; ++r) {
+            for (int c = srcx_start; c < srcx_end; ++c) {
+                const int filter_r = r - row + 1;
+                const int filter_c = c - col + 1;
+                const int filter_idx = filter_r * 3 + filter_c;
+                acc = hn::MulAdd(hn::LoadU(d, Ptr(input, r, c) + ch),
+                                 hn::LoadU(d, weight_ptrs[filter_idx] + ch),
+                                 acc);
+            }
+        }
+        if (do_relu) {
+            acc = hn::Max(acc, zero);
+        }
+        hn::StoreU(acc, d, out + ch);
+    }
+    for (; ch < output.channels; ++ch) {
+        float acc = biases[ch];
+        for (int r = srcy_start; r < srcy_end; ++r) {
+            for (int c = srcx_start; c < srcx_end; ++c) {
+                const int filter_r = r - row + 1;
+                const int filter_c = c - col + 1;
+                const int filter_idx = filter_r * 3 + filter_c;
+                acc += Ptr(input, r, c)[ch] * weight_ptrs[filter_idx][ch];
+            }
+        }
+        out[ch] = do_relu ? std::max(acc, 0.0f) : acc;
+    }
+    for (; ch < output.channel_step; ++ch) {
+        out[ch] = 0.0f;
+    }
+}
+
+void Depthwise3x3HwImpl(const ConstBlobView& input,
+                        const ConstBlobView& weights,
+                        const float* biases,
+                        BlobView& output,
+                        bool do_relu) {
+    const hn::ScalableTag<float> d;
+    const float* weight_ptrs[9];
+    for (int i = 0; i < 9; ++i) {
+        weight_ptrs[i] = Ptr(weights, 0, i);
+    }
+
+    for (int row = 0; row < output.rows; ++row) {
+        for (int col = 0; col < output.cols; ++col) {
+            float* out = Ptr(output, row, col);
+            const bool is_interior = row > 0 && row + 1 < input.rows &&
+                                     col > 0 && col + 1 < input.cols;
+            if (is_interior) {
+                const float* in_ptrs[9] = {
+                    Ptr(input, row - 1, col - 1),
+                    Ptr(input, row - 1, col),
+                    Ptr(input, row - 1, col + 1),
+                    Ptr(input, row, col - 1),
+                    Ptr(input, row, col),
+                    Ptr(input, row, col + 1),
+                    Ptr(input, row + 1, col - 1),
+                    Ptr(input, row + 1, col),
+                    Ptr(input, row + 1, col + 1)};
+                Depthwise3x3InteriorLoop(d, in_ptrs, weight_ptrs, biases, out,
+                                         output.channels, do_relu);
+                for (int ch = output.channels; ch < output.channel_step; ++ch) {
+                    out[ch] = 0.0f;
+                }
+            } else {
+                Depthwise3x3BoundaryLoop(d, input, weight_ptrs, biases, output,
+                                         row, col, do_relu);
+            }
+        }
+    }
+}
+
 }  // namespace
 
 void Pointwise1x1PackedHw(const ConstBlobView& input,
@@ -303,30 +552,14 @@ void Depthwise3x3Hw(const ConstBlobView& input,
                     const ConstBlobView& weights,
                     const float* biases,
                     BlobView& output) {
-    const size_t output_bytes =
-        static_cast<size_t>(output.rows) * output.cols * output.channel_step *
-        sizeof(float);
-    std::memset(output.data, 0, output_bytes);
+    Depthwise3x3HwImpl(input, weights, biases, output, false);
+}
 
-    for (int row = 0; row < output.rows; ++row) {
-        const int srcy_start = std::max(0, row - 1);
-        const int srcy_end = std::min(row + 2, input.rows);
-        for (int col = 0; col < output.cols; ++col) {
-            const int srcx_start = std::max(0, col - 1);
-            const int srcx_end = std::min(col + 2, input.cols);
-            float* out = Ptr(output, row, col);
-            for (int r = srcy_start; r < srcy_end; ++r) {
-                for (int c = srcx_start; c < srcx_end; ++c) {
-                    const int filter_r = r - row + 1;
-                    const int filter_c = c - col + 1;
-                    const int filter_idx = filter_r * 3 + filter_c;
-                    MulAddHw(Ptr(input, r, c), Ptr(weights, 0, filter_idx),
-                             out, output.channels);
-                }
-            }
-            AddInplaceHw(biases, out, output.channels);
-        }
-    }
+void Depthwise3x3HwRelu(const ConstBlobView& input,
+                        const ConstBlobView& weights,
+                        const float* biases,
+                        BlobView& output) {
+    Depthwise3x3HwImpl(input, weights, biases, output, true);
 }
 
 void MaxPool2x2S2Hw(const ConstBlobView& input, BlobView& output) {
@@ -337,28 +570,48 @@ void MaxPool2x2S2Hw(const ConstBlobView& input, BlobView& output) {
         for (int col = 0; col < output.cols; ++col) {
             const int rstart = row * 2;
             const int cstart = col * 2;
-            const int rend = std::min(rstart + 2, input.rows);
-            const int cend = std::min(cstart + 2, input.cols);
             float* out = Ptr(output, row, col);
-            int ch = 0;
-            for (; ch + lanes <= output.channels; ch += lanes) {
-                auto max_value = hn::Load(d, Ptr(input, rstart, cstart) + ch);
-                for (int r = rstart; r < rend; ++r) {
-                    for (int c = cstart; c < cend; ++c) {
-                        max_value =
-                            hn::Max(max_value, hn::Load(d, Ptr(input, r, c) + ch));
-                    }
+
+            if (rstart + 1 < input.rows && cstart + 1 < input.cols) {
+                const float* top_left = Ptr(input, rstart, cstart);
+                const float* top_right = Ptr(input, rstart, cstart + 1);
+                const float* bottom_left = Ptr(input, rstart + 1, cstart);
+                const float* bottom_right = Ptr(input, rstart + 1, cstart + 1);
+                for (int ch = 0; ch < output.channel_step; ch += lanes) {
+                    const auto top = hn::Max(hn::LoadU(d, top_left + ch),
+                                             hn::LoadU(d, top_right + ch));
+                    const auto bottom = hn::Max(hn::LoadU(d, bottom_left + ch),
+                                                hn::LoadU(d, bottom_right + ch));
+                    hn::StoreU(hn::Max(top, bottom), d, out + ch);
                 }
-                hn::Store(max_value, d, out + ch);
-            }
-            for (; ch < output.channels; ++ch) {
-                float max_value = Ptr(input, rstart, cstart)[ch];
-                for (int r = rstart; r < rend; ++r) {
-                    for (int c = cstart; c < cend; ++c) {
-                        max_value = std::max(max_value, Ptr(input, r, c)[ch]);
+            } else {
+                const int rend = std::min(rstart + 2, input.rows);
+                const int cend = std::min(cstart + 2, input.cols);
+                int ch = 0;
+                for (; ch + lanes <= output.channels; ch += lanes) {
+                    auto max_value =
+                        hn::LoadU(d, Ptr(input, rstart, cstart) + ch);
+                    for (int r = rstart; r < rend; ++r) {
+                        for (int c = cstart; c < cend; ++c) {
+                            max_value = hn::Max(
+                                max_value, hn::LoadU(d, Ptr(input, r, c) + ch));
+                        }
                     }
+                    hn::StoreU(max_value, d, out + ch);
                 }
-                out[ch] = max_value;
+                for (; ch < output.channels; ++ch) {
+                    float max_value = Ptr(input, rstart, cstart)[ch];
+                    for (int r = rstart; r < rend; ++r) {
+                        for (int c = cstart; c < cend; ++c) {
+                            max_value =
+                                std::max(max_value, Ptr(input, r, c)[ch]);
+                        }
+                    }
+                    out[ch] = max_value;
+                }
+                for (; ch < output.channel_step; ++ch) {
+                    out[ch] = 0.0f;
+                }
             }
         }
     }
