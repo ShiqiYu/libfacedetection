@@ -78,6 +78,20 @@ void ConvolutionHwTo(const HwBlob& input,
                      HwBlob* output) {
     output->ResizeForOverwrite(input.rows(), input.cols(), filter.num_filters());
     BlobView output_view = output->View();
+#if defined(FDT_HW_FORCE_SCALAR)
+    if (filter.IsPointwise()) {
+        Pointwise1x1Scalar(input.View(), filter.WeightsView(), filter.Biases(),
+                           output_view);
+        ClearPadding(output_view);
+    } else if (filter.IsDepthwise()) {
+        Depthwise3x3Scalar(input.View(), filter.WeightsView(), filter.Biases(),
+                           output_view);
+    }
+    if (do_relu) {
+        ApplyReluScalar(*output);
+    }
+    return;
+#else
     if (filter.IsPointwise()) {
         if (do_relu) {
             Pointwise1x1PlannedHwRelu(input.View(), filter.WeightsView(),
@@ -111,6 +125,7 @@ void ConvolutionHwTo(const HwBlob& input,
     if (do_relu) {
         ApplyReluHw(*output);
     }
+#endif
 }
 
 HwBlob ConvolutionIntrinsics(const HwBlob& input, const HwFilter& filter) {
@@ -178,7 +193,9 @@ void MaxPooling2x2S2HwTo(const HwBlob& input, HwBlob* output) {
                                MaxPoolOutputSize(input.cols()),
                                input.channels());
     BlobView output_view = output->View();
-#if defined(FDT_HW_ENABLE_HYBRID_CEILING)
+#if defined(FDT_HW_FORCE_SCALAR)
+    MaxPool2x2S2Scalar(input.View(), output_view);
+#elif defined(FDT_HW_ENABLE_HYBRID_CEILING)
     MaxPool2x2S2Intrinsics(input.View(), output_view);
 #else
     MaxPool2x2S2Hw(input.View(), output_view);
@@ -189,8 +206,13 @@ HwBlob ElementAddHw(const HwBlob& lhs, const HwBlob& rhs) {
     HwBlob output(lhs.rows(), lhs.cols(), lhs.channels());
     for (int row = 0; row < lhs.rows(); ++row) {
         for (int col = 0; col < lhs.cols(); ++col) {
+#if defined(FDT_HW_FORCE_SCALAR)
+            AddScalar(lhs.Ptr(row, col), rhs.Ptr(row, col),
+                      output.Ptr(row, col), lhs.channels());
+#else
             AddHw(lhs.Ptr(row, col), rhs.Ptr(row, col), output.Ptr(row, col),
                   lhs.channels());
+#endif
         }
     }
     return output;
@@ -229,6 +251,16 @@ void UpsampleX2AddHwTo(const HwBlob& input,
             const float* in = input.Ptr(row, col);
             const int out_row = row * 2;
             const int out_col = col * 2;
+#if defined(FDT_HW_FORCE_SCALAR)
+            AddScalar(in, lateral.Ptr(out_row, out_col),
+                      output->Ptr(out_row, out_col), input.channels());
+            AddScalar(in, lateral.Ptr(out_row, out_col + 1),
+                      output->Ptr(out_row, out_col + 1), input.channels());
+            AddScalar(in, lateral.Ptr(out_row + 1, out_col),
+                      output->Ptr(out_row + 1, out_col), input.channels());
+            AddScalar(in, lateral.Ptr(out_row + 1, out_col + 1),
+                      output->Ptr(out_row + 1, out_col + 1), input.channels());
+#else
             AddHw(in, lateral.Ptr(out_row, out_col),
                   output->Ptr(out_row, out_col), input.channels());
             AddHw(in, lateral.Ptr(out_row, out_col + 1),
@@ -237,6 +269,7 @@ void UpsampleX2AddHwTo(const HwBlob& input,
                   output->Ptr(out_row + 1, out_col), input.channels());
             AddHw(in, lateral.Ptr(out_row + 1, out_col + 1),
                   output->Ptr(out_row + 1, out_col + 1), input.channels());
+#endif
         }
     }
 }

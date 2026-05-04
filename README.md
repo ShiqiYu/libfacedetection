@@ -80,6 +80,64 @@ Run on default settings: scales=[1.], confidence_threshold=0.02, floating point:
 AP_easy=0.887, AP_medium=0.871, AP_hard=0.768
 ```
 
+## Highway Optimized Version
+
+An independent Highway-based implementation has been added under `highway/`.
+It keeps the original implementation untouched and exposes a separate C API:
+
+```C++
+#include "facedetect_hw.h"
+
+int* results = facedetect_hw_cnn(result_buffer, bgr_image_data,
+                                 width, height, step);
+```
+
+The Highway version follows the same deployment model as the original project:
+build separately for each instruction set/platform. It does not currently use
+Highway runtime dynamic dispatch. The current x86 performance path is:
+
+| Backend | Description |
+|---------|-------------|
+| pure Highway | Portable Highway kernels for pointwise, depthwise, maxpool, image/network/postprocess flow |
+| x86 hybrid AVX2 | Highway packed pointwise plus guarded AVX2/FMA intrinsics for selected depthwise/maxpool ceiling kernels |
+
+The public API uses thread-local internal workspaces, so the recommended
+multi-threading model is external parallelism: call `facedetect_hw_cnn` from
+multiple threads, with one result buffer per calling thread.
+
+Measured resolution benchmark:
+
+| ISA / Backend | 640x480 single | 640x480 external MT | 320x240 single | 320x240 external MT | 160x120 single | 160x120 external MT | 128x96 single | 128x96 external MT |
+|---------------|----------------|---------------------|----------------|---------------------|----------------|---------------------|---------------|--------------------|
+| origin default/scalar | 65.66 ms / 15.23 FPS | 5.58 ms / 179.19 FPS | 16.41 ms / 60.93 FPS | 1.48 ms / 674.91 FPS | 3.69 ms / 270.69 FPS | 0.47 ms / 2110.46 FPS | 2.20 ms / 453.71 FPS | 0.30 ms / 3291.92 FPS |
+| origin AVX2 | 33.42 ms / 29.92 FPS | 4.56 ms / 219.10 FPS | 7.70 ms / 129.91 FPS | 1.08 ms / 926.34 FPS | 1.49 ms / 673.02 FPS | 0.23 ms / 4390.31 FPS | 0.88 ms / 1140.45 FPS | 0.15 ms / 6750.38 FPS |
+| origin AVX512 | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU |
+| Highway scalar | 53.50 ms / 18.69 FPS | 4.64 ms / 215.70 FPS | 13.93 ms / 71.81 FPS | 1.39 ms / 718.85 FPS | 3.46 ms / 288.90 FPS | 0.44 ms / 2298.29 FPS | 2.06 ms / 484.78 FPS | 0.32 ms / 3112.95 FPS |
+| Highway SSE/default | 14.84 ms / 67.39 FPS | 2.62 ms / 381.29 FPS | 3.84 ms / 260.39 FPS | 0.48 ms / 2062.60 FPS | 0.97 ms / 1036.19 FPS | 0.18 ms / 5678.19 FPS | 0.58 ms / 1710.98 FPS | 0.10 ms / 10125.38 FPS |
+| Highway AVX2 pure | 9.20 ms / 108.72 FPS | 2.45 ms / 408.33 FPS | 2.34 ms / 427.32 FPS | 0.43 ms / 2323.32 FPS | 0.58 ms / 1727.04 FPS | 0.13 ms / 7747.01 FPS | 0.35 ms / 2894.80 FPS | 0.06 ms / 17268.13 FPS |
+| Highway AVX2 hybrid | 8.48 ms / 117.89 FPS | 2.44 ms / 410.30 FPS | 2.14 ms / 468.15 FPS | 0.39 ms / 2538.84 FPS | 0.53 ms / 1903.34 FPS | 0.09 ms / 10740.69 FPS | 0.32 ms / 3158.93 FPS | 0.05 ms / 19047.05 FPS |
+| Highway AVX512 pure | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU | N/A on this CPU |
+
+Notes:
+
+* Benchmark command: `fdt_hw_resolution_benchmark.exe images\cnnresult.png 128 28`.
+* Test CPU: Intel(R) Core(TM) i7-14700KF, 20 cores, 28 logical processors,
+  max clock reported by Windows: 3400 MHz.
+* Compiler/toolchain: Visual Studio 17 2022, MSVC 19.40.33821.0, Release build.
+* `origin AVX2` was built with `_ENABLE_AVX2`; `origin default/scalar` was
+  built without original SIMD macros.
+* `Highway scalar` was built with `FDT_HW_FORCE_SCALAR=ON`.
+* External MT means external multi-threading with 28 caller threads and one
+  result buffer per thread. The reported time is throughput-normalized average
+  time per image.
+* AVX512 builds are buildable with `/arch:AVX512`, but cannot be run on the
+  test CPU, so no AVX512 timing is reported here.
+* ARM Linux has not been tested for the Highway version yet.
+* Existing ARM Linux numbers below are from the original implementation, not
+  the new Highway implementation.
+* See `COMPILE.md` and `example/detect-image-highway.cpp` /
+  `example/benchmark-highway.cpp` for build and usage examples.
+
 ## Author
 * Shiqi Yu, <shiqi.yu@gmail.com>
 

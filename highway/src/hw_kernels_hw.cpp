@@ -29,8 +29,12 @@ void MulAddLoop(D d, const float* a, const float* b, float* acc, int n) {
 }  // namespace
 
 int HwFloatLanes() {
+#if defined(FDT_HW_FORCE_SCALAR)
+    return 1;
+#else
     const hn::ScalableTag<float> d;
     return static_cast<int>(hn::Lanes(d));
+#endif
 }
 
 float DotProductHw(const float* a, const float* b, int n) {
