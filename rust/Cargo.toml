@@ -1,0 +1,45 @@
+[package]
+name = "libfacedetection_rs"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Pure Rust face detection library based on libfacedetection's CNN model"
+license = "BSD-3-Clause"
+readme = "README.md"
+repository = "https://github.com/Wwupup/libfacedetection"
+homepage = "https://github.com/Wwupup/libfacedetection/tree/master/rust"
+documentation = "https://docs.rs/libfacedetection_rs"
+keywords = ["face-detection", "detection", "cnn", "vision", "image"]
+categories = ["computer-vision", "multimedia::images"]
+build = false
+autoexamples = false
+include = [
+    "/Cargo.toml",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/LICENSE",
+    "/src/blob.rs",
+    "/src/detector.rs",
+    "/src/error.rs",
+    "/src/filter.rs",
+    "/src/generated/model_data.rs",
+    "/src/input.rs",
+    "/src/kernels/**",
+    "/src/layers.rs",
+    "/src/lib.rs",
+    "/src/model.rs",
+    "/src/network.rs",
+    "/src/postprocess.rs",
+    "/src/result.rs",
+    "/examples/benchmark.rs",
+]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+image = { version = "0.25.10", default-features = false, features = ["jpeg", "png"] }
+
+[[example]]
+name = "benchmark"
+path = "examples/benchmark.rs"
