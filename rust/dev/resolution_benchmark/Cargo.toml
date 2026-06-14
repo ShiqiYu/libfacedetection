@@ -1,0 +1,9 @@
+[package]
+name = "libfacedetection_rs_resolution_benchmark"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+libfacedetection_rs = { path = "../.." }
+

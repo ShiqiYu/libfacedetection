@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 
 //define the buffer size. Do not change the size!
-#define DETECT_BUFFER_SIZE 0x20000
+#define DETECT_BUFFER_SIZE FACEDETECTION_RESULT_BUFFER_SIZE
 using namespace cv;
 
 extern "C"  {
@@ -78,7 +78,7 @@ Java_org_dp_facedetection_MainActivity_facedetect(JNIEnv *env,jobject /* this */
     //print the detection results
     for(int i = 0; i < (pResults ? *pResults : 0); i++)
     {
-        short * p = ((short*)(pResults+1))+142*i;
+        short * p = ((short*)(pResults+1)) + FACEDETECTION_RESULT_STRIDE_SHORTS * i;
         int confidence = p[0];
         int x = p[1];
         int y = p[2];

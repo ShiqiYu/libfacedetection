@@ -10,7 +10,7 @@ using namespace cv;
 using namespace std;
 
 //define the buffer size. Do not change the size!
-#define DETECT_BUFFER_SIZE 0x20000
+#define DETECT_BUFFER_SIZE FACEDETECTION_RESULT_BUFFER_SIZE
 using namespace cv;
 
 int main(int argc, char* argv[])

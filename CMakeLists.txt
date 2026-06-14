@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 2.8.12)
+
 # CMakeLists for libfacedetectcnn
 cmake_minimum_required(VERSION 3.10)
 project(libfacedetection)
@@ -32,16 +34,22 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/.git")
         EXECUTE_PROCESS(
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             COMMAND ${GIT} describe --tags
-            OUTPUT_VARIABLE GIT_VERSION  OUTPUT_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE GIT_DESCRIBE_RESULT
+            OUTPUT_VARIABLE GIT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
         )
-        if(NOT GIT_VERSION)
+        if(NOT GIT_DESCRIBE_RESULT EQUAL 0 OR NOT GIT_VERSION)
             EXECUTE_PROCESS(
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                 COMMAND ${GIT} rev-parse --short HEAD
-                OUTPUT_VARIABLE GIT_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE
+                RESULT_VARIABLE GIT_REV_PARSE_RESULT
+                OUTPUT_VARIABLE GIT_VERSION
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET
             )
         endif()
-        IF(NOT GIT_VERSION)
+        IF(GIT_VERSION)
             SET(BUILD_VERSION ${GIT_VERSION})
 	ENDIF()
     ENDIF()
@@ -82,16 +90,26 @@ ENDIF()
 
 if(ENABLE_AVX512)
 	add_definitions(-D_ENABLE_AVX512)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx512bw")
+    if(MSVC)
+        add_compile_options(/arch:AVX512)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+        OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx512bw")
+    endif()
 endif()
 
 if(ENABLE_AVX2)
 	add_definitions(-D_ENABLE_AVX2)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma")
+    if(MSVC)
+        add_compile_options(/arch:AVX2)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+        OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma")
+    endif()
 endif()
 
 if(ENABLE_NEON)
-	message("Using ENON")
+	message("Using NEON")
 	add_definitions(-D_ENABLE_NEON)
 endif()
 

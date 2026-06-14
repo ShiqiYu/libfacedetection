@@ -8,6 +8,7 @@
   - [Linux/Ubuntu](#linux-or-ubuntu)
   - [Android](#android)
   - [OpenCV DNN](#opencv-dnn)
+  - [Highway optimized version](#highway-optimized-version)
   - [Cross build for aarch64](#cross-build-for-aarch64)
 
 - [Usage](#usage)
@@ -140,6 +141,137 @@ The source code are written in standard C/C++, so they should compile on any pla
 - To deploy libfacedetection with the OpenCV DNN module and ONNX model, see
 [face detection with OpenCV DNN](https://github.com/ShiqiYu/libfacedetection/tree/master/opencv_dnn).
 
+### Highway optimized version
+
+The `highway/` directory contains an independent Highway-based implementation
+for performance experiments and platform-specific builds. It keeps the same
+external calling style as `facedetect_cnn`, but exposes a separate entry point:
+
+```C++
+#include "facedetect_hw.h"
+
+int* results = facedetect_hw_cnn(buffer, bgr_image_data, width, height, step);
+```
+
+The Highway version is built as a separate CMake project. It uses
+`find_package(hwy 1.3.0 CONFIG)` and does not hard-code third-party paths.
+Pass `hwy_DIR` or `FDT_HW_HIGHWAY_ROOT` explicitly.
+
+#### Windows / Visual Studio example
+
+```powershell
+cmake -S highway -B build-hw `
+  -Dhwy_DIR=<path-to-highway>/lib/cmake/hwy `
+  -DOpenCV_DIR=<path-to-opencv>/staticlib `
+  -DFDT_HW_BUILD_IMAGE_BENCHMARK=ON
+
+cmake --build build-hw --config Release --target fdt_hw_tests
+cmake --build build-hw --config Release --target fdt_hw_image_benchmark
+
+.\build-hw\Release\fdt_hw_tests.exe
+.\build-hw\Release\fdt_hw_image_benchmark.exe images\cnnresult.png
+```
+
+If your local prebuilt packages use the same variant layout as the development
+environment, you can pass root directories instead:
+
+```powershell
+cmake -S highway -B build-hw `
+  -DFDT_HW_HIGHWAY_ROOT=<path-to-highway-root> `
+  -DFDT_HW_OPENCV_ROOT=<path-to-opencv-root>
+```
+
+On x86/x64, the default build enables the current fastest backend:
+
+```text
+FDT_HW_EFFECTIVE_BACKEND = x86-hybrid-avx2
+```
+
+This backend uses Highway kernels plus guarded AVX2/FMA intrinsics for selected
+x86-only kernels. For a pure Highway build, use:
+
+```powershell
+cmake -S highway -B build-hw-pure `
+  -Dhwy_DIR=<path-to-highway>/lib/cmake/hwy `
+  -DOpenCV_DIR=<path-to-opencv>/staticlib `
+  -DFDT_HW_ENABLE_HYBRID_CEILING=OFF `
+  -DFDT_HW_ENABLE_INTRINSICS_COMPARE=OFF
+```
+
+Common instruction-set build modes:
+
+```text
+Highway scalar:
+  -DFDT_HW_FORCE_SCALAR=ON
+  -DFDT_HW_X86_ARCH=DEFAULT
+  -DFDT_HW_ENABLE_HYBRID_CEILING=OFF
+  -DFDT_HW_ENABLE_INTRINSICS_COMPARE=OFF
+
+SSE/default x86:
+  -DFDT_HW_FORCE_SCALAR=OFF
+  -DFDT_HW_X86_ARCH=DEFAULT
+  -DFDT_HW_ENABLE_HYBRID_CEILING=OFF
+  -DFDT_HW_ENABLE_INTRINSICS_COMPARE=OFF
+
+AVX2 pure Highway:
+  -DFDT_HW_FORCE_SCALAR=OFF
+  -DFDT_HW_X86_ARCH=AVX2
+  -DFDT_HW_ENABLE_HYBRID_CEILING=OFF
+  -DFDT_HW_ENABLE_INTRINSICS_COMPARE=OFF
+
+AVX2 x86 hybrid:
+  -DFDT_HW_FORCE_SCALAR=OFF
+  -DFDT_HW_X86_ARCH=AVX2
+  -DFDT_HW_ENABLE_HYBRID_CEILING=ON
+  -DFDT_HW_ENABLE_INTRINSICS_COMPARE=ON
+
+AVX512 pure Highway:
+  -DFDT_HW_X86_ARCH=AVX512
+  -DFDT_HW_ENABLE_HYBRID_CEILING=OFF
+  -DFDT_HW_ENABLE_INTRINSICS_COMPARE=OFF
+```
+
+To reproduce the README resolution table, build and run:
+
+```powershell
+cmake --build build-hw --config Release --target fdt_hw_resolution_benchmark
+.\build-hw\Release\fdt_hw_resolution_benchmark.exe images\cnnresult.png 128 28
+```
+
+#### Using the examples
+
+Two Highway examples are provided:
+
+```text
+example/detect-image-highway.cpp
+example/benchmark-highway.cpp
+```
+
+`detect-image-highway.cpp` runs detection and draws the result.  
+`benchmark-highway.cpp` demonstrates the recommended external multi-threading
+model: each calling thread owns a separate result buffer. The Highway public API
+uses thread-local internal workspace, but the caller must not share one
+`result_buffer` across threads.
+
+When integrating the examples into your own CMake project, link against
+`fdt_hw_kernels`, OpenCV, and include `highway/include`:
+
+```cmake
+find_package(OpenCV REQUIRED COMPONENTS core imgcodecs highgui imgproc)
+add_subdirectory(path/to/libfacedetection/highway fdt_hw)
+
+add_executable(detect-image-highway
+    path/to/libfacedetection/example/detect-image-highway.cpp)
+target_include_directories(detect-image-highway PRIVATE ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(detect-image-highway PRIVATE
+    fdt_hw_kernels
+    ${OpenCV_LIBS})
+```
+
+The current `hw` implementation follows the same deployment style as the
+original project: build separately for different instruction sets/platforms
+instead of using Highway runtime dynamic dispatch.
+
 ### Cross build for aarch64
 
 1. Set cross compiler for aarch64 (please refer to aarch64-toolchain.cmake).
@@ -159,10 +291,10 @@ make
 ## Usage
 Here is an example of how to use the face detection model in C++:
 ```C++
-#include "facedetect.h"
+#include "facedetectcnn.h"
 #include <opencv2/opencv.hpp>
 
-#define DETECT_BUFFER_SIZE 0x20000
+#define DETECT_BUFFER_SIZE FACEDETECTION_RESULT_BUFFER_SIZE
 
 int main()
 {
@@ -173,7 +305,7 @@ int main()
     /**
      The function that loads the face detection model.
      
-     @param result_buffer Buffer memory for storing face detection results, whose size must be 0x20000 * bytes.
+     @param result_buffer Buffer memory for storing face detection results, whose size must be FACEDETECTION_RESULT_BUFFER_SIZE bytes.
      @param rgb_image_data Input image, which must be BGR (three channels) instead of RGB image.
      @param width The width of the input image.
      @param height The height.
