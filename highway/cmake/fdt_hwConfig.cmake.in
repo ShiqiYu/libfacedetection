@@ -1,0 +1,11 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# fdt_hw_kernels links Highway as a PUBLIC dependency, so consumers must be able
+# to resolve the hwy::hwy imported target before the exported targets are loaded.
+find_dependency(hwy 1.3.0)
+
+include("${CMAKE_CURRENT_LIST_DIR}/fdt_hwTargets.cmake")
+
+check_required_components(fdt_hw)

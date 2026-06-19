@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(fdt_hw LANGUAGES CXX)
 
+include(GNUInstallDirs)
+
 option(FDT_HW_BUILD_TESTS "Build hw doctest tests" ON)
 option(FDT_HW_BUILD_BENCHMARKS "Build hw benchmarks" ON)
 option(FDT_HW_BUILD_IMAGE_BENCHMARK "Build OpenCV image benchmark" ON)
@@ -11,6 +13,8 @@ option(FDT_HW_ENABLE_HYBRID_CEILING "Use fastest available non-pointwise kernels
 set(FDT_HW_X86_ARCH "DEFAULT" CACHE STRING "x86 compile ISA: DEFAULT, AVX2, or AVX512")
 set_property(CACHE FDT_HW_X86_ARCH PROPERTY STRINGS DEFAULT AVX2 AVX512)
 string(TOUPPER "${FDT_HW_X86_ARCH}" FDT_HW_X86_ARCH_UPPER)
+
+SET(BUILD_VERSION "v0.0.3")
 
 string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" FDT_HW_SYSTEM_PROCESSOR_LOWER)
 set(FDT_HW_X86_TARGET OFF)
@@ -84,8 +88,9 @@ add_library(fdt_hw_kernels
 )
 target_include_directories(fdt_hw_kernels
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../src
 )
@@ -244,3 +249,44 @@ message(STATUS "FDT_HW_FORCE_SCALAR = ${FDT_HW_FORCE_SCALAR}")
 message(STATUS "FDT_HW_ENABLE_INTRINSICS_COMPARE = ${FDT_HW_ENABLE_INTRINSICS_COMPARE}")
 message(STATUS "FDT_HW_ENABLE_X86_AVX2 = ${FDT_HW_ENABLE_X86_AVX2}")
 message(STATUS "FDT_HW_ENABLE_HYBRID_CEILING = ${FDT_HW_ENABLE_HYBRID_CEILING}")
+
+# ---------------------------------------------------------------------------
+# Install + package config so downstream projects can use find_package(fdt_hw).
+#
+#   find_package(fdt_hw REQUIRED CONFIG)
+#   target_link_libraries(my_app PRIVATE fdt_hw::fdt_hw_kernels)
+#
+# The generated config re-discovers Highway via find_dependency(hwy), so the
+# transitive hwy::hwy link/include usage requirements propagate automatically.
+# ---------------------------------------------------------------------------
+include(CMakePackageConfigHelpers)
+
+install(TARGETS fdt_hw_kernels
+    EXPORT fdt_hwTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/facedetect_hw.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/facedetection)
+
+install(EXPORT fdt_hwTargets
+    FILE fdt_hwTargets.cmake
+    NAMESPACE fdt_hw::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/fdt_hw)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/fdt_hwConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/fdt_hwConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/fdt_hw)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/fdt_hwConfigVersion.cmake
+    VERSION ${BUILD_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/fdt_hwConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/fdt_hwConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/fdt_hw)
