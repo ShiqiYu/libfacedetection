@@ -16,10 +16,10 @@ void MulAddLoop(D d, const float* a, const float* b, float* acc, int n) {
     const int lanes = static_cast<int>(hn::Lanes(d));
     int i = 0;
     for (; i + lanes <= n; i += lanes) {
-        const auto va = hn::Load(d, a + i);
-        const auto vb = hn::Load(d, b + i);
-        const auto vacc = hn::Load(d, acc + i);
-        hn::Store(hn::MulAdd(va, vb, vacc), d, acc + i);
+        const auto va = hn::LoadU(d, a + i);
+        const auto vb = hn::LoadU(d, b + i);
+        const auto vacc = hn::LoadU(d, acc + i);
+        hn::StoreU(hn::MulAdd(va, vb, vacc), d, acc + i);
     }
     for (; i < n; ++i) {
         acc[i] += a[i] * b[i];
@@ -43,7 +43,7 @@ float DotProductHw(const float* a, const float* b, int n) {
     auto sum = hn::Zero(d);
     int i = 0;
     for (; i + lanes <= n; i += lanes) {
-        sum = hn::MulAdd(hn::Load(d, a + i), hn::Load(d, b + i), sum);
+        sum = hn::MulAdd(hn::LoadU(d, a + i), hn::LoadU(d, b + i), sum);
     }
     float result = hn::ReduceSum(d, sum);
     for (; i < n; ++i) {
@@ -62,7 +62,7 @@ void AddHw(const float* a, const float* b, float* out, int n) {
     const int lanes = static_cast<int>(hn::Lanes(d));
     int i = 0;
     for (; i + lanes <= n; i += lanes) {
-        hn::Store(hn::Add(hn::Load(d, a + i), hn::Load(d, b + i)), d, out + i);
+        hn::StoreU(hn::Add(hn::LoadU(d, a + i), hn::LoadU(d, b + i)), d, out + i);
     }
     for (; i < n; ++i) {
         out[i] = a[i] + b[i];
@@ -74,7 +74,7 @@ void AddInplaceHw(const float* a, float* out, int n) {
     const int lanes = static_cast<int>(hn::Lanes(d));
     int i = 0;
     for (; i + lanes <= n; i += lanes) {
-        hn::Store(hn::Add(hn::Load(d, a + i), hn::Load(d, out + i)), d, out + i);
+        hn::StoreU(hn::Add(hn::LoadU(d, a + i), hn::LoadU(d, out + i)), d, out + i);
     }
     for (; i < n; ++i) {
         out[i] += a[i];
@@ -87,7 +87,7 @@ void ReluHw(float* data, int n) {
     const int lanes = static_cast<int>(hn::Lanes(d));
     int i = 0;
     for (; i + lanes <= n; i += lanes) {
-        hn::Store(hn::Max(hn::Load(d, data + i), zero), d, data + i);
+        hn::StoreU(hn::Max(hn::LoadU(d, data + i), zero), d, data + i);
     }
     for (; i < n; ++i) {
         data[i] = std::max(data[i], 0.0f);
