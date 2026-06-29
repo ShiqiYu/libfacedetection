@@ -360,7 +360,7 @@ The current x64 performance-ceiling path uses Highway packed pointwise plus a hy
 ## Recommended First Implementation Slice
 
 1. Create `highway/CMakeLists.txt` with `find_package(HWY 1.3.0 CONFIG REQUIRED)`.
-2. Add `include/facedetect_hw.h`.
+2. Add `include/facedetection/facedetect_hw.h`.
 3. Add scalar and Highway primitive kernels.
 4. Add doctest kernel equivalence tests.
 5. Add `hw_benchmark.cpp` for primitive mode.

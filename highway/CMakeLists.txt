@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(fdt_hw LANGUAGES CXX)
+project(fdt_hw VERSION 0.0.3 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
@@ -13,8 +13,6 @@ option(FDT_HW_ENABLE_HYBRID_CEILING "Use fastest available non-pointwise kernels
 set(FDT_HW_X86_ARCH "DEFAULT" CACHE STRING "x86 compile ISA: DEFAULT, AVX2, or AVX512")
 set_property(CACHE FDT_HW_X86_ARCH PROPERTY STRINGS DEFAULT AVX2 AVX512)
 string(TOUPPER "${FDT_HW_X86_ARCH}" FDT_HW_X86_ARCH_UPPER)
-
-SET(BUILD_VERSION "v0.0.3")
 
 string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" FDT_HW_SYSTEM_PROCESSOR_LOWER)
 set(FDT_HW_X86_TARGET OFF)
@@ -268,7 +266,7 @@ install(TARGETS fdt_hw_kernels
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/facedetect_hw.h
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/facedetection/facedetect_hw.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/facedetection)
 
 install(EXPORT fdt_hwTargets
@@ -283,7 +281,7 @@ configure_package_config_file(
 
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/fdt_hwConfigVersion.cmake
-    VERSION ${BUILD_VERSION}
+    VERSION ${PROJECT_VERSION}
     COMPATIBILITY AnyNewerVersion)
 
 install(FILES

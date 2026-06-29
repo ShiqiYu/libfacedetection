@@ -148,7 +148,7 @@ for performance experiments and platform-specific builds. It keeps the same
 external calling style as `facedetect_cnn`, but exposes a separate entry point:
 
 ```C++
-#include "facedetect_hw.h"
+#include <facedetection/facedetect_hw.h>
 
 int* results = facedetect_hw_cnn(buffer, bgr_image_data, width, height, step);
 ```
@@ -271,6 +271,32 @@ target_link_libraries(detect-image-highway PRIVATE
 The current `hw` implementation follows the same deployment style as the
 original project: build separately for different instruction sets/platforms
 instead of using Highway runtime dynamic dispatch.
+
+#### Installing and consuming via `find_package`
+
+The Highway module can also be installed and consumed as a CMake package.
+After installing it, downstream projects discover it with `find_package`:
+
+```bash
+cmake -S highway -B build-hw -DCMAKE_INSTALL_PREFIX=<prefix> \
+  -Dhwy_DIR=<path-to-highway>/lib/cmake/hwy
+cmake --build build-hw
+cmake --install build-hw
+```
+
+```cmake
+# In the consumer project, with <prefix> on CMAKE_PREFIX_PATH:
+find_package(fdt_hw 0.0.3 REQUIRED CONFIG)
+target_link_libraries(my_app PRIVATE fdt_hw::fdt_hw_kernels)
+```
+
+```C++
+#include <facedetection/facedetect_hw.h>
+```
+
+The generated package config re-discovers Highway via `find_dependency(hwy)`, so
+the transitive `hwy::hwy` include/link requirements propagate to consumers
+automatically; no manual include or link wiring is needed.
 
 ### Cross build for aarch64
 

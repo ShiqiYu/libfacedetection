@@ -3,7 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "facedetect_hw.h"
+#include <facedetection/facedetect_hw.h>
 
 #ifdef _OPENMP
 #include <omp.h>
