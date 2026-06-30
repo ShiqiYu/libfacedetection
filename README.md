@@ -86,7 +86,7 @@ An independent Highway-based implementation has been added under `highway/`.
 It keeps the original implementation untouched and exposes a separate C API:
 
 ```C++
-#include "facedetect_hw.h"
+#include <facedetection/facedetect_hw.h>
 
 int* results = facedetect_hw_cnn(result_buffer, bgr_image_data,
                                  width, height, step);

@@ -3,7 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "facedetect_hw.h"
+#include <facedetection/facedetect_hw.h>
 
 #define DETECT_BUFFER_SIZE FACEDETECTION_HW_RESULT_BUFFER_SIZE
 
