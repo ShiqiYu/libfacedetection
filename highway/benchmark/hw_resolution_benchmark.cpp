@@ -1,4 +1,4 @@
-#include <facedetection/facedetect_hw.h>
+#include "facedetect_hw.h"
 #include "facedetectcnn.h"
 
 #include <opencv2/core.hpp>

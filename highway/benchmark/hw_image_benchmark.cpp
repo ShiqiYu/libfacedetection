@@ -1,4 +1,4 @@
-#include <facedetection/facedetect_hw.h>
+#include "facedetect_hw.h"
 #include "facedetectcnn.h"
 #include "hw_image.h"
 #include "hw_model.h"

@@ -1,7 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-#include <facedetection/facedetect_hw.h>
+#include "facedetect_hw.h"
 #include "hw_filter.h"
 #include "hw_image.h"
 #include "hw_kernels.h"

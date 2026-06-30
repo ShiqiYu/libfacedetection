@@ -266,7 +266,7 @@ install(TARGETS fdt_hw_kernels
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/facedetection/facedetect_hw.h
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/facedetect_hw.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/facedetection)
 
 install(EXPORT fdt_hwTargets
